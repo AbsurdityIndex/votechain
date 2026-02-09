@@ -20,7 +20,7 @@
 
 # ── Astro hashed assets — immutable cache ─────────────────────
 
-/_astro/*
+/votechain/_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
 # ── API routes — no cache, CORS for same-origin ──────────────
