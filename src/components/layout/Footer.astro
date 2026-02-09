@@ -1,0 +1,166 @@
+---
+import Disclaimer from '../ui/Disclaimer.astro';
+import Icon from '../ui/Icon.astro';
+
+const currentYear = new Date().getFullYear();
+
+const quickLinks = [
+  { href: '/bills', label: 'Real Bills' },
+  { href: '/not-bills', label: 'Not Bills' },
+  { href: '/today', label: 'Today in Congress' },
+  { href: '/votechain', label: 'VoteChain' },
+  { href: '/trends', label: 'Trends' },
+  { href: '/how-we-score', label: 'How We Score' },
+  { href: '/about', label: 'About' },
+  { href: '/privacy', label: 'Privacy' },
+];
+
+const toolLinks = [
+  { href: '/swipe', label: 'Would You Pass It?' },
+  { href: '/bracket', label: 'Absurdity Madness' },
+  { href: '/filibuster', label: 'Filibuster Simulator' },
+  { href: '/marathon', label: 'Reading Marathon' },
+  { href: '/pork', label: 'Pork Leaderboard' },
+  { href: '/asmr', label: 'Legislation ASMR' },
+  { href: '/quiz', label: 'Vocab Quiz' },
+  { href: '/bingo', label: 'Bingo Cards' },
+  { href: '/generator', label: 'Bill Generator' },
+  { href: '/cost-calculator', label: 'Cost Calculator' },
+  { href: '/diff', label: 'Diff Tool' },
+  { href: '/embed', label: 'API & Embed' },
+];
+---
+
+<footer class="bg-navy-900 text-gold-300 mt-auto" data-theme-fixed>
+  <hr class="gold-rule mb-0!" />
+
+  <div class="max-w-7xl mx-auto px-3 py-10 min-[375px]:px-4 sm:py-14">
+    <div class="grid grid-cols-1 gap-10 min-[520px]:grid-cols-2 lg:grid-cols-4">
+      <!-- Column 1: Brand -->
+      <div>
+        <p class="font-serif font-bold text-xl text-gold-400">ABSURDITY INDEX™</p>
+        <p class="mt-2 text-sm text-gold-300/80 leading-relaxed">
+          Real bills. Real absurdity. Satirical common sense.
+        </p>
+      </div>
+
+      <!-- Column 2: Quick links -->
+      <div>
+        <h3 class="font-sans text-xs uppercase tracking-widest text-gold-500 mb-3">Quick Links</h3>
+        <ul class="space-y-2">
+          {
+            quickLinks.map(({ href, label }) => (
+              <li>
+                <a href={href} class="text-sm text-gold-300 hover:text-gold-200 transition-colors">
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Column 3: Tools & Games -->
+      <div>
+        <h3 class="font-sans text-xs uppercase tracking-widest text-gold-500 mb-3">
+          Tools & Games
+        </h3>
+        <ul class="space-y-2">
+          {
+            toolLinks.slice(0, 8).map(({ href, label }) => (
+              <li>
+                <a href={href} class="text-sm text-gold-300 hover:text-gold-200 transition-colors">
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Column 4: About -->
+      <div>
+        <h3 class="font-sans text-xs uppercase tracking-widest text-gold-500 mb-3">
+          Follow the Index
+        </h3>
+        <p class="text-sm text-gold-300/80 leading-relaxed mb-4">
+          Real bills. Satirical commentary. No lobbyists were consulted in the making of this site.
+        </p>
+        <a
+          href="https://x.com/AbsuroIndex"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-sm text-gold-300 hover:text-gold-200 transition-colors"
+        >
+          <Icon name="twitter" size={16} />
+          @AbsuroIndex
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const footerVisitorRow = document.getElementById('footer-visitor-counter');
+    const footerVisitorValue = document.getElementById('footer-visitor-count');
+
+    function formatVisitorCount(value: number): string {
+      if (!Number.isFinite(value)) return '--';
+      return new Intl.NumberFormat('en-US').format(Math.max(0, Math.floor(value)));
+    }
+
+    async function loadVisitorCounter() {
+      if (!footerVisitorRow || !footerVisitorValue) return;
+
+      try {
+        let response = await fetch('/api/visitors.json', {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+        });
+
+        // If POST is blocked by an intermediary, fallback to read-only.
+        if (!response.ok) {
+          response = await fetch('/api/visitors.json', {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+          });
+        }
+
+        if (!response.ok) return;
+
+        const payload = await response.json();
+        if (!payload?.enabled || typeof payload.totalViews !== 'number') return;
+
+        footerVisitorValue.textContent = formatVisitorCount(payload.totalViews);
+        footerVisitorRow.classList.remove('hidden');
+      } catch (_error) {
+        // Keep footer clean if counter is unavailable.
+      }
+    }
+
+    loadVisitorCounter();
+  </script>
+
+  <!-- Disclaimer -->
+  <Disclaimer context="footer" />
+
+  <!-- Bottom bar -->
+  <div class="border-t border-navy-700 py-6 px-4">
+    <div class="max-w-7xl mx-auto text-center">
+      <p class="text-xs text-navy-400 leading-relaxed max-w-3xl mx-auto">
+        Any resemblance to functioning governance is purely coincidental. No actual legislation was
+        harmed in the making of this site.
+      </p>
+      <p class="mt-3 text-xs text-navy-500">
+        &copy; {currentYear} AbsurdityIndex.org. All rights reserved (unlike most congressional promises).
+      </p>
+      <p class="mt-2 text-xs text-navy-500">
+        <a href="/privacy" class="underline hover:text-gold-400 transition-colors">Privacy Policy</a
+        >
+      </p>
+      <p id="footer-visitor-counter" class="mt-2 text-xs text-navy-500 hidden">
+        Public gallery attendance:
+        <span id="footer-visitor-count" class="font-mono text-gold-400">--</span>
+      </p>
+    </div>
+  </div>
+</footer>

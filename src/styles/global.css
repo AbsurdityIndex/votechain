@@ -1,0 +1,1129 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Government Parody Colors */
+  --color-navy-50: #eef3fa;
+  --color-navy-100: #dce7f5;
+  --color-navy-200: #c2d3e8;
+  --color-navy-300: #98b3d3;
+  --color-navy-900: #0a1628;
+  --color-navy-800: #121f36;
+  --color-navy-700: #1a2d4d;
+  --color-navy-600: #2d5986;
+  --color-navy-500: #3a6fa0;
+  --color-navy-400: #5a8fbf;
+  --color-navy-950: #060f1e;
+
+  --color-gold-50: #fdf9ef;
+  --color-gold-800: #6d562a;
+  --color-gold-700: #8a6e36;
+  --color-gold-600: #a88b4a;
+  --color-gold-500: #c5a572;
+  --color-gold-400: #d4bb8a;
+  --color-gold-300: #e8d5b0;
+  --color-gold-200: #f0e4ca;
+  --color-gold-100: #f7efe0;
+
+  --color-cream-50: #fefcf7;
+  --color-cream-500: #b4a894;
+  --color-cream-400: #cfc4b2;
+  --color-cream-100: #faf7f0;
+  --color-cream-200: #f0ebe0;
+  --color-cream-300: #e0d8c8;
+
+  --color-parchment: #f5f0e1;
+
+  --color-red-800: #6b1111;
+  --color-red-700: #8b1a1a;
+  --color-red-600: #a52020;
+  --color-red-500: #c02828;
+
+  --color-green-700: #1a6b3a;
+  --color-green-600: #228b4a;
+
+  --color-yellow-500: #eab308;
+  --color-orange-500: #f97316;
+
+  /* Typography */
+  --font-serif: 'Libre Caslon Text', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Inter', 'system-ui', '-apple-system', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Spacing for ornamental elements */
+  --spacing-ornament: 2rem;
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-cream-100);
+  color: var(--color-navy-900);
+  line-height: 1.6;
+}
+
+/* Mermaid diagram inspector (fullscreen + pan/zoom) */
+.mermaid-diagram.diagram-has-overlay {
+  position: relative;
+}
+
+.diagram-fullscreen-trigger {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-navy-200);
+  background: rgba(254, 252, 247, 0.92);
+  color: var(--color-navy-800);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.diagram-fullscreen-trigger:hover {
+  border-color: var(--color-gold-500);
+  box-shadow: 0 8px 20px rgba(10, 22, 40, 0.14);
+}
+
+.diagram-inspector-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  background: rgba(10, 22, 40, 0.72);
+  width: 100dvw;
+  height: 100dvh;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.diagram-inspector-overlay[data-open='true'] {
+  display: flex;
+}
+
+.diagram-inspector {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-cream-50);
+  border: 1px solid rgba(194, 211, 232, 0.6);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .diagram-inspector {
+    border-radius: 0;
+  }
+}
+
+.diagram-inspector-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--color-navy-200);
+  background: rgba(254, 252, 247, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.diagram-inspector-title {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--color-navy-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diagram-inspector-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.diagram-inspector-search-input {
+  appearance: none;
+  border: 1px solid var(--color-navy-200);
+  background: white;
+  color: var(--color-navy-900);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.55rem;
+  width: min(26rem, 46vw);
+  max-width: 100%;
+}
+
+.diagram-inspector-search-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.diagram-inspector-search-input:focus {
+  outline: none;
+  border-color: var(--color-gold-500);
+  box-shadow: 0 0 0 3px rgba(197, 165, 114, 0.25);
+}
+
+.diagram-inspector-search-invalid {
+  border-color: var(--color-red-500) !important;
+  background: rgba(192, 40, 40, 0.06) !important;
+}
+
+.diagram-inspector-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.diagram-inspector-btn {
+  appearance: none;
+  border: 1px solid var(--color-navy-200);
+  background: white;
+  color: var(--color-navy-800);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.55rem;
+  cursor: pointer;
+}
+
+.diagram-inspector-btn:hover {
+  border-color: var(--color-gold-500);
+  background: var(--color-gold-50);
+}
+
+.diagram-inspector-btn-primary {
+  border-color: var(--color-navy-800);
+  background: var(--color-navy-800);
+  color: var(--color-gold-200);
+}
+
+.diagram-inspector-btn-primary:hover {
+  background: var(--color-navy-700);
+  border-color: var(--color-navy-700);
+}
+
+.diagram-inspector-viewport {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: white;
+  touch-action: none;
+  cursor: grab;
+}
+
+.diagram-inspector-viewport.diagram-inspector-dragging {
+  cursor: grabbing;
+}
+
+/* Hide per-diagram overlay controls when the diagram is in the fullscreen inspector */
+.diagram-inspector-overlay .diagram-fullscreen-trigger {
+  display: none;
+}
+
+.diagram-inspector-overlay .mermaid-diagram {
+  margin: 0 !important;
+  width: 100%;
+  height: 100%;
+  overflow: visible !important;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Mermaid focus mode in inspector: click a node/edge to isolate connections */
+.diagram-inspector-overlay .mermaid-diagram svg g.node,
+.diagram-inspector-overlay .mermaid-diagram svg path.flowchart-link,
+.diagram-inspector-overlay .mermaid-diagram svg g.edgeLabel {
+  transition: opacity 120ms ease, filter 120ms ease;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg g.node,
+.diagram-inspector-overlay .mermaid-diagram svg path.flowchart-link,
+.diagram-inspector-overlay .mermaid-diagram svg g.edgeLabel {
+  cursor: pointer;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg .diagram-dim {
+  opacity: 0.12;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-highlight,
+.diagram-inspector-overlay .mermaid-diagram svg g.edgeLabel.diagram-highlight {
+  opacity: 1;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected {
+  opacity: 1;
+  filter: drop-shadow(0 12px 26px rgba(10, 22, 40, 0.18)) drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected rect,
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected polygon,
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected path,
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected ellipse,
+.diagram-inspector-overlay .mermaid-diagram svg g.node.diagram-selected circle {
+  stroke: var(--color-gold-600) !important;
+  stroke-width: 3px !important;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg path.flowchart-link.diagram-highlight {
+  opacity: 1;
+  stroke: var(--color-gold-600) !important;
+  stroke-width: 4px !important;
+}
+
+.diagram-inspector-overlay .mermaid-diagram svg path.flowchart-link.diagram-selected {
+  opacity: 1;
+  stroke: var(--color-gold-700) !important;
+  stroke-width: 5px !important;
+}
+
+/* Official document styling for MDX bill content */
+.bill-content {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--color-navy-900);
+}
+
+.bill-content h2 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-gold-300);
+}
+
+.bill-content h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.bill-content h4 {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.bill-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+
+.bill-content ul,
+.bill-content ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.bill-content ul {
+  list-style-type: disc;
+}
+
+.bill-content ol {
+  list-style-type: decimal;
+}
+
+.bill-content li {
+  margin-bottom: 0.5rem;
+}
+
+.bill-content blockquote {
+  border-left: 3px solid var(--color-gold-500);
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--color-navy-700);
+}
+
+/* Tables in bill/PRD content */
+.bill-content .table-wrapper {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bill-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin: 1.5rem 0;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .bill-content table {
+    display: table;
+    overflow-x: visible;
+  }
+}
+
+.bill-content th {
+  background-color: var(--color-navy-800);
+  color: var(--color-cream-100);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bill-content td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--color-gold-300);
+  vertical-align: top;
+}
+
+.bill-content tbody tr:nth-child(even) {
+  background-color: var(--color-cream-200);
+}
+
+.bill-content tbody tr:hover {
+  background-color: var(--color-gold-100);
+}
+
+/* Code blocks in bill/PRD content */
+.bill-content pre {
+  background-color: var(--color-navy-800);
+  color: var(--color-cream-100);
+  padding: 1rem 1.25rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.bill-content code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--color-cream-300);
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+}
+
+.bill-content pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Horizontal rules in bill/PRD content */
+.bill-content hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold-500) 20%,
+    var(--color-gold-500) 80%,
+    transparent
+  );
+  margin: 2.5rem 0;
+}
+
+/* VoteChain four-question cards */
+.votechain-question-card {
+  background-color: var(--color-cream-50);
+}
+
+html.dark .votechain-question-card {
+  background-color: #17243c;
+}
+
+html[data-theme='solarized-dark'] .votechain-question-card {
+  background-color: #0f4351;
+}
+
+/* Suppress drop cap on PRD-style content (not a bill) */
+.bill-content.prd-content > p:first-of-type::first-letter {
+  font-size: inherit;
+  float: none;
+  line-height: inherit;
+  padding: 0;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* H1 inside bill-content (PRD has a top-level title) */
+.bill-content h1 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-gold-500);
+}
+
+/* Inline links in bill/PRD content */
+.bill-content a {
+  color: var(--color-navy-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.bill-content a:hover {
+  color: var(--color-gold-600);
+}
+
+/* Drop cap for first paragraph of bill text */
+.bill-content > p:first-of-type::first-letter {
+  font-family: var(--font-serif);
+  font-size: 3.5em;
+  float: left;
+  line-height: 0.8;
+  padding-right: 0.1em;
+  padding-top: 0.05em;
+  color: var(--color-navy-700);
+  font-weight: 700;
+}
+
+/* Ornamental gold rule */
+.gold-rule {
+  border: none;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold-500) 20%,
+    var(--color-gold-500) 80%,
+    transparent
+  );
+  margin: 1.5rem 0;
+}
+
+/* Rubber stamp overlay */
+.stamp-overlay {
+  position: absolute;
+  transform: rotate(-12deg);
+  opacity: 0.15;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 4px solid currentColor;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  pointer-events: none;
+}
+
+/* Ticker animation */
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-animate {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+/* Session badge pulse */
+@keyframes subtle-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-subtle {
+  animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+/* Dark mode overrides - comprehensive theme swap */
+html.dark {
+  /* Background colors - invert light to dark */
+  --color-cream-50: #070f1b;
+  --color-cream-100: #0a1220;
+  --color-cream-200: #0d1626;
+  --color-cream-300: #121c30;
+  --color-cream-400: #17243c;
+  --color-cream-500: #1d2c48;
+  --color-parchment: #0f1a2e;
+
+  /* Text colors - navy becomes light for readability */
+  --color-navy-50: #46423d;
+  --color-navy-100: #59564f;
+  --color-navy-200: #716d66;
+  --color-navy-300: #89857d;
+  --color-navy-900: #f5f0e8;
+  --color-navy-800: #ede9e1;
+  --color-navy-700: #e0dcd5;
+  --color-navy-600: #d4d0c8;
+  --color-navy-500: #bdb9b1;
+  --color-navy-400: #a09c94;
+  --color-navy-950: #060f1e;
+
+  /* Gold stays warm but slightly brighter for dark bg */
+  --color-gold-50: #fffdf5;
+  --color-gold-800: #946a2a;
+  --color-gold-700: #b98436;
+  --color-gold-600: #d4a04a;
+  --color-gold-500: #e8b85a;
+  --color-gold-400: #f0c86a;
+  --color-gold-300: #f8d87a;
+  --color-gold-200: #fff0c0;
+  --color-gold-100: #fff8e8;
+
+  /* Keep red/green semantic colors readable */
+  --color-red-700: #ef4444;
+  --color-red-600: #f87171;
+  --color-green-700: #22c55e;
+  --color-green-600: #4ade80;
+}
+
+/* Dark mode class-based overrides for common patterns */
+html.dark body {
+  background-color: #0a1220;
+  color: #f5f0e8;
+}
+
+html.dark .bg-parchment {
+  background-color: #0f1a2e;
+}
+
+html.dark .bg-cream-100 {
+  background-color: #0a1220;
+}
+
+html.dark .bg-cream-200 {
+  background-color: #0d1626;
+}
+
+/* Dark mode for cards and containers */
+html.dark .bg-white {
+  background-color: #0f1a2e;
+}
+
+/* Dark mode borders */
+html.dark .border-gold-300 {
+  border-color: #c5a572;
+}
+
+html.dark .border-gold-200 {
+  border-color: #a88b4a;
+}
+
+/* Dark mode for bill content */
+html.dark .bill-content {
+  color: #ede9e1;
+}
+
+html.dark .bill-content h2 {
+  border-bottom-color: #c5a572;
+}
+
+html.dark .bill-content blockquote {
+  border-left-color: #c5a572;
+  color: #d4d0c8;
+}
+
+/* Dark mode for CTA buttons — bg-navy-800 flips to cream, text-gold-300 becomes dark gold = no contrast */
+html.dark a.bg-navy-800,
+html.dark button.bg-navy-800 {
+  background-color: #121f36;
+  border-color: #1a2d4d;
+  color: #f0c86a;
+}
+
+html.dark a.bg-navy-800:hover,
+html.dark button.bg-navy-800:hover,
+html.dark a.bg-navy-700:hover,
+html.dark button.bg-navy-700:hover {
+  background-color: #1a2d4d;
+}
+
+html[data-theme='solarized-dark'] a.bg-navy-800,
+html[data-theme='solarized-dark'] button.bg-navy-800 {
+  background-color: #073642;
+  border-color: #586e75;
+  color: #dba800;
+}
+
+html[data-theme='solarized-dark'] a.bg-navy-800:hover,
+html[data-theme='solarized-dark'] button.bg-navy-800:hover {
+  background-color: #0a3d49;
+}
+
+/* Dark mode for inputs and forms */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #121c30;
+  border-color: #2d3748;
+  color: #f5f0e8;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #6b7280;
+}
+
+/* Dark mode for code blocks */
+html.dark code {
+  background-color: #1a2744;
+  color: #e8b85a;
+}
+
+/* Dark mode for tables */
+html.dark table {
+  border-color: #2d3748;
+}
+
+html.dark th {
+  background-color: #121c30;
+  color: #f5f0e8;
+}
+
+html.dark td {
+  border-color: #2d3748;
+}
+
+html.dark tr:hover {
+  background-color: #0f1a2e;
+}
+
+/* ==============================
+   SOLARIZED DARK THEME
+   Solarized base03/base02 palette mapped to existing variable names.
+   html.dark class is also set, so existing :global(html.dark) rules
+   in components still fire — these overrides layer on top.
+   ============================== */
+html[data-theme='solarized-dark'] {
+  /* Backgrounds — Solarized base03/base02 with stepped surfaces */
+  --color-cream-50: #001f27;
+  --color-cream-100: #002b36;
+  --color-cream-200: #073642;
+  --color-cream-300: #0f4351;
+  --color-cream-400: #1f535f;
+  --color-cream-500: #2b626d;
+  --color-parchment: #073642;
+
+  /* Text — Solarized base tones */
+  --color-navy-50: #324a52;
+  --color-navy-100: #3f5962;
+  --color-navy-200: #586e75;
+  --color-navy-300: #657b83;
+  --color-navy-900: #eee8d5;
+  --color-navy-800: #dcd6c4;
+  --color-navy-700: #c9c3b3;
+  --color-navy-600: #b8b29f;
+  --color-navy-500: #93a1a1;
+  --color-navy-400: #839496;
+  --color-navy-950: #001a22;
+
+  /* Gold — Solarized yellow ramp */
+  --color-gold-50: #fef8e6;
+  --color-gold-800: #665000;
+  --color-gold-700: #806300;
+  --color-gold-600: #9a7800;
+  --color-gold-500: #b58900;
+  --color-gold-400: #cfa530;
+  --color-gold-300: #ddbe63;
+  --color-gold-200: #eadaa5;
+  --color-gold-100: #f5eac8;
+
+  /* Semantic colors — Solarized red/green */
+  --color-red-700: #dc322f;
+  --color-red-600: #e1645e;
+  --color-green-700: #859900;
+  --color-green-600: #9cb312;
+}
+
+html[data-theme='solarized-dark'] body {
+  background-color: #002b36;
+  color: #eee8d5;
+}
+
+html[data-theme='solarized-dark'] .bg-white {
+  background-color: #073642;
+}
+
+html[data-theme='solarized-dark'] .bg-parchment {
+  background-color: #073642;
+}
+
+html[data-theme='solarized-dark'] code {
+  background-color: #0a3d49;
+  color: #cb9b00;
+}
+
+html[data-theme='solarized-dark'] input,
+html[data-theme='solarized-dark'] textarea,
+html[data-theme='solarized-dark'] select {
+  background-color: #073642;
+  border-color: #586e75;
+  color: #eee8d5;
+}
+
+html[data-theme='solarized-dark'] table {
+  border-color: #586e75;
+}
+
+html[data-theme='solarized-dark'] th {
+  background-color: #073642;
+  color: #eee8d5;
+}
+
+html[data-theme='solarized-dark'] td {
+  border-color: #586e75;
+}
+
+html[data-theme='solarized-dark'] tr:hover {
+  background-color: #073642;
+}
+
+/* ==============================
+   SOLARIZED LIGHT THEME
+   Solarized base3/base2 palette with warm cream tones.
+   No html.dark class — light theme variant.
+   ============================== */
+html[data-theme='solarized-light'] {
+  /* Backgrounds — Solarized base3, base2 */
+  --color-cream-50: #fefdf8;
+  --color-cream-100: #fdf6e3;
+  --color-cream-200: #eee8d5;
+  --color-cream-300: #ddd6c3;
+  --color-cream-400: #cfc7b3;
+  --color-cream-500: #b8b19d;
+  --color-parchment: #eee8d5;
+
+  /* Text — Solarized base00, base01, base02, base03 */
+  --color-navy-50: #dfe5e5;
+  --color-navy-100: #ced6d6;
+  --color-navy-200: #bcc7c7;
+  --color-navy-300: #aab7b8;
+  --color-navy-900: #002b36;
+  --color-navy-800: #073642;
+  --color-navy-700: #586e75;
+  --color-navy-600: #657b83;
+  --color-navy-500: #839496;
+  --color-navy-400: #93a1a1;
+  --color-navy-950: #001f27;
+
+  /* Gold — Solarized yellow ramp */
+  --color-gold-50: #fff7e2;
+  --color-gold-800: #665000;
+  --color-gold-700: #806300;
+  --color-gold-600: #9a7800;
+  --color-gold-500: #b58900;
+  --color-gold-400: #c49500;
+  --color-gold-300: #d4a820;
+  --color-gold-200: #e7d69d;
+  --color-gold-100: #f5eac8;
+
+  /* Semantic colors */
+  --color-red-700: #cb4b16;
+  --color-red-600: #dc322f;
+  --color-green-700: #859900;
+  --color-green-600: #9cb312;
+}
+
+/* ==============================
+   STRUCTURAL DARK PINS
+   The variable-swap approach flips navy→light for text readability,
+   but header, footer, hero, ticker, mobile-menu, and settings dial
+   must keep dark backgrounds. Reset the variables within those
+   elements so every Tailwind utility inside them resolves correctly.
+   ============================== */
+html.dark [data-theme-fixed],
+html.dark #mobile-menu-backdrop,
+html.dark #mobile-menu-panel,
+html.dark .settings-dial-panel,
+html.dark .settings-dial-fab {
+  --color-navy-50: #eef3fa;
+  --color-navy-100: #dce7f5;
+  --color-navy-200: #c2d3e8;
+  --color-navy-300: #98b3d3;
+  --color-navy-900: #0a1628;
+  --color-navy-800: #121f36;
+  --color-navy-700: #1a2d4d;
+  --color-navy-600: #2d5986;
+  --color-navy-500: #3a6fa0;
+  --color-navy-400: #5a8fbf;
+  --color-navy-950: #060f1e;
+  --color-cream-50: #fefcf7;
+  --color-cream-100: #faf7f0;
+  --color-cream-200: #f0ebe0;
+  --color-cream-300: #e0d8c8;
+  --color-cream-400: #cfc4b2;
+  --color-cream-500: #b4a894;
+  --color-gold-50: #fdf9ef;
+  --color-gold-100: #f7efe0;
+  --color-gold-200: #f0e4ca;
+  --color-gold-300: #e8d5b0;
+  --color-gold-400: #d4bb8a;
+  --color-gold-500: #c5a572;
+  --color-gold-600: #a88b4a;
+  --color-gold-800: #6d562a;
+  --color-gold-700: #8a6e36;
+  --color-parchment: #f5f0e1;
+}
+
+html[data-theme='solarized-dark'] [data-theme-fixed],
+html[data-theme='solarized-dark'] #mobile-menu-backdrop,
+html[data-theme='solarized-dark'] #mobile-menu-panel,
+html[data-theme='solarized-dark'] .settings-dial-panel,
+html[data-theme='solarized-dark'] .settings-dial-fab {
+  --color-navy-50: #dfe5e5;
+  --color-navy-100: #ced6d6;
+  --color-navy-200: #bcc7c7;
+  --color-navy-300: #aab7b8;
+  --color-navy-900: #002b36;
+  --color-navy-800: #073642;
+  --color-navy-700: #586e75;
+  --color-navy-600: #657b83;
+  --color-navy-500: #839496;
+  --color-navy-400: #93a1a1;
+  --color-navy-950: #001f27;
+  --color-cream-50: #fefdf8;
+  --color-cream-100: #fdf6e3;
+  --color-cream-200: #eee8d5;
+  --color-cream-300: #ddd6c3;
+  --color-cream-400: #cfc7b3;
+  --color-cream-500: #b8b19d;
+  --color-gold-50: #fff7e2;
+  --color-gold-100: #f5eac8;
+  --color-gold-200: #e7d69d;
+  --color-gold-300: #d4a820;
+  --color-gold-400: #c49500;
+  --color-gold-500: #b58900;
+  --color-gold-600: #9a7800;
+  --color-gold-800: #665000;
+  --color-gold-700: #806300;
+  --color-parchment: #eee8d5;
+}
+
+/* Dynamic scope to restore active theme variables inside a fixed theme region. */
+html.dark [data-theme-dynamic] {
+  --color-cream-50: #070f1b;
+  --color-cream-100: #0a1220;
+  --color-cream-200: #0d1626;
+  --color-cream-300: #121c30;
+  --color-cream-400: #17243c;
+  --color-cream-500: #1d2c48;
+  --color-parchment: #0f1a2e;
+  --color-navy-50: #46423d;
+  --color-navy-100: #59564f;
+  --color-navy-200: #716d66;
+  --color-navy-300: #89857d;
+  --color-navy-900: #f5f0e8;
+  --color-navy-800: #ede9e1;
+  --color-navy-700: #e0dcd5;
+  --color-navy-600: #d4d0c8;
+  --color-navy-500: #bdb9b1;
+  --color-navy-400: #a09c94;
+  --color-navy-950: #060f1e;
+  --color-gold-50: #fffdf5;
+  --color-gold-800: #946a2a;
+  --color-gold-700: #b98436;
+  --color-gold-600: #d4a04a;
+  --color-gold-500: #e8b85a;
+  --color-gold-400: #f0c86a;
+  --color-gold-300: #f8d87a;
+  --color-gold-200: #fff0c0;
+  --color-gold-100: #fff8e8;
+}
+
+html[data-theme='solarized-dark'] [data-theme-dynamic] {
+  --color-cream-50: #001f27;
+  --color-cream-100: #002b36;
+  --color-cream-200: #073642;
+  --color-cream-300: #0f4351;
+  --color-cream-400: #1f535f;
+  --color-cream-500: #2b626d;
+  --color-parchment: #073642;
+  --color-navy-50: #324a52;
+  --color-navy-100: #3f5962;
+  --color-navy-200: #586e75;
+  --color-navy-300: #657b83;
+  --color-navy-900: #eee8d5;
+  --color-navy-800: #dcd6c4;
+  --color-navy-700: #c9c3b3;
+  --color-navy-600: #b8b29f;
+  --color-navy-500: #93a1a1;
+  --color-navy-400: #839496;
+  --color-navy-950: #001a22;
+  --color-gold-50: #fef8e6;
+  --color-gold-800: #665000;
+  --color-gold-700: #806300;
+  --color-gold-600: #9a7800;
+  --color-gold-500: #b58900;
+  --color-gold-400: #cfa530;
+  --color-gold-300: #ddbe63;
+  --color-gold-200: #eadaa5;
+  --color-gold-100: #f5eac8;
+}
+
+/* Hide scrollbars while preserving swipe scroll on mobile chip rows */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Print-friendly styles */
+@media print {
+  @page {
+    margin: 2cm;
+    @bottom-center {
+      content: 'Absurdity Index — absurdityindex.org';
+      font-family: 'Libre Caslon Text', Georgia, serif;
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+
+  /* Hide non-essential elements */
+  header,
+  footer,
+  nav,
+  .construction-banner,
+  .share-buttons,
+  [data-mobile-menu],
+  .mobile-menu,
+  .mobile-nav,
+  [data-settings-dial] {
+    display: none !important;
+  }
+
+  /* Base print typography */
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: 'Libre Caslon Text', Georgia, 'Times New Roman', serif !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Show URLs after external links */
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    font-weight: normal;
+    color: #444;
+  }
+
+  /* Full-width bill content */
+  .bill-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove decorative styles from cards */
+  .bg-parchment,
+  .bg-cream-100,
+  .bg-cream-200,
+  .bg-navy-800,
+  .bg-navy-900,
+  [class*='bg-'] {
+    background: white !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Remove box shadows and rounded corners globally */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  [class*='rounded'] {
+    border-radius: 0 !important;
+  }
+
+  /* Simplify the absurdity meter for print */
+  .absurdity-meter {
+    border: 1px solid #333 !important;
+    background: white !important;
+  }
+
+  /* Ensure text is readable */
+  [class*='text-navy'],
+  [class*='text-gold'],
+  [class*='text-cream'] {
+    color: black !important;
+  }
+
+  /* Gold rule simplified for print */
+  .gold-rule {
+    background: #333 !important;
+    height: 1px !important;
+  }
+
+  /* Stamp overlay lighter for print */
+  .stamp-overlay {
+    opacity: 0.1 !important;
+    color: #666 !important;
+  }
+
+  /* Avoid page breaks inside key content */
+  .bill-content h2,
+  .bill-content h3 {
+    page-break-after: avoid;
+  }
+
+  .bill-content p,
+  .bill-content blockquote {
+    orphans: 3;
+    widows: 3;
+  }
+
+  img,
+  svg {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+}
