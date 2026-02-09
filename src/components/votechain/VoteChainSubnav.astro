@@ -33,7 +33,7 @@ const activeDoc = inAssurance
 
 ---
 
-<nav class="border-b border-navy-200 bg-cream-50/90 backdrop-blur" aria-label="VoteChain" data-votechain-subnav>
+<nav class="sticky z-40 border-b border-navy-200 bg-cream-50/90 backdrop-blur" aria-label="VoteChain" data-votechain-subnav style="top: var(--layout-sticky-top, 0px); margin-top: var(--layout-fund-bar-h, 0px);">
   {/* Primary Nav — tab-style with underline indicator */}
   <div class="max-w-7xl mx-auto px-3 sm:px-4 relative subnav-wrap">
     <div class="subnav-scroll flex -mb-px overflow-x-auto">
@@ -62,8 +62,12 @@ const activeDoc = inAssurance
         })
       }
     </div>
-    <div class="subnav-fade-right" aria-hidden="true"></div>
-    <div class="subnav-fade-left" aria-hidden="true"></div>
+    <button class="subnav-arrow subnav-arrow-right" aria-label="Scroll right" tabindex="-1">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <button class="subnav-arrow subnav-arrow-left" aria-label="Scroll left" tabindex="-1">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+    </button>
   </div>
 
   {/* Assurance Secondary Nav — collapsible on mobile, always visible on desktop */}
@@ -117,16 +121,19 @@ const activeDoc = inAssurance
 </nav>
 
 <script>
-  // Make subnav sticky below the site header
-  const header = document.querySelector('header[data-theme-fixed]') as HTMLElement | null;
+  // Publish subnav height as --layout-subnav-h so page content can stack below it.
+  // The subnav reads --layout-sticky-top and --layout-fund-bar-h from CSS (set by
+  // Header and FundTheIndex respectively) — no cross-component DOM queries needed.
   const subnav = document.querySelector('[data-votechain-subnav]') as HTMLElement | null;
-  if (header && subnav) {
-    const h = header.getBoundingClientRect().height;
-    subnav.style.position = 'sticky';
-    subnav.style.top = `${h}px`;
-    subnav.style.zIndex = '40';
-    // Expose combined height for downstream sticky elements (e.g. step indicator)
-    document.documentElement.style.setProperty('--sticky-offset', `${h + subnav.getBoundingClientRect().height}px`);
+  if (subnav) {
+    const publishSubnavHeight = () => {
+      document.documentElement.style.setProperty(
+        '--layout-subnav-h',
+        `${Math.ceil(subnav.getBoundingClientRect().height)}px`,
+      );
+    };
+    new ResizeObserver(publishSubnavHeight).observe(subnav);
+    publishSubnavHeight();
   }
 
   // Auto-scroll the active tab into view and manage fade indicators
@@ -149,6 +156,18 @@ const activeDoc = inAssurance
     scrollContainer.addEventListener('scroll', updateFades, { passive: true });
     updateFades();
     window.addEventListener('load', updateFades);
+
+    // Arrow click handlers — scroll by 75% of visible width
+    const arrowRight = wrap.querySelector('.subnav-arrow-right');
+    const arrowLeft = wrap.querySelector('.subnav-arrow-left');
+    const scrollAmount = () => Math.round(scrollContainer.clientWidth * 0.75);
+
+    arrowRight?.addEventListener('click', () => {
+      scrollContainer.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+    });
+    arrowLeft?.addEventListener('click', () => {
+      scrollContainer.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+    });
   }
 
 </script>
@@ -163,30 +182,41 @@ const activeDoc = inAssurance
     display: none;
   }
 
-  /* Fade edges to hint at scrollable overflow */
-  .subnav-fade-right,
-  .subnav-fade-left {
+  /* Scroll arrow buttons on overflow edges */
+  .subnav-arrow {
     position: absolute;
     top: 0;
     bottom: 0;
     width: 2.5rem;
-    pointer-events: none;
-    transition: opacity 0.2s;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    color: var(--color-navy-500, #5a6a7a);
+    transition: opacity 0.2s;
   }
-  .subnav-fade-right {
+  .subnav-arrow:hover {
+    color: var(--color-navy-800, #1a2a3a);
+  }
+  .subnav-arrow-right {
     right: 0;
-    background: linear-gradient(to right, transparent, var(--color-cream-50, #faf8f3));
+    padding-right: 4px;
+    background: linear-gradient(to right, transparent 0%, var(--color-cream-50, #faf8f3) 40%);
   }
-  .subnav-fade-left {
+  .subnav-arrow-left {
     left: 0;
-    background: linear-gradient(to left, transparent, var(--color-cream-50, #faf8f3));
+    padding-left: 4px;
+    background: linear-gradient(to left, transparent 0%, var(--color-cream-50, #faf8f3) 40%);
   }
-  .subnav-wrap.at-end .subnav-fade-right {
+  .subnav-wrap.at-end .subnav-arrow-right {
     opacity: 0;
+    pointer-events: none;
   }
-  .subnav-wrap.at-start .subnav-fade-left {
+  .subnav-wrap.at-start .subnav-arrow-left {
     opacity: 0;
+    pointer-events: none;
   }
 
   /* Rotate chevron when open */

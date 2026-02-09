@@ -597,4 +597,18 @@ function isActivePath(href: string) {
       closeToolsMenu(true);
     }
   });
+
+  // Publish header height as a CSS custom property so other components
+  // can stack below it without querying the header's DOM.
+  const headerEl = document.querySelector('header');
+  if (headerEl) {
+    const publishHeaderHeight = () => {
+      document.documentElement.style.setProperty(
+        '--layout-header-h',
+        `${Math.ceil(headerEl.getBoundingClientRect().height)}px`,
+      );
+    };
+    new ResizeObserver(publishHeaderHeight).observe(headerEl);
+    publishHeaderHeight();
+  }
 </script>

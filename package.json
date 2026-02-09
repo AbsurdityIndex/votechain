@@ -23,7 +23,12 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "astro check --minimumFailingSeverity hint"
+    "typecheck": "astro check --minimumFailingSeverity hint",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name votechain",
+    "deploy:workers": "npm run deploy:federal && npm run deploy:state && npm run deploy:oversight",
+    "deploy:federal": "npx wrangler deploy --config workers/votechain-nodes/federal/wrangler.toml",
+    "deploy:state": "npx wrangler deploy --config workers/votechain-nodes/state/wrangler.toml",
+    "deploy:oversight": "npx wrangler deploy --config workers/votechain-nodes/oversight/wrangler.toml"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",

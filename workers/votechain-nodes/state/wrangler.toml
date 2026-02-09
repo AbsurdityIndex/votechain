@@ -4,7 +4,7 @@ compatibility_date = "2026-02-08"
 
 [vars]
 NODE_ID = "state-node-1"
-CORS_ORIGINS = "http://localhost:4321"
+CORS_ORIGINS = "http://localhost:4321,https://absurdityindex.org"
 
 [[durable_objects.bindings]]
 name = "LEDGER"

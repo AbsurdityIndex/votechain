@@ -11,7 +11,7 @@ const { categories } = Astro.props;
 
 <div class="faq-controls" data-faq-controls>
   {/* Search input */}
-  <div class="relative mb-3">
+  <div class="relative mb-2 md:mb-3">
     <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
       <Icon name="search" size={16} class="text-gold-600" />
     </div>
@@ -23,8 +23,8 @@ const { categories } = Astro.props;
     />
   </div>
 
-  {/* Category pills + Open toggle — wrapping layout */}
-  <div class="flex flex-wrap gap-1.5" id="faq-category-pills">
+  {/* Category pills + Open toggle — horizontal scroll on mobile, wrap on md+ */}
+  <div class="faq-pills-scroll flex gap-1.5 md:flex-wrap" id="faq-category-pills">
     <button
       class="faq-pill inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all whitespace-nowrap bg-gold-500 text-navy-900 shadow-sm"
       data-category="all"
@@ -44,7 +44,7 @@ const { categories } = Astro.props;
     {/* Open Only toggle sits at the end of the wrapped pills */}
     <button
       id="faq-open-toggle"
-      class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all whitespace-nowrap bg-white text-navy-700 border border-navy-200 hover:border-orange-400 hover:bg-orange-50 ml-auto"
+      class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all whitespace-nowrap bg-white text-navy-700 border border-navy-200 hover:border-orange-400 hover:bg-orange-50 md:ml-auto"
       aria-pressed="false"
     >
       <Icon name="lightbulb" size={14} class="text-navy-500" />
@@ -52,3 +52,20 @@ const { categories } = Astro.props;
     </button>
   </div>
 </div>
+
+<style>
+  /* Mobile: single-row horizontal scroll for category pills */
+  @media (max-width: 767px) {
+    .faq-pills-scroll {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 2px; /* prevent clipping of focus rings */
+    }
+    .faq-pills-scroll::-webkit-scrollbar {
+      display: none;
+    }
+  }
+</style>

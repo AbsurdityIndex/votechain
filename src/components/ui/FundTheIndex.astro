@@ -708,7 +708,8 @@ const DONATE_URL = 'https://www.gofundme.com/f/fund-the-absurdity-index-were-not
   /* Narrow devices: full-width bar below header */
   @media (max-width: 430px) {
     .fund-tab {
-      top: var(--fund-tab-top, 5.5rem);
+      position: fixed;
+      top: var(--layout-header-h, 0px);
       bottom: auto;
       left: 0;
       right: 0;
@@ -754,6 +755,17 @@ const DONATE_URL = 'https://www.gofundme.com/f/fund-the-absurdity-index-were-not
   const closeBtn = document.getElementById('fund-drawer-close');
   const tab = document.getElementById('fund-tab');
 
+  // Publish fund bar height as --layout-fund-bar-h so downstream components
+  // (e.g. VoteChainSubnav) can stack below it without querying our DOM.
+  function publishFundBarHeight() {
+    const isNarrow = window.matchMedia('(max-width: 430px)').matches;
+    const drawerOpen = document.body.classList.contains('fund-tabs-hidden');
+    const h = (isNarrow && !drawerOpen && tab)
+      ? Math.ceil(tab.getBoundingClientRect().height)
+      : 0;
+    document.documentElement.style.setProperty('--layout-fund-bar-h', `${h}px`);
+  }
+
   function openFundDrawer() {
     drawer?.classList.add('open');
     drawer?.setAttribute('aria-hidden', 'false');
@@ -761,6 +773,7 @@ const DONATE_URL = 'https://www.gofundme.com/f/fund-the-absurdity-index-were-not
     backdrop?.setAttribute('aria-hidden', 'false');
     document.body.classList.add('fund-tabs-hidden');
     document.body.style.overflow = 'hidden';
+    publishFundBarHeight();
   }
 
   function closeFundDrawer() {
@@ -770,6 +783,7 @@ const DONATE_URL = 'https://www.gofundme.com/f/fund-the-absurdity-index-were-not
     backdrop?.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('fund-tabs-hidden');
     document.body.style.overflow = '';
+    publishFundBarHeight();
   }
 
   // Tab trigger opens the drawer
@@ -789,19 +803,10 @@ const DONATE_URL = 'https://www.gofundme.com/f/fund-the-absurdity-index-were-not
     }
   });
 
-  // Position fund tab below header on narrow viewports
-  function positionFundTab() {
-    if (!tab || window.innerWidth > 430) {
-      tab?.style.removeProperty('--fund-tab-top');
-      return;
-    }
-    const header = document.querySelector('header');
-    if (header) {
-      const bottom = Math.ceil(header.getBoundingClientRect().bottom);
-      tab.style.setProperty('--fund-tab-top', Math.max(bottom, 0) + 'px');
-    }
+  // ResizeObserver + matchMedia to keep --layout-fund-bar-h current
+  if (tab) {
+    new ResizeObserver(publishFundBarHeight).observe(tab);
   }
-  positionFundTab();
-  window.addEventListener('scroll', positionFundTab, { passive: true });
-  window.addEventListener('resize', positionFundTab);
+  window.matchMedia('(max-width: 430px)').addEventListener('change', publishFundBarHeight);
+  publishFundBarHeight();
 </script>

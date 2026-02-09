@@ -219,6 +219,11 @@ const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/vote
   <body class="bg-cream-100 text-navy-900 font-sans min-h-screen flex flex-col pb-10 sm:pb-9">
     <ConstructionBanner />
     <Header />
+    <script is:inline>
+      // Reset subnav height when navigating away from VoteChain routes
+      // (the VoteChainSubnav component won't be present to set it).
+      document.documentElement.style.setProperty('--layout-subnav-h', '0px');
+    </script>
     <main class="flex-1">
       {isVoteChainRoute && <VoteChainSubnav currentPath={pathname} />}
       <slot />

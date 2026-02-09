@@ -53,6 +53,16 @@
   --spacing-ornament: 2rem;
 }
 
+/* Layout stacking coordination — each component publishes its own height,
+   CSS calc() derives the composite offsets automatically. */
+:root {
+  --layout-header-h: 0px;
+  --layout-fund-bar-h: 0px;
+  --layout-subnav-h: 0px;
+  --layout-sticky-top: calc(var(--layout-header-h) + var(--layout-fund-bar-h));
+  --layout-content-top: calc(var(--layout-header-h) + var(--layout-fund-bar-h) + var(--layout-subnav-h));
+}
+
 /* Base styles */
 html {
   scroll-behavior: smooth;
