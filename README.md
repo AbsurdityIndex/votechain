@@ -113,6 +113,14 @@ The POC runs entirely in the browser (localStorage state, no server required). I
 - **Lookup** — Find a ballot by its hash
 - **Monitor** — Watch the bulletin board for equivocation
 
+### Screenshots
+
+| Experience VoteChain | Voting Client |
+|:---:|:---:|
+| ![POC Landing](docs/screenshots/poc-landing.png) | ![Voting Client](docs/screenshots/poc-vote.png) |
+| **Oversight Dashboard** | **Receipt Verification** |
+| ![Dashboard](docs/screenshots/poc-dashboard.png) | ![Verify](docs/screenshots/poc-verify.png) |
+
 ## Tech stack
 
 - [Astro](https://astro.build/) — static site generation
