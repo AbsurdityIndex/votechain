@@ -42,7 +42,16 @@
   --color-green-600: #228b4a;
 
   --color-yellow-500: #eab308;
+
+  --color-orange-50: #fff7ed;
+  --color-orange-100: #ffedd5;
+  --color-orange-200: #fed7aa;
+  --color-orange-300: #fdba74;
+  --color-orange-400: #fb923c;
   --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+  --color-orange-800: #9a3412;
 
   /* Typography */
   --font-serif: 'Libre Caslon Text', 'Georgia', 'Times New Roman', serif;
@@ -622,11 +631,20 @@ html.dark {
   --color-gold-200: #fff0c0;
   --color-gold-100: #fff8e8;
 
-  /* Keep red/green semantic colors readable */
+  /* Keep red/green/orange semantic colors readable */
   --color-red-700: #ef4444;
   --color-red-600: #f87171;
   --color-green-700: #22c55e;
   --color-green-600: #4ade80;
+  --color-orange-50: #2a1a0a;
+  --color-orange-100: #3d2410;
+  --color-orange-200: #5c3516;
+  --color-orange-300: #8a4f1c;
+  --color-orange-400: #c06a22;
+  --color-orange-500: #f97316;
+  --color-orange-600: #fb923c;
+  --color-orange-700: #fdba74;
+  --color-orange-800: #fed7aa;
 }
 
 /* Dark mode class-based overrides for common patterns */
@@ -780,11 +798,20 @@ html[data-theme='solarized-dark'] {
   --color-gold-200: #eadaa5;
   --color-gold-100: #f5eac8;
 
-  /* Semantic colors — Solarized red/green */
+  /* Semantic colors — Solarized red/green/orange */
   --color-red-700: #dc322f;
   --color-red-600: #e1645e;
   --color-green-700: #859900;
   --color-green-600: #9cb312;
+  --color-orange-50: #1a1508;
+  --color-orange-100: #2d2310;
+  --color-orange-200: #4d3a18;
+  --color-orange-300: #7a5c22;
+  --color-orange-400: #b5832e;
+  --color-orange-500: #cb4b16;
+  --color-orange-600: #e06030;
+  --color-orange-700: #f0965a;
+  --color-orange-800: #f8c090;
 }
 
 html[data-theme='solarized-dark'] body {
@@ -1136,4 +1163,48 @@ html[data-theme='solarized-dark'] [data-theme-dynamic] {
     max-width: 100% !important;
     page-break-inside: avoid;
   }
+}
+
+/* Responsive table scroll wrappers — prevent overflow on mobile */
+.bill-content table,
+.prd-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* Back-to-top button */
+.back-to-top {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.25rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-navy-200);
+  background: var(--color-cream-50);
+  color: var(--color-navy-700);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(0.5rem);
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--color-gold-50);
+  border-color: var(--color-gold-400);
+  color: var(--color-navy-900);
 }

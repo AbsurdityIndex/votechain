@@ -164,7 +164,10 @@ import AISummarizer from '../../components/votechain/AISummarizer.astro';
       <h3 class="font-serif text-lg font-bold text-navy-900 mb-4 text-center">Two-Layer Architecture</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="rounded-lg border-2 border-navy-800 bg-navy-50 p-4">
-          <p class="font-mono text-xs uppercase tracking-widest text-navy-500 mb-2">Layer 1: Verification</p>
+          <div class="flex items-center gap-2 mb-2">
+            <Icon name="shield" size={16} class="text-navy-600" />
+            <p class="font-mono text-xs uppercase tracking-widest text-navy-500">Layer 1: Verification</p>
+          </div>
           <p class="font-serif font-bold text-navy-900 mb-1">VoteChain PRD</p>
           <ul class="text-navy-600 text-sm space-y-1">
             <li>1. Citizen?</li>
@@ -174,7 +177,10 @@ import AISummarizer from '../../components/votechain/AISummarizer.astro';
           </ul>
         </div>
         <div class="rounded-lg border-2 border-gold-500 bg-gold-50 p-4">
-          <p class="font-mono text-xs uppercase tracking-widest text-navy-500 mb-2">Layer 2: Ballot Integrity</p>
+          <div class="flex items-center gap-2 mb-2">
+            <Icon name="lock" size={16} class="text-gold-700" />
+            <p class="font-mono text-xs uppercase tracking-widest text-navy-500">Layer 2: Ballot Integrity</p>
+          </div>
           <p class="font-serif font-bold text-navy-900 mb-1">Election Web Protocol (EWP)</p>
           <ul class="text-navy-600 text-sm space-y-1">
             <li>1. Ballot encrypted (voter client)</li>
@@ -182,6 +188,12 @@ import AISummarizer from '../../components/votechain/AISummarizer.astro';
             <li>3. Included in tally set (Merkle proof)</li>
             <li>4. Counted correctly (verifiable decryption)</li>
           </ul>
+        </div>
+      </div>
+      <div class="mt-3 text-center">
+        <div class="inline-flex items-center gap-2 rounded-md bg-cream-100 border border-navy-100 px-3 py-1.5 text-xs text-navy-600">
+          <Icon name="link" size={14} class="text-gold-600" />
+          <span>Coupling point: <strong class="text-navy-800">audit anchors</strong> (hash commitments linking eligibility proofs to ballot records)</span>
         </div>
       </div>
     </div>
@@ -202,13 +214,29 @@ import AISummarizer from '../../components/votechain/AISummarizer.astro';
             random spoils, per-session reset behavior, duplicate-vote rejection tests, and
             rogue-node detection simulations.
           </p>
-          <a
-            href="/votechain/field-report"
-            class="inline-flex items-center gap-1.5 text-sm font-semibold text-navy-900 hover:text-gold-700"
-          >
-            Read the field report
-            <Icon name="arrow-right" size={16} class="text-gold-600" />
-          </a>
+          <div class="flex flex-wrap gap-x-4 gap-y-2">
+            <a
+              href="/votechain/field-report"
+              class="inline-flex items-center gap-1.5 text-sm font-semibold text-navy-900 hover:text-gold-700"
+            >
+              Read the field report
+              <Icon name="arrow-right" size={16} class="text-gold-600" />
+            </a>
+            <a
+              href="/votechain/field-report-technical"
+              class="inline-flex items-center gap-1.5 text-sm font-semibold text-navy-900 hover:text-gold-700"
+            >
+              Technical appendix
+              <Icon name="arrow-right" size={16} class="text-gold-600" />
+            </a>
+            <a
+              href="/votechain/pi-integration"
+              class="inline-flex items-center gap-1.5 text-sm font-semibold text-navy-900 hover:text-gold-700"
+            >
+              Pi integration guide
+              <Icon name="arrow-right" size={16} class="text-gold-600" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

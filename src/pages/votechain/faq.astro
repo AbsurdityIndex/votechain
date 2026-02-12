@@ -199,6 +199,44 @@ const answeredCount = totalCount - openCount;
       applyFilters();
     });
 
+    // Sync state to URL hash for shareability
+    function pushHash() {
+      var parts = [];
+      if (searchText) parts.push('q=' + encodeURIComponent(searchText));
+      if (activeCategory !== 'all') parts.push('cat=' + encodeURIComponent(activeCategory));
+      if (openOnly) parts.push('open=1');
+      var hash = parts.length ? '#' + parts.join('&') : '';
+      if (window.location.hash !== hash) {
+        history.replaceState(null, '', hash || window.location.pathname);
+      }
+    }
+
+    function readHash() {
+      var hash = window.location.hash.slice(1);
+      if (!hash) return;
+      hash.split('&').forEach(function (pair) {
+        var kv = pair.split('=');
+        var key = kv[0];
+        var val = decodeURIComponent(kv[1] || '');
+        if (key === 'q') { searchText = val; searchInput.value = val; }
+        if (key === 'cat') {
+          activeCategory = val;
+          allPills.forEach(function (p) {
+            setPillActive(p, p.getAttribute('data-category') === activeCategory);
+          });
+        }
+        if (key === 'open' && val === '1') {
+          openOnly = true;
+          setOpenToggleActive(true);
+        }
+      });
+      applyFilters();
+    }
+
+    // Patch applyFilters to also push hash
+    var origApplyFilters = applyFilters;
+    applyFilters = function () { origApplyFilters(); pushHash(); };
+
     // Clear filters
     if (clearBtn) {
       clearBtn.addEventListener('click', function () {
@@ -213,5 +251,8 @@ const answeredCount = totalCount - openCount;
         applyFilters();
       });
     }
+
+    // Restore state from URL hash on load
+    readHash();
   });
 </script>

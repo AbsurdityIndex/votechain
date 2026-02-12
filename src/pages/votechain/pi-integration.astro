@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+const diagramVersion = '20260212-1239';
+---
+
+<BaseLayout
+  title="VoteChain Raspberry Pi Integration Guide"
+  description="How to integrate polling-place vote machines into the VoteChain air-gapped test architecture using Raspberry Pi hardware, with wiring diagrams and test-cycle controls."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'raspberry pi', 'polling place', 'air gap', 'integration'],
+  }}
+>
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center mb-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">
+        Integration Blueprint
+      </p>
+      <h1 class="font-serif text-2xl md:text-3xl text-navy-900 font-bold">
+        Vote Machine Integration On Raspberry Pi Test Benches
+      </h1>
+      <p class="text-navy-600 font-serif italic mt-2 text-sm max-w-2xl mx-auto">
+        Practical lab wiring model for public working-group elections: booth hardware, trust boundaries,
+        and run-cycle controls.
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-gold-300 bg-cream-50 p-5 mb-8">
+      <div class="flex items-start gap-3">
+        <Icon name="alert-triangle" class="text-gold-700 mt-0.5 flex-shrink-0" />
+        <div class="text-navy-800 text-sm space-y-2">
+          <p>
+            This is a test-election integration profile, not a certified election deployment profile.
+          </p>
+          <p>
+            Visual source:
+            <a
+              href="/votechain/evidence/pi-integration-board"
+              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
+            >
+              /votechain/evidence/pi-integration-board
+            </a>
+            (exported with <code>npm run export:diagrams:pi</code>).
+          </p>
+        </div>
+      </div>
+    </div>
+
+      <article class="bg-parchment rounded-lg shadow-lg p-6 md:p-8 text-navy-900">
+        <h2 id="integration-flow" class="font-serif text-2xl font-bold mb-3">How To Integrate The Vote Machine</h2>
+        <ol class="list-decimal pl-6 space-y-2 mb-6">
+          <li>Provision each booth Pi with the same signed machine runtime image and pinned runtime config.</li>
+          <li>Attach fixed booth peripherals: touch display, scanner, receipt printer, UPS, tamper inputs.</li>
+          <li>Connect booth Pis to isolated polling-place switch on VLAN10 (`10.10.10.0/24`) with no internet route.</li>
+          <li>Export signed session bundles to transfer station and ingest one-way into VLAN20 airgap services.</li>
+          <li>Mirror accepted bundles into VLAN30 central verification services for independent reconciliation.</li>
+          <li>Enforce session close and machine-local reset after every voter interaction.</li>
+        </ol>
+
+        <h2 id="topology-diagrams" class="font-serif text-2xl font-bold mb-3">Pi Topology Diagrams</h2>
+        <figure class="mb-6">
+          <img
+            src={`/votechain/evidence/diagrams/pi-integration/pi-integration-board-full.png?v=${diagramVersion}`}
+            alt="Full Raspberry Pi integration board for VoteChain test benches"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+          <figcaption class="text-xs text-navy-600 mt-2">
+            End-to-end board with explicit Raspberry Pi hosts, network zones, and test-cycle flow.
+          </figcaption>
+        </figure>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <figure>
+            <img
+              src={`/votechain/evidence/diagrams/pi-integration/pi-lab-topology.png?v=${diagramVersion}`}
+              alt="Raspberry Pi lab topology from polling place to airgap and central verification"
+              class="w-full rounded-lg border border-navy-200"
+              loading="lazy"
+            />
+          </figure>
+          <figure>
+            <img
+              src={`/votechain/evidence/diagrams/pi-integration/pi-machine-wiring.png?v=${diagramVersion}`}
+              alt="Single booth Raspberry Pi wiring harness for vote machine"
+              class="w-full rounded-lg border border-navy-200"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+
+        <h2 id="physical-wiring" class="font-serif text-2xl font-bold mb-3">Physical Wiring Details</h2>
+        <ul class="list-disc pl-6 space-y-2 mb-6">
+          <li>Booth Pi host: Raspberry Pi 5 (8GB), immutable image, sealed enclosure.</li>
+          <li>Peripherals: HDMI touch, USB scanner, USB receipt printer, poll-worker key, UPS HAT.</li>
+          <li>Tamper channels: GPIO tamper switch + enclosure-open signal to sealed logs.</li>
+          <li>Network: wired Ethernet only for booth machines; no Wi-Fi association in test profile.</li>
+        </ul>
+
+        <h2 id="network-segmentation" class="font-serif text-2xl font-bold mb-3">Networking Rules</h2>
+        <figure class="mb-4">
+          <img
+            src={`/votechain/evidence/diagrams/pi-integration/pi-network-segmentation.png?v=${diagramVersion}`}
+            alt="Network segmentation for Raspberry Pi vote machine testing"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-cream-100 border-b border-navy-200">
+                <th class="text-left py-2 px-3 font-semibold">Segment</th>
+                <th class="text-left py-2 px-3 font-semibold">Subnet</th>
+                <th class="text-left py-2 px-3 font-semibold">Allowed Flows</th>
+                <th class="text-left py-2 px-3 font-semibold">Blocked</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-navy-100">
+                <td class="py-2 px-3">VLAN10 Booth LAN</td>
+                <td class="py-2 px-3 font-mono">10.10.10.0/24</td>
+                <td class="py-2 px-3">Signed bundle export to transfer station only</td>
+                <td class="py-2 px-3">Internet egress + direct central access</td>
+              </tr>
+              <tr class="border-b border-navy-100">
+                <td class="py-2 px-3">VLAN20 Airgap Core</td>
+                <td class="py-2 px-3 font-mono">10.20.0.0/24</td>
+                <td class="py-2 px-3">Ingest, relay, ledger replication, observer reads</td>
+                <td class="py-2 px-3">Untrusted relay roles + unknown ACK keys</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3">VLAN30 Central Verify</td>
+                <td class="py-2 px-3 font-mono">10.30.0.0/24</td>
+                <td class="py-2 px-3">Independent ingest/relay/ledger reconciliation</td>
+                <td class="py-2 px-3">Direct booth machine access</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="compose-placement" class="font-serif text-2xl font-bold mb-3">Compose Placement</h2>
+        <figure class="mb-4">
+          <img
+            src={`/votechain/evidence/diagrams/pi-integration/pi-compose-placement.png?v=${diagramVersion}`}
+            alt="Compose service placement across Raspberry Pi host roles"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <pre class="bg-cream-100 border border-navy-200 rounded-md p-3 text-xs overflow-x-auto mb-6"><code># Regenerate diagrams
+npm run export:diagrams:pi
+
+# Start stack (example test profile)
+docker compose down -v --remove-orphans
+docker compose up -d --build
+
+# Execute run loop
+./scripts/run-mock-election-cycle.py --machines 5 --sessions-per-machine 100 --spoil-rate 0.12 --seed 20260212</code></pre>
+
+        <h2 id="session-loop" class="font-serif text-2xl font-bold mb-3">Session Loop</h2>
+        <figure class="mb-6">
+          <img
+            src={`/votechain/evidence/diagrams/pi-integration/pi-test-cycle.png?v=${diagramVersion}`}
+            alt="Per-session sequence flow from booth Pi through ingest and verification"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+
+        <h2 id="verification-gates" class="font-serif text-2xl font-bold mb-3">Verification Gates To Keep</h2>
+        <ul class="list-disc pl-6 space-y-2 mb-6">
+          <li>Machine reset proof after every session with zero residual ballot/credential state.</li>
+          <li>Bundle signature and schema validation at ingest before any ledger write.</li>
+          <li>Relay ACK-key pinning with immediate degradation alert on mismatch.</li>
+          <li>Outbox must drain to zero before run completion.</li>
+          <li>Airgap and central run summaries must match cast/receipt totals.</li>
+        </ul>
+
+        <h2 id="tech-doc-links" class="font-serif text-2xl font-bold mb-3">Tech Docs + Assets</h2>
+        <ul class="list-disc pl-6 space-y-2">
+          <li>
+            Pi diagram board source:
+            <a href="/votechain/evidence/pi-integration-board" class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">
+              /votechain/evidence/pi-integration-board
+            </a>
+          </li>
+          <li>
+            Pi PNG directory:
+            <a href={`/votechain/evidence/diagrams/pi-integration/pi-integration-board-full.png?v=${diagramVersion}`} class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">
+              /votechain/evidence/diagrams/pi-integration/
+            </a>
+          </li>
+          <li>
+            Technical appendix:
+            <a href="/votechain/field-report-technical" class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">
+              /votechain/field-report-technical
+            </a>
+          </li>
+        </ul>
+      </article>
+  </div>
+</BaseLayout>

@@ -1,0 +1,123 @@
+{
+  "report_date_utc": "2026-02-11",
+  "scope": {
+    "stack": "votechain-machine compose runtime",
+    "modes": [
+      "airgap anchor plane",
+      "central anchor plane",
+      "strict operator profile"
+    ],
+    "machines": 5,
+    "sessions_per_machine": 100
+  },
+  "cycle_runs": [
+    {
+      "run_id": "20260211T211648Z",
+      "seed": 20260211,
+      "expected_sessions": 500,
+      "expected_spoiled": 59,
+      "expected_cast": 441,
+      "candidate_tally": {
+        "cand_a": 226,
+        "cand_b": 215
+      },
+      "winner": "cand_a",
+      "winner_votes": 226,
+      "observed_bundle_count": 500,
+      "observed_receipt_count": 441,
+      "observer": {
+        "overall": "ok",
+        "consistency": "ok",
+        "outbox_pending": 0,
+        "outbox_sent": 500
+      },
+      "airgap_observer": {
+        "overall": "ok",
+        "consistency": "ok",
+        "outbox_pending": 0,
+        "outbox_sent": 500
+      },
+      "central_ledger": {
+        "index": 500,
+        "hash": "9d2b9e91906db63abaf53fc448a5281c3c14c1ad388cf1769c1be225c115d29c"
+      },
+      "airgap_ledger": {
+        "index": 500,
+        "hash": "aa71d3e7d933da15b34278c1ae546d5ef54e089313d5d75c9f2cdfd1cf23b1e9"
+      },
+      "verification_passed": true
+    },
+    {
+      "run_id": "20260211T211810Z",
+      "seed": 20260212,
+      "expected_sessions": 500,
+      "expected_spoiled": 57,
+      "expected_cast": 443,
+      "candidate_tally": {
+        "cand_a": 218,
+        "cand_b": 225
+      },
+      "winner": "cand_b",
+      "winner_votes": 225,
+      "observed_bundle_count": 500,
+      "observed_receipt_count": 443,
+      "observer": {
+        "overall": "ok",
+        "consistency": "ok",
+        "outbox_pending": 0,
+        "outbox_sent": 500
+      },
+      "airgap_observer": {
+        "overall": "ok",
+        "consistency": "ok",
+        "outbox_pending": 0,
+        "outbox_sent": 500
+      },
+      "central_ledger": {
+        "index": 500,
+        "hash": "cbf0ef1de1f1b2995fa9b5935960c2134dc7fe69638d1d77534302ea6f9dba27"
+      },
+      "airgap_ledger": {
+        "index": 500,
+        "hash": "09a0d3677331e318a4ab36c71c13c8a317fd9fb9d9460fdc9e2d9420bbbefab3"
+      },
+      "verification_passed": true
+    }
+  ],
+  "attack_simulations": {
+    "duplicate_attempts": {
+      "attempts_total": 21,
+      "ballot_box_allowed": 12,
+      "ballot_box_denied_not_registered": 3,
+      "ballot_box_denied_duplicate_checkin": 6,
+      "machine_cast_accepted": 12,
+      "machine_verify_ok": 12,
+      "machine_rejected_nullifier_used": 6,
+      "machine_rejected_other": 0,
+      "close_polls_ballot_count": 12
+    },
+    "rogue_node": {
+      "overall_pass": true,
+      "startup_role_validation_detected": true,
+      "runtime_ack_spoof_detected": true,
+      "recovery_restored": true,
+      "sample_outbox_evidence": "federal:ack key id mismatch: got ed25519:9d8a7d8ed1dcf6e4 want ed25519:0000000000000000"
+    }
+  },
+  "independent_audit": {
+    "tool": "votechain-audit-verify",
+    "verification_passed": true,
+    "winner": "cand_b",
+    "winner_votes": 225
+  },
+  "readiness_boundary": {
+    "working_group_ready": true,
+    "binding_election_ready": false,
+    "missing": [
+      "jurisdictional certification",
+      "third-party audit package",
+      "state legal and procedural mapping",
+      "statewide incident-response readiness"
+    ]
+  }
+}

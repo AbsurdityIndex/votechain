@@ -1,0 +1,513 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain Worker Ledger Architecture Board"
+  description="Visual evidence board for the 3-node Worker architecture: Durable Object ledger, event routing, replication flow, and authentication layers."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'workers', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>Worker Ledger Architecture<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              Three Cloudflare Workers with Durable Object ledgers, role-based event routing,
+              hash-chain tamper evidence, and three-gate authentication.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">Nodes Synchronized</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Node Roles</div>
+            <div class="metric-value">3</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Event Types</div>
+            <div class="metric-value">7</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">ACK Signatures</div>
+            <div class="metric-value">ECDSA</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Hash Chain</div>
+            <div class="metric-value">SHA-256</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Storage</div>
+            <div class="metric-value">Durable Objects</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Three-Node Topology (span 12) -->
+        <article class="panel panel-topology" data-panel="worker-topology">
+          <header class="panel-header">
+            <p class="panel-kicker">Infrastructure</p>
+            <h2>Three-Node Worker Topology</h2>
+            <p>Browser events flow through a Pages Function router to the appropriate Worker based on event type. Each node only accepts its assigned event types.</p>
+          </header>
+          <svg viewBox="0 0 1420 480" role="img" aria-label="Three-node Worker topology with routing">
+            <defs>
+              <marker id="wkArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
+              </marker>
+              <marker id="wkArrGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#b8892e" />
+              </marker>
+            </defs>
+
+            <!-- Browser -->
+            <rect x="30" y="170" width="200" height="110" rx="14" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
+            <text x="68" y="210" font-size="16" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">Browser</text>
+            <text x="54" y="234" font-size="12" fill="#496789">POC engine + VCL client</text>
+            <text x="54" y="254" font-size="11" fill="#496789">localStorage state</text>
+
+            <!-- Pages Function -->
+            <rect x="320" y="150" width="240" height="150" rx="14" fill="#fff5e6" stroke="#f0d9a8" stroke-width="2" />
+            <text x="350" y="186" font-size="14" fill="#8e5b10" font-weight="700" font-family="JetBrains Mono, monospace">Pages Function</text>
+            <text x="350" y="208" font-size="12" fill="#8e5b10">replicate.ts</text>
+            <text x="350" y="232" font-size="11" fill="#8e5b10">Turnstile cookie check</text>
+            <text x="350" y="250" font-size="11" fill="#8e5b10">Event type → node routing</text>
+            <text x="350" y="268" font-size="11" fill="#8e5b10">Bearer token forwarding</text>
+
+            <!-- Federal Worker -->
+            <rect x="680" y="30" width="320" height="110" rx="14" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
+            <text x="710" y="62" font-size="14" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">Federal Worker</text>
+            <text x="710" y="84" font-size="12" fill="#496789">election_manifest_published</text>
+            <text x="710" y="102" font-size="12" fill="#496789">tally_published</text>
+            <text x="710" y="126" font-size="10" fill="#496789">Durable Object: LedgerNode</text>
+
+            <!-- State Worker -->
+            <rect x="680" y="170" width="320" height="130" rx="14" fill="#f0faf4" stroke="#a8d8b8" stroke-width="2" />
+            <text x="710" y="202" font-size="14" fill="#246843" font-weight="700" font-family="JetBrains Mono, monospace">State Worker</text>
+            <text x="710" y="224" font-size="12" fill="#2f6f4d">credential_issued</text>
+            <text x="710" y="242" font-size="12" fill="#2f6f4d">ewp_ballot_cast</text>
+            <text x="710" y="260" font-size="12" fill="#2f6f4d">bb_sth_published</text>
+            <text x="710" y="284" font-size="10" fill="#2f6f4d">Durable Object: LedgerNode</text>
+
+            <!-- Oversight Worker -->
+            <rect x="680" y="330" width="320" height="110" rx="14" fill="#f3eef9" stroke="#c8b5e6" stroke-width="2" />
+            <text x="710" y="362" font-size="14" fill="#6b4fa0" font-weight="700" font-family="JetBrains Mono, monospace">Oversight Worker</text>
+            <text x="710" y="384" font-size="12" fill="#6b4fa0">fraud_flag</text>
+            <text x="710" y="402" font-size="12" fill="#6b4fa0">fraud_flag_action</text>
+            <text x="710" y="426" font-size="10" fill="#6b4fa0">Durable Object: LedgerNode</text>
+
+            <!-- Signed ACK -->
+            <rect x="1100" y="170" width="280" height="130" rx="14" fill="#e6f7ee" stroke="#b5e2c6" stroke-width="2" />
+            <text x="1130" y="202" font-size="14" fill="#1a6b3a" font-weight="700">Signed ACK</text>
+            <text x="1130" y="226" font-size="12" fill="#1a6b3a" font-family="JetBrains Mono, monospace">&#123; index, hash, ack_sig &#125;</text>
+            <text x="1130" y="248" font-size="11" fill="#1a6b3a">ECDSA signature proves</text>
+            <text x="1130" y="266" font-size="11" fill="#1a6b3a">the node accepted the event</text>
+            <text x="1130" y="284" font-size="11" fill="#1a6b3a">at a specific ledger position</text>
+
+            <!-- Arrows -->
+            <line x1="230" y1="225" x2="316" y2="225" stroke="#3a6fa0" stroke-width="3" marker-end="url(#wkArr)" />
+            <text x="242" y="218" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">POST</text>
+
+            <line x1="560" y1="200" x2="676" y2="85" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#wkArr)" />
+            <line x1="560" y1="225" x2="676" y2="235" stroke="#2d8a5e" stroke-width="2.5" marker-end="url(#wkArr)" />
+            <line x1="560" y1="260" x2="676" y2="385" stroke="#6b4fa0" stroke-width="2.5" marker-end="url(#wkArr)" />
+
+            <line x1="1000" y1="85" x2="1096" y2="210" stroke="#1a6b3a" stroke-width="2" marker-end="url(#wkArr)" stroke-dasharray="6 4" />
+            <line x1="1000" y1="235" x2="1096" y2="235" stroke="#1a6b3a" stroke-width="2" marker-end="url(#wkArr)" stroke-dasharray="6 4" />
+            <line x1="1000" y1="385" x2="1096" y2="265" stroke="#1a6b3a" stroke-width="2" marker-end="url(#wkArr)" stroke-dasharray="6 4" />
+
+            <!-- Route labels -->
+            <text x="588" y="150" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">manifest, tally</text>
+            <text x="588" y="228" font-size="10" fill="#2d8a5e" font-family="JetBrains Mono, monospace">credential, ballot, sth</text>
+            <text x="588" y="340" font-size="10" fill="#6b4fa0" font-family="JetBrains Mono, monospace">fraud_flag, action</text>
+          </svg>
+        </article>
+
+        <!-- Panel 2: Role-Based Event Routing (span 7) -->
+        <article class="panel panel-routing" data-panel="event-routing">
+          <header class="panel-header">
+            <p class="panel-kicker">Routing Rules</p>
+            <h2>Role-Based Event Routing</h2>
+            <p>Each event type has a designated originating node. The ORIGINATING_TYPES_MAP determines routing.</p>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th>Event Type</th>
+                <th>Target Node</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>election_manifest_published</code></td>
+                <td><span class="node-badge node-federal">Federal</span></td>
+                <td>Election configuration + contest definitions</td>
+              </tr>
+              <tr>
+                <td><code>tally_published</code></td>
+                <td><span class="node-badge node-federal">Federal</span></td>
+                <td>Final election results after threshold decrypt</td>
+              </tr>
+              <tr>
+                <td><code>credential_issued</code></td>
+                <td><span class="node-badge node-state">State</span></td>
+                <td>Voter credential issuance record</td>
+              </tr>
+              <tr>
+                <td><code>ewp_ballot_cast</code></td>
+                <td><span class="node-badge node-state">State</span></td>
+                <td>Encrypted ballot cast with nullifier</td>
+              </tr>
+              <tr>
+                <td><code>bb_sth_published</code></td>
+                <td><span class="node-badge node-state">State</span></td>
+                <td>Bulletin board signed tree head snapshot</td>
+              </tr>
+              <tr>
+                <td><code>fraud_flag</code></td>
+                <td><span class="node-badge node-oversight">Oversight</span></td>
+                <td>Suspected fraud detection event</td>
+              </tr>
+              <tr>
+                <td><code>fraud_flag_action</code></td>
+                <td><span class="node-badge node-oversight">Oversight</span></td>
+                <td>Fraud case status transition</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- Panel 3: Durable Object Ledger (span 5) -->
+        <article class="panel panel-ledger" data-panel="do-ledger">
+          <header class="panel-header">
+            <p class="panel-kicker">Tamper Evidence</p>
+            <h2>Durable Object Hash Chain</h2>
+            <p>Each ledger entry's hash depends on the previous entry, creating an append-only tamper-evident chain.</p>
+          </header>
+          <div class="chain">
+            <div class="chain-entry">
+              <div class="chain-index">Entry 0</div>
+              <code>hash = SHA256("" + "\n" + canonical(event₀))</code>
+              <span>Genesis entry (no predecessor)</span>
+            </div>
+            <div class="chain-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="chain-entry">
+              <div class="chain-index">Entry 1</div>
+              <code>hash = SHA256(entry[0].hash + "\n" + canonical(event₁))</code>
+              <span>Depends on entry 0</span>
+            </div>
+            <div class="chain-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="chain-entry chain-entry-current">
+              <div class="chain-index">Entry n</div>
+              <code>hash = SHA256(entry[n-1].hash + "\n" + canonical(event_n))</code>
+              <span>Each entry chains to its predecessor</span>
+            </div>
+          </div>
+          <div class="chain-note">
+            <strong>Tamper-evidence</strong>: Modifying any past entry changes its hash, which cascades through all subsequent entries.
+            SQLite storage in Durable Objects ensures single-writer consistency.
+          </div>
+        </article>
+
+        <!-- Panel 4: Replication Request Flow (span 7) -->
+        <article class="panel panel-replication" data-panel="replication-flow">
+          <header class="panel-header">
+            <p class="panel-kicker">Data Flow</p>
+            <h2>Replication Request Flow</h2>
+            <p>Step-by-step sequence from browser POST to signed acknowledgement.</p>
+          </header>
+          <div class="repl-steps">
+            <div class="repl-step">
+              <div class="repl-badge">1</div>
+              <div class="repl-content">
+                <strong>Browser POST</strong>
+                <code>VCL client sends event to /api/votechain/poc/replicate</code>
+              </div>
+            </div>
+            <div class="repl-step">
+              <div class="repl-badge">2</div>
+              <div class="repl-content">
+                <strong>Turnstile Cookie Check</strong>
+                <code>Pages Function validates session cookie (HMAC-SHA256)</code>
+              </div>
+            </div>
+            <div class="repl-step">
+              <div class="repl-badge">3</div>
+              <div class="repl-content">
+                <strong>Route to Worker</strong>
+                <code>ORIGINATING_TYPES_MAP[event.type] → target node URL</code>
+              </div>
+            </div>
+            <div class="repl-step">
+              <div class="repl-badge">4</div>
+              <div class="repl-content">
+                <strong>Bearer Auth</strong>
+                <code>Worker validates write token in Authorization header</code>
+              </div>
+            </div>
+            <div class="repl-step">
+              <div class="repl-badge">5</div>
+              <div class="repl-content">
+                <strong>DO Append</strong>
+                <code>LedgerNode Durable Object appends event, computes hash chain</code>
+              </div>
+            </div>
+            <div class="repl-step repl-step-ok">
+              <div class="repl-badge repl-badge-ok">6</div>
+              <div class="repl-content">
+                <strong>Sign ACK + Return</strong>
+                <code>ECDSA sign &#123; index, hash &#125; → return entry + ack to browser</code>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 5: Authentication Layers (span 5) -->
+        <article class="panel panel-auth" data-panel="auth-layers">
+          <header class="panel-header">
+            <p class="panel-kicker">Security</p>
+            <h2>Three-Gate Authentication</h2>
+            <p>Every replication request must pass through three independent authentication layers.</p>
+          </header>
+          <div class="auth-gates">
+            <div class="auth-gate auth-gate-1">
+              <div class="gate-number">Gate 1</div>
+              <div class="gate-title">Turnstile</div>
+              <div class="gate-desc">Cloudflare human verification challenge. Sets a session cookie on success.</div>
+              <div class="gate-detail">
+                <code>TURNSTILE_SECRET_KEY</code>
+              </div>
+            </div>
+            <div class="auth-gate auth-gate-2">
+              <div class="gate-number">Gate 2</div>
+              <div class="gate-title">Session Cookie</div>
+              <div class="gate-desc">HMAC-SHA256 signed cookie with expiry. Validated on every request by the Pages Function.</div>
+              <div class="gate-detail">
+                <code>POC_ACCESS_COOKIE_SECRET</code>
+              </div>
+            </div>
+            <div class="auth-gate auth-gate-3">
+              <div class="gate-number">Gate 3</div>
+              <div class="gate-title">Bearer Write Token</div>
+              <div class="gate-desc">Per-node secret token in Authorization header. Worker rejects requests without a valid token.</div>
+              <div class="gate-detail">
+                <code>VOTECHAIN_*_WRITE_TOKEN</code>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0; color: var(--ink);
+      background: radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%), linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page { width: min(1480px, calc(100% - 32px)); max-width: 1480px; margin: 40px auto 80px; }
+
+    .hero {
+      padding: 32px 36px 28px; border: 1px solid var(--line); border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+    .hero-text { flex: 1; }
+    .hero-kicker { margin: 0 0 10px; font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); }
+    .hero h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 42px); line-height: 1.12; color: var(--ink); }
+    .hero-subtitle { margin: 14px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; max-width: 640px; }
+    .hero-verdict { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+    .verdict-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #e6f7ee, #d0f0dd); border: 2.5px solid var(--ok-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,107,58,0.12); }
+    .verdict-check { width: 32px; height: 32px; color: var(--ok-ink); }
+    .verdict-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ok-ink); }
+    .top-metrics { margin-top: 24px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; }
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
+    .metric-pass .metric-value { color: var(--ok-ink); }
+
+    .panel-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px; box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06); }
+    .panel h2 { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; line-height: 1.2; }
+    .panel p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+    .panel-header { margin-bottom: 18px; }
+    .panel-kicker { margin: 0 0 5px; font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+
+    /* ── Topology ────────────────────────── */
+
+    .panel-topology { grid-column: span 12; }
+    .panel-topology svg { width: 100%; height: auto; display: block; border: 1px solid #d2deec; border-radius: 10px; background: #f9fcff; }
+
+    /* ── Event Routing ───────────────────── */
+
+    .panel-routing { grid-column: span 7; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e2e9f2; padding: 10px; text-align: left; font-size: 13px; }
+    th { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); padding-bottom: 8px; }
+    tbody tr:hover { background: #f8fafd; }
+    tr:last-child td { border-bottom: 0; }
+    td code { font-family: var(--mono); font-size: 12px; }
+
+    .node-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+    }
+
+    .node-federal { background: #eef4fb; color: var(--stage-1); border: 1px solid #aac3df; }
+    .node-state { background: #f0faf4; color: var(--stage-2); border: 1px solid #a8d8b8; }
+    .node-oversight { background: #f3eef9; color: #6b4fa0; border: 1px solid #c8b5e6; }
+
+    /* ── DO Ledger ───────────────────────── */
+
+    .panel-ledger { grid-column: span 5; }
+
+    .chain { display: grid; gap: 0; margin-bottom: 14px; }
+
+    .chain-entry {
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .chain-entry-current { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .chain-index { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 4px; }
+    .chain-entry-current .chain-index { color: var(--ok-ink); }
+    .chain-entry code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink); word-break: break-all; }
+    .chain-entry-current code { color: var(--ok-ink); }
+    .chain-entry span { display: block; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+    .chain-entry-current span { color: var(--ok-ink); }
+
+    .chain-arrow { display: flex; justify-content: center; padding: 3px 0; color: var(--line-strong); }
+    .chain-arrow svg { width: 20px; height: 10px; }
+
+    .chain-note {
+      border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: #f8fbff;
+      font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+    }
+
+    .chain-note strong { color: var(--ink); }
+
+    /* ── Replication Flow ────────────────── */
+
+    .panel-replication { grid-column: span 7; }
+
+    .repl-steps { display: grid; gap: 8px; }
+
+    .repl-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .repl-step-ok { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .repl-badge {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff; background: var(--stage-1); flex-shrink: 0;
+    }
+
+    .repl-badge-ok { background: var(--ok-ink); }
+
+    .repl-content { flex: 1; }
+    .repl-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .repl-content code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .repl-step-ok .repl-content code { color: var(--ok-ink); }
+
+    /* ── Auth Layers ─────────────────────── */
+
+    .panel-auth { grid-column: span 5; }
+
+    .auth-gates { display: grid; gap: 10px; }
+
+    .auth-gate {
+      border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff;
+      border-left: 4px solid var(--line);
+    }
+
+    .auth-gate-1 { border-left-color: var(--stage-1); }
+    .auth-gate-2 { border-left-color: var(--stage-3); }
+    .auth-gate-3 { border-left-color: var(--stage-4); }
+
+    .gate-number {
+      font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 4px;
+    }
+
+    .gate-title { font-family: var(--serif); font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+    .gate-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+
+    .gate-detail {
+      margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: #f4f7fb; display: inline-block;
+    }
+
+    .gate-detail code { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics { grid-template-columns: repeat(3, 1fr); }
+      .panel-topology, .panel-routing, .panel-ledger, .panel-replication, .panel-auth { grid-column: span 12; }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict { flex-direction: row; align-self: flex-start; }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+    }
+  </style>
+</BaseLayout>

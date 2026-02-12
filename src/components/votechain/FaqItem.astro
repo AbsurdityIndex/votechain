@@ -24,7 +24,7 @@ const isOpen = status === 'open';
     <span class="font-sans font-medium text-navy-800 text-sm pr-3">{question}</span>
     <div class="flex items-center gap-2 flex-shrink-0 ml-2">
       {isOpen && (
-        <span class="inline-flex items-center px-2 py-0.5 text-[0.65rem] font-mono font-bold uppercase tracking-wider bg-orange-100 text-orange-700 rounded-full whitespace-nowrap">
+        <span class="inline-flex items-center px-2 py-0.5 text-[0.65rem] font-mono font-bold uppercase tracking-wider bg-orange-100 text-orange-700 rounded-full whitespace-nowrap" aria-label="Open question — answer is incomplete or unresolved">
           Open
         </span>
       )}

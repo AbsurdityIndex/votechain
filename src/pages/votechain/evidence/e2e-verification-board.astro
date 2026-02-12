@@ -1,0 +1,496 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain End-to-End Verification Board"
+  description="Visual evidence board for VoteChain E2E-V properties: cast-as-intended, recorded-as-cast, counted-as-recorded, and the zero-trust model."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'e2e verification', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>End-to-End Verification<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              The three E2E-V properties — cast-as-intended, recorded-as-cast, counted-as-recorded —
+              and how VoteChain's cryptographic mechanisms deliver each guarantee with zero trust.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">E2E-V Complete</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">E2E-V Properties</div>
+            <div class="metric-value">3</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Challenge Type</div>
+            <div class="metric-value">Benaloh</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Thresholds</div>
+            <div class="metric-value">2-of-3</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Trust Model</div>
+            <div class="metric-value">Zero-Trust</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Audit Trail</div>
+            <div class="metric-value">Public</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Three E2E-V Properties (span 12) -->
+        <article class="panel panel-properties" data-panel="e2e-properties">
+          <header class="panel-header">
+            <p class="panel-kicker">Core Guarantees</p>
+            <h2>Three End-to-End Verifiable Properties</h2>
+            <p>Each property is independently verifiable by the voter or any public auditor, without trusting any single component of the system.</p>
+          </header>
+          <div class="properties-grid">
+            <div class="property-card property-cast">
+              <div class="property-number">1</div>
+              <h3>Cast-as-Intended</h3>
+              <div class="property-question">Does my encrypted ballot actually contain my choices?</div>
+              <div class="property-mechanism">
+                <div class="mech-label">Mechanism</div>
+                <div class="mech-name">Benaloh Challenge</div>
+                <p>Voter can challenge the system to open the encrypted ballot and prove its contents match selections. If satisfied, re-encrypt and cast. The challenge/spoil process is recorded.</p>
+              </div>
+              <div class="property-crypto">
+                <code>ballot.ts → encrypt selections</code>
+                <code>cast.ts → challenge OR commit</code>
+                <code>spoiled_ballots[] → opened for audit</code>
+              </div>
+            </div>
+            <div class="property-card property-recorded">
+              <div class="property-number">2</div>
+              <h3>Recorded-as-Cast</h3>
+              <div class="property-question">Is my ballot actually in the official record?</div>
+              <div class="property-mechanism">
+                <div class="mech-label">Mechanism</div>
+                <div class="mech-name">BB Inclusion Proof + Receipt</div>
+                <p>After casting, the voter receives a receipt with a ballot hash. They can verify their ballot exists in the Merkle tree via an inclusion proof checked against the signed tree head.</p>
+              </div>
+              <div class="property-crypto">
+                <code>verify.ts → check receipt signature</code>
+                <code>bulletin-board.ts → inclusion proof</code>
+                <code>STH signature → ECDSA with BB key</code>
+              </div>
+            </div>
+            <div class="property-card property-counted">
+              <div class="property-number">3</div>
+              <h3>Counted-as-Recorded</h3>
+              <div class="property-question">Were all recorded ballots correctly tallied?</div>
+              <div class="property-mechanism">
+                <div class="mech-label">Mechanism</div>
+                <div class="mech-name">Threshold Tally + Proof</div>
+                <p>Trustees combine Shamir shares to reconstruct the election secret, ECIES-unwrap each ballot, decrypt, validate, and aggregate. The tally is signed and published as a VCL event.</p>
+              </div>
+              <div class="property-crypto">
+                <code>tally.ts → close BB, collect shares</code>
+                <code>shamir.ts → shamirCombine(shares)</code>
+                <code>ecies.ts → unwrap each ballot key</code>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 2: Cast Flow Sequence (span 7) -->
+        <article class="panel panel-cast-flow" data-panel="cast-flow">
+          <header class="panel-header">
+            <p class="panel-kicker">Cast Path</p>
+            <h2>Cast Flow Sequence</h2>
+            <p>Numbered steps from the integration test: credential verification through VCL anchoring.</p>
+          </header>
+          <div class="cast-steps">
+            <div class="cast-step">
+              <div class="cast-badge" style="background: var(--stage-1);">1</div>
+              <div class="cast-content">
+                <strong>Issue Challenge</strong>
+                <code>Server signs Benaloh challenge with ewg key → challenge_id + server_sig</code>
+              </div>
+            </div>
+            <div class="cast-step">
+              <div class="cast-badge" style="background: var(--stage-1);">2</div>
+              <div class="cast-content">
+                <strong>Build Eligibility Proof</strong>
+                <code>Credential (blind Schnorr sig) + nullifier derivation + challenge binding</code>
+              </div>
+            </div>
+            <div class="cast-step">
+              <div class="cast-badge" style="background: var(--stage-2);">3</div>
+              <div class="cast-content">
+                <strong>Encrypt Ballot</strong>
+                <code>AES-GCM encrypt selections → ECIES wrap ballot key under election PK</code>
+              </div>
+            </div>
+            <div class="cast-step">
+              <div class="cast-badge" style="background: var(--stage-2);">4</div>
+              <div class="cast-content">
+                <strong>Sign Cast Request</strong>
+                <code>ECDSA sign envelope: encrypted_ballot + proof + nullifier + wrapped_key</code>
+              </div>
+            </div>
+            <div class="cast-step">
+              <div class="cast-badge" style="background: var(--stage-3);">5</div>
+              <div class="cast-content">
+                <strong>Verify + Append to BB</strong>
+                <code>Validate nullifier uniqueness → bbLeafHash(payload) → append leaf → issue STH</code>
+              </div>
+            </div>
+            <div class="cast-step cast-step-ok">
+              <div class="cast-badge" style="background: var(--ok-ink);">6</div>
+              <div class="cast-content">
+                <strong>Anchor on VCL</strong>
+                <code>Create ewp_ballot_cast + bb_sth_published events → signed with VCL key</code>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 3: Tally Flow (span 5) -->
+        <article class="panel panel-tally" data-panel="tally-flow">
+          <header class="panel-header">
+            <p class="panel-kicker">Tally Path</p>
+            <h2>Tally Flow</h2>
+            <p>Steps from BB close through threshold decryption to signed results.</p>
+          </header>
+          <div class="tally-steps">
+            <div class="tally-step">
+              <div class="tally-badge">1</div>
+              <strong>Close Bulletin Board</strong>
+              <p>No more ballots accepted. Final STH issued.</p>
+            </div>
+            <div class="tally-step">
+              <div class="tally-badge">2</div>
+              <strong>Collect Trustee Shares</strong>
+              <p>Gather t-of-n Shamir shares from trustees.</p>
+            </div>
+            <div class="tally-step">
+              <div class="tally-badge">3</div>
+              <strong>Shamir Combine</strong>
+              <p>shamirCombine(shares) → reconstructed election secret.</p>
+            </div>
+            <div class="tally-step">
+              <div class="tally-badge">4</div>
+              <strong>Verify Reconstructed PK</strong>
+              <p>Confirm secret · G matches the election public key.</p>
+            </div>
+            <div class="tally-step">
+              <div class="tally-badge">5</div>
+              <strong>ECIES Unwrap + Decrypt</strong>
+              <p>For each ballot: unwrap key → AES-GCM decrypt → validate selections.</p>
+            </div>
+            <div class="tally-step tally-step-ok">
+              <div class="tally-badge tally-badge-ok">6</div>
+              <strong>Aggregate + Sign + Publish</strong>
+              <p>Sum selections per contest → sign tally → VCL event: tally_published.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 4: Trust Model (span 12) -->
+        <article class="panel panel-trust" data-panel="trust-model">
+          <header class="panel-header">
+            <p class="panel-kicker">Zero-Trust Architecture</p>
+            <h2>Trust Model: Who Trusts Whom</h2>
+            <p>Every participant verifies independently. No single party can subvert the election without detection.</p>
+          </header>
+          <div class="trust-grid">
+            <div class="trust-card">
+              <div class="trust-actor">Voter</div>
+              <div class="trust-claim">Trusts nothing — verifies everything</div>
+              <div class="trust-how">
+                <div class="trust-check">Benaloh challenge proves cast-as-intended</div>
+                <div class="trust-check">Receipt + inclusion proof proves recorded-as-cast</div>
+                <div class="trust-check">Public tally proof proves counted-as-recorded</div>
+              </div>
+            </div>
+            <div class="trust-card">
+              <div class="trust-actor">BB Operator</div>
+              <div class="trust-claim">Cannot equivocate</div>
+              <div class="trust-how">
+                <div class="trust-check">Multiple monitors compare STH snapshots</div>
+                <div class="trust-check">Different root hashes for same tree_size = detected cheating</div>
+                <div class="trust-check">Append-only Merkle tree prevents silent deletion</div>
+              </div>
+            </div>
+            <div class="trust-card">
+              <div class="trust-actor">Trustees</div>
+              <div class="trust-claim">Cannot collude below threshold</div>
+              <div class="trust-how">
+                <div class="trust-check">Shamir t-of-n: need 2 of 3 shares to decrypt</div>
+                <div class="trust-check">Any single trustee holds insufficient information</div>
+                <div class="trust-check">Election secret never exists in whole until tally</div>
+              </div>
+            </div>
+            <div class="trust-card">
+              <div class="trust-actor">Issuers</div>
+              <div class="trust-claim">Cannot forge credentials</div>
+              <div class="trust-how">
+                <div class="trust-check">Threshold issuance: need 2 of 3 issuer signatures</div>
+                <div class="trust-check">Blind Schnorr: issuer never learns voter identity</div>
+                <div class="trust-check">Credential binding: nullifier prevents double-voting</div>
+              </div>
+            </div>
+            <div class="trust-card">
+              <div class="trust-actor">Worker Nodes</div>
+              <div class="trust-claim">Cannot falsify records</div>
+              <div class="trust-how">
+                <div class="trust-check">Hash chain: tampering cascades through all entries</div>
+                <div class="trust-check">ECDSA ACK signatures prove node acceptance</div>
+                <div class="trust-check">3-node separation: federal, state, oversight</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0; color: var(--ink);
+      background: radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%), linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page { width: min(1480px, calc(100% - 32px)); max-width: 1480px; margin: 40px auto 80px; }
+
+    .hero {
+      padding: 32px 36px 28px; border: 1px solid var(--line); border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+    .hero-text { flex: 1; }
+    .hero-kicker { margin: 0 0 10px; font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); }
+    .hero h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 42px); line-height: 1.12; color: var(--ink); }
+    .hero-subtitle { margin: 14px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; max-width: 640px; }
+    .hero-verdict { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+    .verdict-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #e6f7ee, #d0f0dd); border: 2.5px solid var(--ok-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,107,58,0.12); }
+    .verdict-check { width: 32px; height: 32px; color: var(--ok-ink); }
+    .verdict-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ok-ink); }
+    .top-metrics { margin-top: 24px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; }
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
+    .metric-pass .metric-value { color: var(--ok-ink); }
+
+    .panel-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px; box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06); }
+    .panel h2 { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; line-height: 1.2; }
+    .panel p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+    .panel-header { margin-bottom: 18px; }
+    .panel-kicker { margin: 0 0 5px; font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+
+    /* ── E2E-V Properties ────────────────── */
+
+    .panel-properties { grid-column: span 12; }
+
+    .properties-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    }
+
+    .property-card {
+      border: 1px solid var(--line); border-radius: 14px; padding: 20px;
+      background: linear-gradient(180deg, #fff, #fafbfd); border-top: 4px solid var(--line);
+    }
+
+    .property-cast { border-top-color: var(--stage-1); }
+    .property-recorded { border-top-color: var(--stage-2); }
+    .property-counted { border-top-color: var(--stage-4); }
+
+    .property-number {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 15px; font-weight: 700;
+      color: #fff; margin-bottom: 10px;
+    }
+
+    .property-cast .property-number { background: var(--stage-1); }
+    .property-recorded .property-number { background: var(--stage-2); }
+    .property-counted .property-number { background: var(--stage-4); }
+
+    .property-card h3 {
+      margin: 0 0 8px; font-family: var(--serif); font-size: 20px; line-height: 1.2;
+    }
+
+    .property-question {
+      font-size: 14px; color: var(--ink-soft); font-style: italic;
+      margin-bottom: 14px; line-height: 1.4;
+    }
+
+    .property-mechanism {
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+      background: #fafbfd; margin-bottom: 12px;
+    }
+
+    .mech-label {
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 4px;
+    }
+
+    .mech-name {
+      font-family: var(--serif); font-size: 16px; font-weight: 600; margin-bottom: 6px;
+    }
+
+    .property-mechanism p { font-size: 12px; line-height: 1.5; }
+
+    .property-crypto {
+      display: grid; gap: 4px;
+    }
+
+    .property-crypto code {
+      display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+      padding: 4px 8px; border: 1px solid #e2e9f2; border-radius: 6px; background: #fff;
+    }
+
+    /* ── Cast Flow ───────────────────────── */
+
+    .panel-cast-flow { grid-column: span 7; }
+
+    .cast-steps { display: grid; gap: 8px; }
+
+    .cast-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .cast-step-ok { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .cast-badge {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+
+    .cast-content { flex: 1; }
+    .cast-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .cast-content code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .cast-step-ok .cast-content code { color: var(--ok-ink); }
+
+    /* ── Tally Flow ──────────────────────── */
+
+    .panel-tally { grid-column: span 5; }
+
+    .tally-steps { display: grid; gap: 8px; }
+
+    .tally-step {
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+
+    .tally-step-ok { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .tally-badge {
+      width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 12px; font-weight: 700; color: #fff; background: var(--stage-1); flex-shrink: 0;
+    }
+
+    .tally-badge-ok { background: var(--ok-ink); }
+
+    .tally-step strong { display: block; font-size: 13px; margin-bottom: 2px; }
+    .tally-step p { font-size: 12px; margin: 0; }
+
+    /* ── Trust Model ─────────────────────── */
+
+    .panel-trust { grid-column: span 12; }
+
+    .trust-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+    }
+
+    .trust-card {
+      border: 1px solid var(--line); border-radius: 14px; padding: 16px; background: #fff;
+    }
+
+    .trust-actor {
+      font-family: var(--serif); font-size: 17px; font-weight: 700; margin-bottom: 4px;
+    }
+
+    .trust-claim {
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      color: var(--ok-ink); background: var(--ok-bg); border: 1px solid var(--ok-border);
+      padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 10px;
+    }
+
+    .trust-how { display: grid; gap: 6px; }
+
+    .trust-check {
+      font-size: 12px; color: var(--ink-soft); line-height: 1.4;
+      padding: 6px 10px; border: 1px solid #e2e9f2; border-radius: 6px; background: #fafbfd;
+    }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics { grid-template-columns: repeat(3, 1fr); }
+      .panel-properties, .panel-cast-flow, .panel-tally, .panel-trust { grid-column: span 12; }
+      .properties-grid { grid-template-columns: 1fr; }
+      .trust-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict { flex-direction: row; align-self: flex-start; }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+      .trust-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>

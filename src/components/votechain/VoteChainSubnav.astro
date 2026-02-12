@@ -12,10 +12,23 @@ function normalize(path: string) {
   return path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
 }
 
+// Routes that should highlight a different primary nav item.
+// e.g. /votechain/field-report-technical is a sibling of /votechain/field-report,
+// not a child, so startsWith alone won't match.
+const routeAliases: Record<string, string> = {
+  '/votechain/field-report-technical': '/votechain/field-report',
+  '/votechain/evidence/diagram-board': '/votechain/field-report',
+  '/votechain/evidence/pi-integration-board': '/votechain/pi-integration',
+  '/votechain/credential-integrity': '/votechain/architecture',
+};
+
 function isActive(href: string) {
   const p = normalize(currentPath);
   const h = normalize(href);
   if (h === '/votechain') return p === '/votechain';
+  // Check if the current path has an alias that maps to this nav item
+  const aliased = routeAliases[p];
+  if (aliased && (aliased === h || aliased.startsWith(`${h}/`))) return true;
   return p === h || p.startsWith(`${h}/`);
 }
 
@@ -99,7 +112,7 @@ const activeDoc = inAssurance
                       'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all',
                       active
                         ? 'bg-gold-500 text-navy-900 shadow-sm'
-                        : 'bg-white text-navy-700 border border-navy-200 hover:border-gold-400 hover:bg-gold-50',
+                        : 'bg-white text-navy-700 border border-navy-200 hover:border-gold-400 hover:bg-gold-50 dark:border-navy-400 dark:hover:border-gold-600 dark:hover:bg-gold-800/20',
                     ]}
                     title={doc.description}
                   >

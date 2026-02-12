@@ -1,0 +1,882 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain Field Diagram Board"
+  description="Visual evidence board for VoteChain field-test stages, controls, and outcome validation."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'diagram board'],
+  }}
+>
+      <article class="board-canvas">
+        <div class="page">
+<section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>Air-Gapped Test Election<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              Visual summary of stages, stress tests, and verification outcomes from the public working-group mock election cycles.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">All Runs Verified</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Polling Machines</div>
+            <div class="metric-value">5</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Sessions / Machine</div>
+            <div class="metric-value">100</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Sessions / Run</div>
+            <div class="metric-value">500</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Runs Executed</div>
+            <div class="metric-value">2</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Verification State</div>
+            <div class="metric-value">PASS</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel panel-stage-flow" data-panel="stage-flow">
+          <header class="panel-header">
+            <p class="panel-kicker">Lifecycle</p>
+            <h2>Stage Flow: Build To Verify</h2>
+            <p>Each run follows the same chain to preserve reproducibility and auditability.</p>
+          </header>
+          <div class="flow">
+            <div class="flow-step" data-stage="1">
+              <div class="step-badge">1</div>
+              <div class="step-title">Bootstrap Stack</div>
+              <ul class="step-list">
+                <li>Generate Compose environment</li>
+                <li>Start machine, airgap, and central services</li>
+                <li>Validate strict auth boundary</li>
+              </ul>
+              <div class="flow-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="flow-step" data-stage="2">
+              <div class="step-badge">2</div>
+              <div class="step-title">Run Election Cycle</div>
+              <ul class="step-list">
+                <li>5 machines x 100 sessions</li>
+                <li>Random spoils enabled</li>
+                <li>Machine reset after every session</li>
+              </ul>
+              <div class="flow-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="flow-step" data-stage="3">
+              <div class="step-badge">3</div>
+              <div class="step-title">Adversarial Drills</div>
+              <ul class="step-list">
+                <li>Duplicate-vote attempts at ballot box</li>
+                <li>Rogue node / ACK-key mismatch simulation</li>
+                <li>Observer degradation and recovery</li>
+              </ul>
+              <div class="flow-connector"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+            <div class="flow-step" data-stage="4">
+              <div class="step-badge">4</div>
+              <div class="step-title">Audit Verification</div>
+              <ul class="step-list">
+                <li>Outbox drains to zero</li>
+                <li>Ledger index/hash checks captured</li>
+                <li>Run report and receipts reconciled</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel panel-session-grid" data-panel="session-grid">
+          <header class="panel-header">
+            <p class="panel-kicker">Operational Load</p>
+            <h2>Machine Session Matrix</h2>
+            <p>Per-machine run split for the first cycle (seed 20260211).</p>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th>Machine</th>
+                <th>Sessions</th>
+                <th>Spoiled</th>
+                <th>Cast</th>
+                <th>Reset Check</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>machine-1</td>
+                <td>100</td>
+                <td>12</td>
+                <td>88</td>
+                <td><span class="status-ok">100 / 100 PASS</span></td>
+              </tr>
+              <tr>
+                <td>machine-2</td>
+                <td>100</td>
+                <td>11</td>
+                <td>89</td>
+                <td><span class="status-ok">100 / 100 PASS</span></td>
+              </tr>
+              <tr>
+                <td>machine-3</td>
+                <td>100</td>
+                <td>14</td>
+                <td>86</td>
+                <td><span class="status-ok">100 / 100 PASS</span></td>
+              </tr>
+              <tr>
+                <td>machine-4</td>
+                <td>100</td>
+                <td>10</td>
+                <td>90</td>
+                <td><span class="status-ok">100 / 100 PASS</span></td>
+              </tr>
+              <tr>
+                <td>machine-5</td>
+                <td>100</td>
+                <td>12</td>
+                <td>88</td>
+                <td><span class="status-ok">100 / 100 PASS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="panel panel-test-coverage" data-panel="test-coverage">
+          <header class="panel-header">
+            <p class="panel-kicker">Security And Integrity Tests</p>
+            <h2>What Was Tested</h2>
+            <p>Controls exercised during the same demonstration window.</p>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th>Control</th>
+                <th>Observed</th>
+                <th>State</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Duplicate check-in handling</td>
+                <td>6 blocked of 21 attempts</td>
+                <td><span class="status-ok">PASS</span></td>
+              </tr>
+              <tr>
+                <td>Unregistered voter handling</td>
+                <td>3 blocked of 21 attempts</td>
+                <td><span class="status-ok">PASS</span></td>
+              </tr>
+              <tr>
+                <td>Machine API nullifier defense</td>
+                <td>Bypass attempts rejected</td>
+                <td><span class="status-ok">PASS</span></td>
+              </tr>
+              <tr>
+                <td>Rogue relay role startup</td>
+                <td>Invalid role rejected</td>
+                <td><span class="status-ok">PASS</span></td>
+              </tr>
+              <tr>
+                <td>ACK-key spoof runtime drill</td>
+                <td>Observer degraded then recovered</td>
+                <td><span class="status-warn">DETECTED + RECOVERED</span></td>
+              </tr>
+              <tr>
+                <td>Random spoils preservation</td>
+                <td>59 / 57 spoiled in two runs</td>
+                <td><span class="status-ok">PASS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="panel panel-verification" data-panel="verification-chain">
+          <header class="panel-header">
+            <p class="panel-kicker">Dual Plane Verification</p>
+            <h2>Airgap + Central Ledger Path</h2>
+            <p>Each ballot bundle is independently reconciled across both planes.</p>
+          </header>
+          <div class="chain">
+            <section class="chain-lane chain-lane-airgap">
+              <p class="lane-title"><span class="lane-dot lane-dot-airgap"></span>Airgap Plane</p>
+              <div class="chain-node">Machine export bundle signed</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node">Airgap ingest validates signature + schema</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node">Airgap relay forwards events to 3-node ledger</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node chain-node-terminal">Outbox pending = 0 at completion</div>
+            </section>
+            <section class="chain-lane chain-lane-central">
+              <p class="lane-title"><span class="lane-dot lane-dot-central"></span>Central Plane</p>
+              <div class="chain-node">Same signed bundle ingested independently</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node">Central relay applies ACK quorum rules</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node">Central 3-node ledger reaches consistent head</div>
+              <div class="chain-arrow-down"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="chain-node chain-node-terminal">Audit verify confirms cast/receipt parity</div>
+            </section>
+          </div>
+          <div class="footer-note">
+            Run 20260211T211648Z: central 500 / 9d2b9e...d29c, airgap 500 / aa71d3...b1e9
+            <br />
+            Run 20260211T211810Z: central 500 / cbf0ef...ba27, airgap 500 / 09a0d3...fab3
+          </div>
+        </article>
+
+        <article class="panel panel-run-outcomes" data-panel="run-outcomes">
+          <header class="panel-header">
+            <p class="panel-kicker">Run Outcomes</p>
+            <h2>Election Results By Run</h2>
+            <p>Both runs verified as internally consistent.</p>
+          </header>
+          <div class="run-cards">
+            <article class="run-card">
+              <div class="run-card-top">
+                <div class="run-id">Run 20260211T211648Z <span class="run-seed">Seed 20260211</span></div>
+                <span class="status-ok">VERIFIED</span>
+              </div>
+              <div class="run-main">
+                <strong>Winner: cand_a</strong>
+              </div>
+              <div class="run-details">
+                <div>
+                  <span>Sessions</span>
+                  <strong>500</strong>
+                </div>
+                <div>
+                  <span>Cast</span>
+                  <strong>441</strong>
+                </div>
+                <div>
+                  <span>Spoiled</span>
+                  <strong>59</strong>
+                </div>
+              </div>
+            </article>
+            <article class="run-card">
+              <div class="run-card-top">
+                <div class="run-id">Run 20260211T211810Z <span class="run-seed">Seed 20260212</span></div>
+                <span class="status-ok">VERIFIED</span>
+              </div>
+              <div class="run-main">
+                <strong>Winner: cand_b</strong>
+              </div>
+              <div class="run-details">
+                <div>
+                  <span>Sessions</span>
+                  <strong>500</strong>
+                </div>
+                <div>
+                  <span>Cast</span>
+                  <strong>443</strong>
+                </div>
+                <div>
+                  <span>Spoiled</span>
+                  <strong>57</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </article>
+      </section>
+        </div>
+      </article>
+
+  <style>
+      .board-canvas {
+        --ink: #0f223b;
+        --ink-soft: #35506f;
+        --line: #c5d1de;
+        --line-strong: #a0b3c8;
+        --card: #ffffff;
+        --bg-a: #f3f6fb;
+        --bg-b: #e8edf4;
+        --accent: #b8892e;
+        --accent-soft: #f4ead1;
+        --ok-bg: #e6f7ee;
+        --ok-ink: #1a6b3a;
+        --ok-border: #b5e2c6;
+        --warn-bg: #fff5e6;
+        --warn-ink: #8e5b10;
+        --stage-1: #3a6fa0;
+        --stage-2: #2d8a5e;
+        --stage-3: #b8892e;
+        --stage-4: #1a6b3a;
+        --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+        --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+        --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      .board-canvas {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%),
+          linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+        font-family: var(--sans);
+      }
+
+      .page {
+        width: min(1480px, calc(100% - 32px));
+        max-width: 1480px;
+        margin: 40px auto 80px;
+      }
+
+      /* ── Hero ─────────────────────────────── */
+
+      .hero {
+        padding: 32px 36px 28px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+        box-shadow:
+          0 1px 0 rgba(255,255,255,0.9) inset,
+          0 20px 50px -12px rgba(15,34,59,0.10);
+      }
+
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 32px;
+      }
+
+      .hero-text { flex: 1; }
+
+      .hero-kicker {
+        margin: 0 0 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--accent);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: clamp(28px, 3vw, 42px);
+        line-height: 1.12;
+        color: var(--ink);
+      }
+
+      .hero-subtitle {
+        margin: 14px 0 0;
+        color: var(--ink-soft);
+        font-size: 16px;
+        line-height: 1.5;
+        max-width: 640px;
+      }
+
+      .hero-verdict {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        padding-top: 4px;
+      }
+
+      .verdict-ring {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e6f7ee, #d0f0dd);
+        border: 2.5px solid var(--ok-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(26,107,58,0.12);
+      }
+
+      .verdict-check {
+        width: 32px;
+        height: 32px;
+        color: var(--ok-ink);
+      }
+
+      .verdict-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ok-ink);
+      }
+
+      .top-metrics {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(120px, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 16px;
+        background: #fff;
+        transition: box-shadow 0.15s;
+      }
+
+      .metric:hover {
+        box-shadow: 0 4px 12px rgba(15,34,59,0.06);
+      }
+
+      .metric-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+      }
+
+      .metric-value {
+        margin-top: 6px;
+        font-size: 32px;
+        line-height: 1;
+        font-weight: 700;
+        font-family: var(--serif);
+      }
+
+      .metric-pass {
+        border-color: var(--ok-border);
+        background: linear-gradient(180deg, #f0faf4, #e6f7ee);
+      }
+
+      .metric-pass .metric-value {
+        color: var(--ok-ink);
+      }
+
+      /* ── Panel Grid ──────────────────────── */
+
+      .panel-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 18px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        padding: 24px;
+        box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06);
+      }
+
+      .panel h2 {
+        margin: 0 0 6px;
+        font-family: var(--serif);
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      .panel p {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .panel-header {
+        margin-bottom: 18px;
+      }
+
+      .panel-kicker {
+        margin: 0 0 5px;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+      }
+
+      /* ── Stage Flow ──────────────────────── */
+
+      .panel-stage-flow {
+        grid-column: span 12;
+      }
+
+      .flow {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .flow-step {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 16px 16px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafd 100%);
+        min-height: 140px;
+        position: relative;
+        border-top: 3px solid var(--line);
+      }
+
+      .flow-step[data-stage="1"] { border-top-color: var(--stage-1); }
+      .flow-step[data-stage="2"] { border-top-color: var(--stage-2); }
+      .flow-step[data-stage="3"] { border-top-color: var(--stage-3); }
+      .flow-step[data-stage="4"] { border-top-color: var(--stage-4); }
+
+      .step-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+        background: var(--line-strong);
+      }
+
+      .flow-step[data-stage="1"] .step-badge { background: var(--stage-1); }
+      .flow-step[data-stage="2"] .step-badge { background: var(--stage-2); }
+      .flow-step[data-stage="3"] .step-badge { background: var(--stage-3); }
+      .flow-step[data-stage="4"] .step-badge { background: var(--stage-4); }
+
+      .flow-connector {
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        z-index: 1;
+        color: var(--accent);
+      }
+
+      .flow-connector svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .step-title {
+        font-size: 18px;
+        font-weight: 600;
+        font-family: var(--serif);
+        color: var(--ink);
+        line-height: 1.2;
+      }
+
+      .step-list {
+        margin: 10px 0 0;
+        padding-left: 16px;
+        color: var(--ink-soft);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .step-list li + li { margin-top: 2px; }
+
+      /* ── Tables ───────────────────────────── */
+
+      .panel-session-grid { grid-column: span 7; }
+      .panel-test-coverage { grid-column: span 5; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        border-bottom: 1px solid #e2e9f2;
+        padding: 10px 10px;
+        text-align: left;
+        font-size: 13px;
+      }
+
+      th {
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-soft);
+        padding-bottom: 8px;
+      }
+
+      tbody tr:hover { background: #f8fafd; }
+      tr:last-child td { border-bottom: 0; }
+
+      .status-ok {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--ok-bg);
+        color: var(--ok-ink);
+        border: 1px solid var(--ok-border);
+      }
+
+      .status-warn {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--warn-bg);
+        color: var(--warn-ink);
+        border: 1px solid #f0d9a8;
+      }
+
+      /* ── Verification Chain ──────────────── */
+
+      .panel-verification { grid-column: span 7; }
+      .panel-run-outcomes { grid-column: span 5; }
+
+      .chain {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .chain-lane {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        background: #f8fafd;
+      }
+
+      .chain-lane-airgap {
+        border-left: 3px solid var(--stage-1);
+      }
+
+      .chain-lane-central {
+        border-left: 3px solid var(--stage-2);
+      }
+
+      .lane-title {
+        margin: 0 0 12px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .lane-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .lane-dot-airgap { background: var(--stage-1); }
+      .lane-dot-central { background: var(--stage-2); }
+
+      .chain-node {
+        border: 1px solid #dbe4f0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fff;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .chain-node-terminal {
+        background: linear-gradient(180deg, #f0faf4, #e6f7ee);
+        border-color: var(--ok-border);
+        font-weight: 500;
+        color: var(--ok-ink);
+      }
+
+      .chain-arrow-down {
+        display: flex;
+        justify-content: center;
+        padding: 2px 0;
+        color: var(--line-strong);
+      }
+
+      .chain-arrow-down svg {
+        width: 20px;
+        height: 10px;
+      }
+
+      .footer-note {
+        margin-top: 16px;
+        padding: 12px 14px;
+        border: 1px dashed #c5d1de;
+        border-radius: 10px;
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        background: #f8fbff;
+      }
+
+      /* ── Run Outcomes ────────────────────── */
+
+      .run-cards {
+        margin-top: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .run-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 16px;
+        background: linear-gradient(180deg, #fff, #fafbfd);
+      }
+
+      .run-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .run-id {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-soft);
+      }
+
+      .run-seed {
+        margin-left: 6px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        background: #eef2f8;
+        font-size: 10px;
+      }
+
+      .run-main {
+        margin-top: 8px;
+      }
+
+      .run-main strong {
+        font-size: 20px;
+        font-family: var(--serif);
+      }
+
+      .run-details {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .run-details div {
+        border: 1px solid #e2e9f2;
+        border-radius: 8px;
+        padding: 8px 10px;
+        background: #fff;
+      }
+
+      .run-details span {
+        display: block;
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-soft);
+      }
+
+      .run-details strong {
+        margin-top: 4px;
+        display: block;
+        font-size: 15px;
+      }
+
+      /* ── Responsive ──────────────────────── */
+
+      @media (max-width: 1100px) {
+        .top-metrics {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .flow {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .flow-connector { display: none; }
+
+        .panel-session-grid,
+        .panel-test-coverage,
+        .panel-verification,
+        .panel-run-outcomes {
+          grid-column: span 12;
+        }
+
+        .chain {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page { margin: 20px auto 40px; }
+
+        .hero { padding: 20px; }
+
+        .hero-top { flex-direction: column; gap: 16px; }
+
+        .hero-verdict {
+          flex-direction: row;
+          align-self: flex-start;
+        }
+
+        .verdict-ring { width: 44px; height: 44px; }
+        .verdict-check { width: 22px; height: 22px; }
+
+        .hero h1 { font-size: 26px; }
+
+        .top-metrics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .panel-grid { gap: 12px; }
+
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .panel-stage-flow { grid-column: span 12; }
+      }
+  </style>
+</BaseLayout>

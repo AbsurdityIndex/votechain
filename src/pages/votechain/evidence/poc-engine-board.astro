@@ -1,0 +1,649 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain POC Engine Architecture Board"
+  description="Visual evidence board for the browser-based POC engine: module architecture, state schema, initialization, and voter journey."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'poc', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>POC Engine Architecture<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              The browser-based proof-of-concept engine: 22 modules, a versioned state machine,
+              and a complete voter journey from credential to tally — all running client-side.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">Engine Operational</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Modules</div>
+            <div class="metric-value">22</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">State Version</div>
+            <div class="metric-value">V2</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">ECDSA Keys</div>
+            <div class="metric-value">4</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Voter Roll</div>
+            <div class="metric-value">50,000</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Persistence</div>
+            <div class="metric-value">localStorage</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Module Dependency Graph (span 12) -->
+        <article class="panel panel-modules" data-panel="module-graph">
+          <header class="panel-header">
+            <p class="panel-kicker">Architecture</p>
+            <h2>Module Dependency Graph</h2>
+            <p>22 TypeScript modules organized in three layers: crypto primitives, core engine, and UI controllers.</p>
+          </header>
+          <svg viewBox="0 0 1420 580" role="img" aria-label="POC module dependency graph showing three layers">
+            <defs>
+              <marker id="modArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
+              </marker>
+            </defs>
+
+            <!-- Layer labels -->
+            <rect x="20" y="20" width="1380" height="140" rx="10" fill="#eef4fb" stroke="#aac3df" />
+            <text x="40" y="48" font-size="13" fill="#1f446d" class="caps">UI Controller Layer (page-specific orchestration)</text>
+
+            <rect x="20" y="180" width="1380" height="200" rx="10" fill="#f0faf4" stroke="#a8d8b8" />
+            <text x="40" y="208" font-size="13" fill="#246843" class="caps">Core Engine Layer (state, VCL, bulletin board, casting, credentials)</text>
+
+            <rect x="20" y="400" width="1380" height="160" rx="10" fill="#fff5e6" stroke="#f0d9a8" />
+            <text x="40" y="428" font-size="13" fill="#8e5b10" class="caps">Crypto Primitive Layer (secp256k1 / @noble/curves)</text>
+
+            <!-- UI modules -->
+            <g transform="translate(60,70)">
+              <rect x="0" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="12" y="24" font-size="12" fill="#0f243e" font-weight="600">dashboard</text>
+              <text x="12" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="140" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="152" y="24" font-size="12" fill="#0f243e" font-weight="600">verify</text>
+              <text x="152" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="280" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="292" y="24" font-size="12" fill="#0f243e" font-weight="600">lookup</text>
+              <text x="292" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="420" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="432" y="24" font-size="12" fill="#0f243e" font-weight="600">trust-portal</text>
+              <text x="432" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="580" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="592" y="24" font-size="12" fill="#0f243e" font-weight="600">fraud</text>
+              <text x="592" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="720" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="732" y="24" font-size="12" fill="#0f243e" font-weight="600">tally</text>
+              <text x="732" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="860" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="872" y="24" font-size="12" fill="#0f243e" font-weight="600">manifest</text>
+              <text x="872" y="42" font-size="10" fill="#496789">.ts</text>
+
+              <rect x="1000" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
+              <text x="1012" y="24" font-size="12" fill="#0f243e" font-weight="600">index</text>
+              <text x="1012" y="42" font-size="10" fill="#496789">.ts (barrel)</text>
+            </g>
+
+            <!-- Core modules -->
+            <g transform="translate(60,230)">
+              <rect x="0" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fd1b2" stroke-width="2" />
+              <text x="12" y="24" font-size="13" fill="#246843" font-weight="700">state</text>
+              <text x="12" y="42" font-size="10" fill="#2f6f4d">PocStateV2</text>
+
+              <rect x="160" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="172" y="24" font-size="12" fill="#246843" font-weight="600">types</text>
+              <text x="172" y="42" font-size="10" fill="#2f6f4d">interfaces</text>
+
+              <rect x="300" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="312" y="24" font-size="12" fill="#246843" font-weight="600">vcl</text>
+              <text x="312" y="42" font-size="10" fill="#2f6f4d">event log</text>
+
+              <rect x="440" y="0" width="160" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="452" y="24" font-size="12" fill="#246843" font-weight="600">bulletin-board</text>
+              <text x="452" y="42" font-size="10" fill="#2f6f4d">Merkle + STH</text>
+
+              <rect x="620" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="632" y="24" font-size="12" fill="#246843" font-weight="600">cast</text>
+              <text x="632" y="42" font-size="10" fill="#2f6f4d">ballot cast</text>
+
+              <rect x="760" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="772" y="24" font-size="12" fill="#246843" font-weight="600">credential</text>
+              <text x="772" y="42" font-size="10" fill="#2f6f4d">blind Schnorr</text>
+
+              <rect x="920" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="932" y="24" font-size="12" fill="#246843" font-weight="600">ballot</text>
+              <text x="932" y="42" font-size="10" fill="#2f6f4d">encrypt</text>
+
+              <rect x="300" y="80" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="312" y="104" font-size="12" fill="#246843" font-weight="600">vcl-client</text>
+              <text x="312" y="122" font-size="10" fill="#2f6f4d">replication</text>
+
+              <rect x="1060" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
+              <text x="1072" y="24" font-size="12" fill="#246843" font-weight="600">encoding</text>
+              <text x="1072" y="42" font-size="10" fill="#2f6f4d">sha256, b64u</text>
+            </g>
+
+            <!-- Crypto modules -->
+            <g transform="translate(200,450)">
+              <rect x="0" y="0" width="180" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
+              <text x="12" y="24" font-size="12" fill="#8e5b10" font-weight="600">blind-schnorr</text>
+              <text x="12" y="42" font-size="10" fill="#8e5b10">issuance + verify</text>
+
+              <rect x="200" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
+              <text x="212" y="24" font-size="12" fill="#8e5b10" font-weight="600">ecies</text>
+              <text x="212" y="42" font-size="10" fill="#8e5b10">ballot wrap</text>
+
+              <rect x="360" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
+              <text x="372" y="24" font-size="12" fill="#8e5b10" font-weight="600">shamir</text>
+              <text x="372" y="42" font-size="10" fill="#8e5b10">split + combine</text>
+
+              <rect x="520" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
+              <text x="532" y="24" font-size="12" fill="#8e5b10" font-weight="600">ecdsa</text>
+              <text x="532" y="42" font-size="10" fill="#8e5b10">sign + verify</text>
+
+              <rect x="680" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
+              <text x="692" y="24" font-size="12" fill="#8e5b10" font-weight="600">bigint</text>
+              <text x="692" y="42" font-size="10" fill="#8e5b10">mod, modInv</text>
+            </g>
+
+            <!-- Key dependency arrows -->
+            <line x1="130" y1="160" x2="130" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
+            <line x1="270" y1="160" x2="200" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
+            <line x1="540" y1="160" x2="520" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
+            <line x1="700" y1="160" x2="680" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
+            <line x1="480" y1="160" x2="380" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
+
+            <!-- Core to crypto arrows -->
+            <line x1="890" y1="290" x2="490" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
+            <line x1="760" y1="290" x2="310" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
+            <line x1="680" y1="290" x2="700" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
+          </svg>
+        </article>
+
+        <!-- Panel 2: PocStateV2 Schema (span 7) -->
+        <article class="panel panel-state" data-panel="state-schema">
+          <header class="panel-header">
+            <p class="panel-kicker">State Machine</p>
+            <h2>PocStateV2 Schema</h2>
+            <p>Complete state tree persisted in localStorage. All election data lives in a single versioned object.</p>
+          </header>
+          <div class="state-tree">
+            <div class="state-root">PocStateV2 <span class="state-version">version: 2</span></div>
+            <div class="state-branches">
+              <div class="state-branch">
+                <div class="branch-label branch-label-key">keys</div>
+                <div class="branch-children">
+                  <div class="state-leaf">manifest <span>StoredKeyPair</span></div>
+                  <div class="state-leaf">ewg <span>StoredKeyPair</span></div>
+                  <div class="state-leaf">bb <span>StoredKeyPair</span></div>
+                  <div class="state-leaf">vcl <span>StoredKeyPair</span></div>
+                </div>
+              </div>
+              <div class="state-branch">
+                <div class="branch-label branch-label-election">election</div>
+                <div class="branch-children">
+                  <div class="state-leaf">election_id <span>string</span></div>
+                  <div class="state-leaf">jurisdiction_id <span>string</span></div>
+                  <div class="state-leaf">contests <span>PocContest[]</span></div>
+                </div>
+              </div>
+              <div class="state-branch">
+                <div class="branch-label branch-label-trust">trustees + issuers</div>
+                <div class="branch-children">
+                  <div class="state-leaf">threshold <span>&#123; t: 2, n: 3 &#125;</span></div>
+                  <div class="state-leaf">shares <span>PocTrusteeShareRecord[]</span></div>
+                  <div class="state-leaf">issuers <span>Array&lt;&#123; sk, pk &#125;&gt;</span></div>
+                  <div class="state-leaf">issuer_threshold <span>&#123; t, n &#125;</span></div>
+                </div>
+              </div>
+              <div class="state-branch">
+                <div class="branch-label branch-label-data">credential + voting</div>
+                <div class="branch-children">
+                  <div class="state-leaf">credential <span>PocCredential?</span></div>
+                  <div class="state-leaf">challenges <span>Record&lt;id, ChallengeRecord&gt;</span></div>
+                  <div class="state-leaf">spoiled_ballots <span>PocSpoiledBallotRecord[]</span></div>
+                  <div class="state-leaf">tally <span>PocTally?</span></div>
+                </div>
+              </div>
+              <div class="state-branch">
+                <div class="branch-label branch-label-audit">audit trail</div>
+                <div class="branch-children">
+                  <div class="state-leaf">bb.leaves <span>PocBbLeaf[]</span></div>
+                  <div class="state-leaf">bb.sth_history <span>PocSignedTreeHead[]</span></div>
+                  <div class="state-leaf">vcl.events <span>PocVclEvent[]</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 3: Initialization Sequence (span 5) -->
+        <article class="panel panel-init" data-panel="init-sequence">
+          <header class="panel-header">
+            <p class="panel-kicker">Bootstrap</p>
+            <h2>Initialization Sequence</h2>
+            <p>Steps executed when a new POC election is created.</p>
+          </header>
+          <div class="init-steps">
+            <div class="init-step" data-stage="1">
+              <div class="step-badge">1</div>
+              <div class="step-content">
+                <strong>Generate 4 ECDSA Keypairs</strong>
+                <code>manifest, ewg, bb, vcl</code>
+                <p>Each key serves a distinct signing role</p>
+              </div>
+            </div>
+            <div class="init-step" data-stage="2">
+              <div class="step-badge">2</div>
+              <div class="step-content">
+                <strong>Create Issuers (3)</strong>
+                <code>secp256k1 keypairs for blind Schnorr</code>
+                <p>Threshold t=2, n=3</p>
+              </div>
+            </div>
+            <div class="init-step" data-stage="3">
+              <div class="step-badge">3</div>
+              <div class="step-content">
+                <strong>Split Election Secret</strong>
+                <code>shamirSplit(secret, 2, 3)</code>
+                <p>Distribute shares to trustees</p>
+              </div>
+            </div>
+            <div class="init-step" data-stage="4">
+              <div class="step-badge">4</div>
+              <div class="step-content">
+                <strong>Build Manifest</strong>
+                <code>contests, candidates, voter_roll_size</code>
+                <p>Signed with manifest key</p>
+              </div>
+            </div>
+            <div class="init-step" data-stage="1">
+              <div class="step-badge">5</div>
+              <div class="step-content">
+                <strong>Sign + Publish</strong>
+                <code>ECDSA sign manifest payload</code>
+                <p>Create VCL event: election_manifest_published</p>
+              </div>
+            </div>
+            <div class="init-step" data-stage="2">
+              <div class="step-badge">6</div>
+              <div class="step-content">
+                <strong>Persist to localStorage</strong>
+                <code>PocStateV2 → JSON → localStorage</code>
+                <p>State ready for voter operations</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 4: Voter Journey Flow (span 12) -->
+        <article class="panel panel-journey" data-panel="voter-journey">
+          <header class="panel-header">
+            <p class="panel-kicker">End-To-End Flow</p>
+            <h2>Voter Journey: Credential To Tally</h2>
+            <p>The complete lifecycle of a vote through the POC engine, from credential registration to final tally.</p>
+          </header>
+          <div class="journey-pipeline">
+            <div class="journey-step" data-stage="1">
+              <div class="journey-badge">1</div>
+              <div class="journey-title">Register Credential</div>
+              <div class="journey-desc">Generate voter keypair, blind Schnorr issuance from t-of-n issuers</div>
+              <div class="journey-module">credential.ts</div>
+            </div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="journey-step" data-stage="2">
+              <div class="journey-badge">2</div>
+              <div class="journey-title">Issue Challenge</div>
+              <div class="journey-desc">Server signs a Benaloh challenge with the ewg key</div>
+              <div class="journey-module">cast.ts</div>
+            </div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="journey-step" data-stage="3">
+              <div class="journey-badge">3</div>
+              <div class="journey-title">Encrypt Ballot</div>
+              <div class="journey-desc">AES-GCM encrypt selections, ECIES wrap key under election PK</div>
+              <div class="journey-module">ballot.ts + ecies.ts</div>
+            </div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="journey-step journey-step-branch" data-stage="3">
+              <div class="journey-badge">4</div>
+              <div class="journey-title">Challenge / Spoil <span class="journey-or">OR</span> Cast</div>
+              <div class="journey-desc">Benaloh: open to verify, then re-encrypt. Or commit to cast.</div>
+              <div class="journey-module">cast.ts</div>
+            </div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="journey-step" data-stage="4">
+              <div class="journey-badge">5</div>
+              <div class="journey-title">Verify Receipt</div>
+              <div class="journey-desc">Check BB inclusion proof, STH signature, VCL anchor event</div>
+              <div class="journey-module">verify.ts</div>
+            </div>
+            <div class="journey-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="journey-step" data-stage="4">
+              <div class="journey-badge">6</div>
+              <div class="journey-title">Tally</div>
+              <div class="journey-desc">Shamir combine shares, ECIES unwrap all ballots, aggregate, sign</div>
+              <div class="journey-module">tally.ts</div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%),
+        linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page {
+      width: min(1480px, calc(100% - 32px));
+      max-width: 1480px;
+      margin: 40px auto 80px;
+    }
+
+    .hero {
+      padding: 32px 36px 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+    .hero-text { flex: 1; }
+
+    .hero-kicker {
+      margin: 0 0 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+
+    .hero h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 42px); line-height: 1.12; color: var(--ink); }
+    .hero-subtitle { margin: 14px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; max-width: 640px; }
+
+    .hero-verdict { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+
+    .verdict-ring {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, #e6f7ee, #d0f0dd);
+      border: 2.5px solid var(--ok-border);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(26,107,58,0.12);
+    }
+
+    .verdict-check { width: 32px; height: 32px; color: var(--ok-ink); }
+
+    .verdict-label {
+      font-family: var(--mono); font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--ok-ink);
+    }
+
+    .top-metrics { margin-top: 24px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; }
+
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
+    .metric-pass .metric-value { color: var(--ok-ink); }
+
+    .panel-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+
+    .panel {
+      border: 1px solid var(--line); border-radius: 16px;
+      background: var(--card); padding: 24px;
+      box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06);
+    }
+
+    .panel h2 { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; line-height: 1.2; }
+    .panel p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+    .panel-header { margin-bottom: 18px; }
+
+    .panel-kicker {
+      margin: 0 0 5px; font-family: var(--mono); font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent);
+    }
+
+    .caps { text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); }
+
+    /* ── Module Graph ────────────────────── */
+
+    .panel-modules { grid-column: span 12; }
+
+    .panel-modules svg {
+      width: 100%; height: auto; display: block;
+      border: 1px solid #d2deec; border-radius: 10px; background: #f9fcff;
+    }
+
+    /* ── State Schema ────────────────────── */
+
+    .panel-state { grid-column: span 7; }
+
+    .state-tree { font-family: var(--mono); font-size: 13px; }
+
+    .state-root {
+      padding: 12px 16px; border: 2px solid var(--stage-1);
+      border-radius: 10px; background: #eef4fb;
+      font-weight: 700; font-size: 15px; margin-bottom: 12px;
+    }
+
+    .state-version {
+      font-weight: 400; font-size: 12px; color: var(--ink-soft);
+      margin-left: 8px;
+    }
+
+    .state-branches { display: grid; gap: 10px; }
+
+    .state-branch {
+      border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px 14px; background: #fafbfd;
+    }
+
+    .branch-label {
+      font-weight: 600; font-size: 12px; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 8px;
+      padding: 3px 10px; border-radius: 6px; display: inline-block;
+    }
+
+    .branch-label-key { background: #eef4fb; color: var(--stage-1); }
+    .branch-label-election { background: #f0faf4; color: var(--stage-2); }
+    .branch-label-trust { background: #fff5e6; color: var(--stage-3); }
+    .branch-label-data { background: #e6f7ee; color: var(--stage-4); }
+    .branch-label-audit { background: #f3eef9; color: #6b4fa0; }
+
+    .branch-children { display: grid; gap: 4px; }
+
+    .state-leaf {
+      padding: 6px 10px; border: 1px solid #e2e9f2;
+      border-radius: 6px; background: #fff; font-size: 12px;
+    }
+
+    .state-leaf span {
+      float: right; color: var(--ink-soft); font-size: 11px;
+    }
+
+    /* ── Init Sequence ───────────────────── */
+
+    .panel-init { grid-column: span 5; }
+
+    .init-steps { display: grid; gap: 10px; }
+
+    .init-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      border: 1px solid var(--line); border-radius: 10px;
+      padding: 12px 14px; background: #fff;
+      border-left: 3px solid var(--line);
+    }
+
+    .init-step[data-stage="1"] { border-left-color: var(--stage-1); }
+    .init-step[data-stage="2"] { border-left-color: var(--stage-2); }
+    .init-step[data-stage="3"] { border-left-color: var(--stage-3); }
+    .init-step[data-stage="4"] { border-left-color: var(--stage-4); }
+
+    .step-badge {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      color: #fff; background: var(--line-strong); flex-shrink: 0;
+    }
+
+    .init-step[data-stage="1"] .step-badge { background: var(--stage-1); }
+    .init-step[data-stage="2"] .step-badge { background: var(--stage-2); }
+    .init-step[data-stage="3"] .step-badge { background: var(--stage-3); }
+    .init-step[data-stage="4"] .step-badge { background: var(--stage-4); }
+
+    .step-content { flex: 1; }
+    .step-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .step-content code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .step-content p { font-size: 12px; margin-top: 2px; }
+
+    /* ── Voter Journey ───────────────────── */
+
+    .panel-journey { grid-column: span 12; }
+
+    .journey-pipeline {
+      display: flex; align-items: stretch; gap: 0;
+      overflow-x: auto; padding-bottom: 8px;
+    }
+
+    .journey-step {
+      flex: 1; min-width: 160px;
+      border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px 14px; background: linear-gradient(180deg, #fff, #fafbfd);
+      border-top: 3px solid var(--line); position: relative;
+    }
+
+    .journey-step[data-stage="1"] { border-top-color: var(--stage-1); }
+    .journey-step[data-stage="2"] { border-top-color: var(--stage-2); }
+    .journey-step[data-stage="3"] { border-top-color: var(--stage-3); }
+    .journey-step[data-stage="4"] { border-top-color: var(--stage-4); }
+
+    .journey-badge {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+      color: #fff; background: var(--line-strong); margin-bottom: 8px;
+    }
+
+    .journey-step[data-stage="1"] .journey-badge { background: var(--stage-1); }
+    .journey-step[data-stage="2"] .journey-badge { background: var(--stage-2); }
+    .journey-step[data-stage="3"] .journey-badge { background: var(--stage-3); }
+    .journey-step[data-stage="4"] .journey-badge { background: var(--stage-4); }
+
+    .journey-title { font-family: var(--serif); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .journey-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+    .journey-module {
+      margin-top: 8px; font-family: var(--mono); font-size: 10px;
+      color: var(--stage-1); background: #eef4fb;
+      padding: 3px 8px; border-radius: 6px; display: inline-block;
+    }
+
+    .journey-or {
+      display: inline-block; font-family: var(--mono); font-size: 10px;
+      font-weight: 600; color: var(--accent); margin-left: 4px;
+    }
+
+    .journey-arrow {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; flex-shrink: 0; color: var(--accent);
+    }
+
+    .journey-arrow svg { width: 22px; height: 22px; }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics { grid-template-columns: repeat(3, 1fr); }
+
+      .panel-modules, .panel-state, .panel-init, .panel-journey {
+        grid-column: span 12;
+      }
+
+      .journey-pipeline { flex-direction: column; }
+      .journey-arrow { transform: rotate(90deg); width: auto; padding: 4px 0; }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict { flex-direction: row; align-self: flex-start; }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+    }
+  </style>
+</BaseLayout>

@@ -12,3 +12,7 @@ dist/
 .secrets*
 *.pem
 *.key
+
+# Debug & review artifacts
+.playwright-mcp/
+.verify/

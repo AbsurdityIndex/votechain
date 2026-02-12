@@ -21,6 +21,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "export:diagrams": "npm run build && node scripts/export-diagram-images.mjs",
+    "export:diagrams:pi": "npm run build && node scripts/export-diagram-images.mjs pi",
+    "export:diagrams:all": "npm run build && node scripts/export-diagram-images.mjs all",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "astro check --minimumFailingSeverity hint",
@@ -42,6 +45,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
+    "playwright": "^1.56.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }

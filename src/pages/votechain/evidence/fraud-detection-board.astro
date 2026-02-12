@@ -1,0 +1,544 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain Fraud Detection Board"
+  description="Visual evidence board for the VoteChain fraud detection lifecycle: state machine, action mapping, VCL events, and security controls."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'fraud detection', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>Fraud Detection Lifecycle<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              How fraud cases are detected, tracked through a structured state machine,
+              and anchored on the VCL with cryptographic signatures for permanent auditability.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">Controls Verified</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Statuses</div>
+            <div class="metric-value">7</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Actions</div>
+            <div class="metric-value">7</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Anchor</div>
+            <div class="metric-value">VCL</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Signatures</div>
+            <div class="metric-value">ECDSA</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Node</div>
+            <div class="metric-value">Oversight</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Fraud Case State Machine (span 7) -->
+        <article class="panel panel-state-machine" data-panel="fraud-state-machine">
+          <header class="panel-header">
+            <p class="panel-kicker">Lifecycle</p>
+            <h2>Fraud Case State Machine</h2>
+            <p>Each fraud case follows a structured path from detection through investigation to resolution. Actions transition between statuses.</p>
+          </header>
+          <svg viewBox="0 0 820 560" role="img" aria-label="Fraud case state machine flowchart">
+            <defs>
+              <marker id="fraudArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
+              </marker>
+              <marker id="fraudArrGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a6b3a" />
+              </marker>
+            </defs>
+
+            <!-- pending_review -->
+            <rect x="280" y="30" width="240" height="60" rx="12" fill="#fff5e6" stroke="#f0d9a8" stroke-width="2" />
+            <text x="330" y="58" font-size="14" fill="#8e5b10" font-weight="700" font-family="JetBrains Mono, monospace">pending_review</text>
+            <text x="330" y="76" font-size="10" fill="#8e5b10">Initial state on detection</text>
+
+            <!-- triaged -->
+            <rect x="280" y="140" width="240" height="60" rx="12" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
+            <text x="350" y="168" font-size="14" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">triaged</text>
+            <text x="335" y="186" font-size="10" fill="#496789">Case claimed by reviewer</text>
+
+            <!-- investigating -->
+            <rect x="280" y="250" width="240" height="60" rx="12" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
+            <text x="325" y="278" font-size="14" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">investigating</text>
+            <text x="325" y="296" font-size="10" fill="#496789">Active investigation</text>
+
+            <!-- escalated -->
+            <rect x="280" y="360" width="240" height="60" rx="12" fill="#fff5e6" stroke="#f0d9a8" stroke-width="2" />
+            <text x="345" y="388" font-size="14" fill="#8e5b10" font-weight="700" font-family="JetBrains Mono, monospace">escalated</text>
+            <text x="325" y="406" font-size="10" fill="#8e5b10">Elevated for senior review</text>
+
+            <!-- Resolution states -->
+            <rect x="30" y="470" width="220" height="60" rx="12" fill="#e6f7ee" stroke="#b5e2c6" stroke-width="2" />
+            <text x="55" y="498" font-size="13" fill="#1a6b3a" font-weight="700" font-family="JetBrains Mono, monospace">resolved_cleared</text>
+            <text x="75" y="516" font-size="10" fill="#1a6b3a">No fraud found</text>
+
+            <rect x="290" y="470" width="260" height="60" rx="12" fill="#ffeef0" stroke="#f0b5b5" stroke-width="2" />
+            <text x="302" y="498" font-size="13" fill="#b33a3a" font-weight="700" font-family="JetBrains Mono, monospace">resolved_confirmed_fraud</text>
+            <text x="350" y="516" font-size="10" fill="#b33a3a">Fraud confirmed</text>
+
+            <rect x="590" y="470" width="220" height="60" rx="12" fill="#f3eef9" stroke="#c8b5e6" stroke-width="2" />
+            <text x="603" y="498" font-size="13" fill="#6b4fa0" font-weight="700" font-family="JetBrains Mono, monospace">resolved_system_error</text>
+            <text x="636" y="516" font-size="10" fill="#6b4fa0">System error</text>
+
+            <!-- Transition arrows -->
+            <line x1="400" y1="90" x2="400" y2="136" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
+            <text x="415" y="118" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">take_case</text>
+
+            <line x1="400" y1="200" x2="400" y2="246" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
+            <text x="415" y="228" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">start_investigation</text>
+
+            <line x1="400" y1="310" x2="400" y2="356" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
+            <text x="415" y="338" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">escalate</text>
+
+            <!-- Resolution exits -->
+            <line x1="280" y1="310" x2="140" y2="466" stroke="#1a6b3a" stroke-width="2" marker-end="url(#fraudArrGreen)" />
+            <text x="140" y="380" font-size="10" fill="#1a6b3a" font-family="JetBrains Mono, monospace">resolve_cleared</text>
+
+            <line x1="400" y1="420" x2="420" y2="466" stroke="#b33a3a" stroke-width="2" marker-end="url(#fraudArr)" />
+            <text x="430" y="448" font-size="10" fill="#b33a3a" font-family="JetBrains Mono, monospace">resolve_confirmed_fraud</text>
+
+            <line x1="520" y1="310" x2="700" y2="466" stroke="#6b4fa0" stroke-width="2" marker-end="url(#fraudArr)" />
+            <text x="600" y="380" font-size="10" fill="#6b4fa0" font-family="JetBrains Mono, monospace">resolve_system_error</text>
+
+            <!-- Note action (self-loop indicator) -->
+            <rect x="600" y="250" width="190" height="50" rx="8" fill="#f8fbff" stroke="#c5d1de" />
+            <text x="620" y="272" font-size="11" fill="#35506f" font-family="JetBrains Mono, monospace">note</text>
+            <text x="620" y="290" font-size="10" fill="#35506f">Any status → same status</text>
+            <line x1="520" y1="280" x2="596" y2="275" stroke="#35506f" stroke-width="1.5" marker-end="url(#fraudArr)" stroke-dasharray="4 3" />
+          </svg>
+        </article>
+
+        <!-- Panel 2: Action → Status Mapping (span 5) -->
+        <article class="panel panel-action-map" data-panel="action-mapping">
+          <header class="panel-header">
+            <p class="panel-kicker">Transitions</p>
+            <h2>Action to Status Mapping</h2>
+            <p>The nextStatusByAction map defines valid transitions. Actions not in the map leave the status unchanged.</p>
+          </header>
+          <table>
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>To Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>take_case</code></td>
+                <td><span class="status-pill status-triaged">triaged</span></td>
+              </tr>
+              <tr>
+                <td><code>start_investigation</code></td>
+                <td><span class="status-pill status-investigating">investigating</span></td>
+              </tr>
+              <tr>
+                <td><code>escalate</code></td>
+                <td><span class="status-pill status-escalated">escalated</span></td>
+              </tr>
+              <tr>
+                <td><code>resolve_cleared</code></td>
+                <td><span class="status-pill status-cleared">resolved_cleared</span></td>
+              </tr>
+              <tr>
+                <td><code>resolve_confirmed_fraud</code></td>
+                <td><span class="status-pill status-fraud">resolved_confirmed_fraud</span></td>
+              </tr>
+              <tr>
+                <td><code>resolve_system_error</code></td>
+                <td><span class="status-pill status-error">resolved_system_error</span></td>
+              </tr>
+              <tr>
+                <td><code>note</code></td>
+                <td><span class="status-pill status-unchanged">unchanged</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- Panel 3: VCL Fraud Events (span 12) -->
+        <article class="panel panel-vcl-fraud" data-panel="vcl-fraud-events">
+          <header class="panel-header">
+            <p class="panel-kicker">Audit Trail</p>
+            <h2>VCL Fraud Events</h2>
+            <p>Both fraud_flag and fraud_flag_action events are recorded on the VCL, signed with the VCL key, and replicated to the oversight node.</p>
+          </header>
+          <div class="fraud-timeline">
+            <div class="fraud-event fraud-event-flag">
+              <div class="fraud-event-header">
+                <span class="fraud-event-type">fraud_flag</span>
+                <span class="fraud-event-time">2026-02-11T21:16:48Z</span>
+              </div>
+              <div class="fraud-event-body">
+                <div class="fraud-field"><span>flag_type</span> duplicate_nullifier</div>
+                <div class="fraud-field"><span>severity</span> high</div>
+                <div class="fraud-field"><span>nullifier</span> 0x3a7f...c2d1</div>
+                <div class="fraud-field"><span>kid</span> vcl-key-001</div>
+                <div class="fraud-field fraud-field-sig"><span>sig</span> ECDSA signature (base64url)</div>
+              </div>
+            </div>
+            <div class="fraud-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="fraud-event fraud-event-action">
+              <div class="fraud-event-header">
+                <span class="fraud-event-type">fraud_flag_action</span>
+                <span class="fraud-event-time">2026-02-11T21:20:12Z</span>
+              </div>
+              <div class="fraud-event-body">
+                <div class="fraud-field"><span>action</span> take_case</div>
+                <div class="fraud-field"><span>from_status</span> pending_review</div>
+                <div class="fraud-field"><span>to_status</span> triaged</div>
+                <div class="fraud-field"><span>reviewer_id</span> oversight-reviewer-1</div>
+                <div class="fraud-field fraud-field-sig"><span>sig</span> ECDSA signature (base64url)</div>
+              </div>
+            </div>
+            <div class="fraud-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="fraud-event fraud-event-action">
+              <div class="fraud-event-header">
+                <span class="fraud-event-type">fraud_flag_action</span>
+                <span class="fraud-event-time">2026-02-11T21:35:00Z</span>
+              </div>
+              <div class="fraud-event-body">
+                <div class="fraud-field"><span>action</span> resolve_cleared</div>
+                <div class="fraud-field"><span>from_status</span> investigating</div>
+                <div class="fraud-field"><span>to_status</span> resolved_cleared</div>
+                <div class="fraud-field"><span>note</span> "Duplicate detection triggered by test harness"</div>
+                <div class="fraud-field fraud-field-sig"><span>sig</span> ECDSA signature (base64url)</div>
+              </div>
+            </div>
+          </div>
+          <div class="fraud-replication-note">
+            All fraud events are replicated to the <strong>oversight node</strong> via <code>ORIGINATING_TYPES_MAP</code>.
+            The oversight Worker's Durable Object ledger maintains an independent, hash-chained record of all fraud activity.
+          </div>
+        </article>
+
+        <!-- Panel 4: Security Controls Tested (span 6) -->
+        <article class="panel panel-controls" data-panel="security-controls">
+          <header class="panel-header">
+            <p class="panel-kicker">Field Test</p>
+            <h2>Security Controls Tested</h2>
+            <p>Six controls exercised during the air-gapped field test demonstration.</p>
+          </header>
+          <div class="controls-grid">
+            <div class="control-card">
+              <div class="control-name">Duplicate Check-in</div>
+              <div class="control-result"><span class="status-ok">6 blocked / 21 attempts</span></div>
+              <div class="control-desc">Same voter credential presented twice — rejected at nullifier check</div>
+            </div>
+            <div class="control-card">
+              <div class="control-name">Unregistered Voter</div>
+              <div class="control-result"><span class="status-ok">3 blocked / 21 attempts</span></div>
+              <div class="control-desc">Invalid credential signature — blind Schnorr verification fails</div>
+            </div>
+            <div class="control-card">
+              <div class="control-name">API Nullifier Defense</div>
+              <div class="control-result"><span class="status-ok">PASS</span></div>
+              <div class="control-desc">Direct API bypass attempts rejected at nullifier derivation check</div>
+            </div>
+            <div class="control-card">
+              <div class="control-name">Rogue Relay</div>
+              <div class="control-result"><span class="status-ok">PASS</span></div>
+              <div class="control-desc">Invalid relay role rejected at node startup validation</div>
+            </div>
+            <div class="control-card">
+              <div class="control-name">ACK-Key Spoof</div>
+              <div class="control-result"><span class="status-warn">DETECTED + RECOVERED</span></div>
+              <div class="control-desc">Observer degraded then recovered within one monitoring interval</div>
+            </div>
+            <div class="control-card">
+              <div class="control-name">Random Spoils</div>
+              <div class="control-result"><span class="status-ok">59 / 57 spoiled</span></div>
+              <div class="control-desc">Benaloh challenge rate preserved across both test runs</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 5: Evidence Chain (span 6) -->
+        <article class="panel panel-evidence" data-panel="evidence-chain">
+          <header class="panel-header">
+            <p class="panel-kicker">Provenance</p>
+            <h2>Evidence Accumulation Chain</h2>
+            <p>Each fraud case accumulates signed evidence from detection through resolution, creating a complete provenance trail.</p>
+          </header>
+          <div class="evidence-flow">
+            <div class="evidence-step">
+              <div class="evidence-badge" style="background: var(--stage-3);">1</div>
+              <div class="evidence-content">
+                <strong>Detection</strong>
+                <p>Automated check triggers fraud flag (e.g., duplicate nullifier, signature mismatch)</p>
+              </div>
+            </div>
+            <div class="evidence-connector"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="evidence-step">
+              <div class="evidence-badge" style="background: var(--stage-1);">2</div>
+              <div class="evidence-content">
+                <strong>Flag Payload</strong>
+                <p>flag_type, severity, evidence_strength, nullifier, election context</p>
+                <code>VCL event: fraud_flag (signed with VCL key)</code>
+              </div>
+            </div>
+            <div class="evidence-connector"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="evidence-step">
+              <div class="evidence-badge" style="background: var(--stage-2);">3</div>
+              <div class="evidence-content">
+                <strong>Reviewer Actions</strong>
+                <p>Each take_case, investigate, note, escalate adds a signed action record</p>
+                <code>VCL event: fraud_flag_action (signed)</code>
+              </div>
+            </div>
+            <div class="evidence-connector"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="evidence-step evidence-step-final">
+              <div class="evidence-badge" style="background: var(--ok-ink);">4</div>
+              <div class="evidence-content">
+                <strong>Resolution</strong>
+                <p>Final status + reason_code + note, signed and anchored on oversight ledger</p>
+                <code>PocFraudCaseActionRecord with from/to status</code>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0; color: var(--ink);
+      background: radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%), linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page { width: min(1480px, calc(100% - 32px)); max-width: 1480px; margin: 40px auto 80px; }
+
+    .hero {
+      padding: 32px 36px 28px; border: 1px solid var(--line); border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+    .hero-text { flex: 1; }
+    .hero-kicker { margin: 0 0 10px; font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); }
+    .hero h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 42px); line-height: 1.12; color: var(--ink); }
+    .hero-subtitle { margin: 14px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; max-width: 640px; }
+    .hero-verdict { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+    .verdict-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #e6f7ee, #d0f0dd); border: 2.5px solid var(--ok-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,107,58,0.12); }
+    .verdict-check { width: 32px; height: 32px; color: var(--ok-ink); }
+    .verdict-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ok-ink); }
+    .top-metrics { margin-top: 24px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; }
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
+    .metric-pass .metric-value { color: var(--ok-ink); }
+
+    .panel-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px; box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06); }
+    .panel h2 { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; line-height: 1.2; }
+    .panel p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+    .panel-header { margin-bottom: 18px; }
+    .panel-kicker { margin: 0 0 5px; font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+
+    /* ── State Machine ───────────────────── */
+
+    .panel-state-machine { grid-column: span 7; }
+    .panel-state-machine svg { width: 100%; height: auto; display: block; border: 1px solid #d2deec; border-radius: 10px; background: #f9fcff; }
+
+    /* ── Action Mapping ──────────────────── */
+
+    .panel-action-map { grid-column: span 5; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e2e9f2; padding: 10px; text-align: left; font-size: 13px; }
+    th { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); padding-bottom: 8px; }
+    tbody tr:hover { background: #f8fafd; }
+    tr:last-child td { border-bottom: 0; }
+    td code { font-family: var(--mono); font-size: 12px; }
+
+    .status-pill {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+    }
+
+    .status-triaged { background: #eef4fb; color: var(--stage-1); border: 1px solid #aac3df; }
+    .status-investigating { background: #eef4fb; color: var(--stage-1); border: 1px solid #aac3df; }
+    .status-escalated { background: #fff5e6; color: var(--warn-ink); border: 1px solid #f0d9a8; }
+    .status-cleared { background: var(--ok-bg); color: var(--ok-ink); border: 1px solid var(--ok-border); }
+    .status-fraud { background: #ffeef0; color: #b33a3a; border: 1px solid #f0b5b5; }
+    .status-error { background: #f3eef9; color: #6b4fa0; border: 1px solid #c8b5e6; }
+    .status-unchanged { background: #f4f7fb; color: var(--ink-soft); border: 1px solid var(--line); }
+
+    .status-ok {
+      display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 10px;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      background: var(--ok-bg); color: var(--ok-ink); border: 1px solid var(--ok-border);
+    }
+
+    .status-warn {
+      display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 10px;
+      font-family: var(--mono); font-size: 11px; font-weight: 600;
+      background: var(--warn-bg); color: var(--warn-ink); border: 1px solid #f0d9a8;
+    }
+
+    /* ── VCL Fraud Events ────────────────── */
+
+    .panel-vcl-fraud { grid-column: span 12; }
+
+    .fraud-timeline {
+      display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 8px;
+    }
+
+    .fraud-event {
+      flex: 1; min-width: 280px; border: 1px solid var(--line); border-radius: 12px;
+      padding: 14px; background: #fff; border-top: 3px solid var(--line);
+    }
+
+    .fraud-event-flag { border-top-color: var(--stage-3); }
+    .fraud-event-action { border-top-color: var(--stage-1); }
+
+    .fraud-event-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .fraud-event-type { font-family: var(--mono); font-size: 12px; font-weight: 700; }
+    .fraud-event-time { font-family: var(--mono); font-size: 10px; color: var(--ink-soft); }
+
+    .fraud-event-body { display: grid; gap: 4px; }
+
+    .fraud-field {
+      font-family: var(--mono); font-size: 11px; padding: 4px 8px;
+      border: 1px solid #e2e9f2; border-radius: 6px; background: #fafbfd;
+    }
+
+    .fraud-field span { font-weight: 600; margin-right: 8px; color: var(--ink-soft); }
+    .fraud-field-sig { border-color: var(--ok-border); background: var(--ok-bg); }
+    .fraud-field-sig span { color: var(--ok-ink); }
+
+    .fraud-arrow {
+      display: flex; align-items: center; justify-content: center; width: 28px; flex-shrink: 0; color: var(--accent);
+    }
+    .fraud-arrow svg { width: 22px; height: 22px; }
+
+    .fraud-replication-note {
+      margin-top: 14px; border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px;
+      background: #f8fbff; font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+    }
+    .fraud-replication-note strong { color: var(--ink); }
+    .fraud-replication-note code { font-family: var(--mono); font-size: 11px; }
+
+    /* ── Security Controls ───────────────── */
+
+    .panel-controls { grid-column: span 6; }
+
+    .controls-grid { display: grid; gap: 10px; }
+
+    .control-card {
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .control-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .control-result { margin-bottom: 4px; }
+    .control-desc { font-size: 12px; color: var(--ink-soft); }
+
+    /* ── Evidence Chain ──────────────────── */
+
+    .panel-evidence { grid-column: span 6; }
+
+    .evidence-flow { display: grid; gap: 0; }
+
+    .evidence-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .evidence-step-final { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .evidence-badge {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+
+    .evidence-content { flex: 1; }
+    .evidence-content strong { display: block; font-size: 14px; margin-bottom: 2px; }
+    .evidence-content p { font-size: 12px; margin-top: 0; }
+    .evidence-content code { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-soft); margin-top: 4px; }
+    .evidence-step-final .evidence-content code { color: var(--ok-ink); }
+
+    .evidence-connector { display: flex; justify-content: center; padding: 3px 0; color: var(--line-strong); }
+    .evidence-connector svg { width: 20px; height: 10px; }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics { grid-template-columns: repeat(3, 1fr); }
+      .panel-state-machine, .panel-action-map, .panel-vcl-fraud, .panel-controls, .panel-evidence { grid-column: span 12; }
+      .fraud-timeline { flex-direction: column; }
+      .fraud-arrow { transform: rotate(90deg); width: auto; padding: 4px 0; }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict { flex-direction: row; align-self: flex-start; }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+    }
+  </style>
+</BaseLayout>

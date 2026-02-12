@@ -10,6 +10,7 @@ import LegislativeGlossaryDrawer from '../components/ui/LegislativeGlossaryDrawe
 import FundTheIndex from '../components/ui/FundTheIndex.astro';
 import SettingsDial from '../components/ui/SettingsDial.astro';
 import VoteChainSubnav from '../components/votechain/VoteChainSubnav.astro';
+import VoteChainPageSidebar from '../components/votechain/VoteChainPageSidebar.astro';
 
 interface Props {
   title: string;
@@ -72,6 +73,8 @@ const jsonLd = {
 
 const pathname = Astro.url.pathname;
 const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/votechain/');
+
+const showGlobalVoteChainSidebar = isVoteChainRoute;
 ---
 
 <!doctype html>
@@ -238,7 +241,16 @@ const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/vote
     </script>
     <main class="flex-1">
       {isVoteChainRoute && <VoteChainSubnav currentPath={pathname} />}
-      <slot />
+      {
+        showGlobalVoteChainSidebar ? (
+          <div class="xl:max-w-7xl xl:mx-auto xl:grid xl:grid-cols-[250px_minmax(0,1fr)] xl:gap-6 xl:px-4">
+            <VoteChainPageSidebar currentPath={pathname} />
+            <slot />
+          </div>
+        ) : (
+          <slot />
+        )
+      }
     </main>
     <Footer />
     <FoundingDocsDrawer />
@@ -247,5 +259,25 @@ const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/vote
     <FundTheIndex />
     <SettingsDial />
     <SatireDisclaimerBanner />
+    <button class="back-to-top" aria-label="Back to top" id="back-to-top">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('back-to-top');
+        if (!btn) return;
+        var shown = false;
+        window.addEventListener('scroll', function () {
+          var shouldShow = window.scrollY > 400;
+          if (shouldShow !== shown) {
+            shown = shouldShow;
+            btn.classList.toggle('visible', shown);
+          }
+        }, { passive: true });
+        btn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+    </script>
   </body>
 </html>

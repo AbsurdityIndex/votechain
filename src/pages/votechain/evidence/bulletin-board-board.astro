@@ -1,0 +1,527 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain Bulletin Board Transparency Board"
+  description="Visual evidence board for VoteChain bulletin board: Merkle tree construction, signed tree heads, inclusion proofs, and VCL anchoring."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'bulletin board', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>Bulletin Board Transparency<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              How the append-only Merkle tree, signed tree heads, and inclusion proofs
+              create a publicly auditable transparency log for every cast ballot.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">Append-Only Verified</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Leaf Hash</div>
+            <div class="metric-value">SHA-256</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Tree Type</div>
+            <div class="metric-value">Binary Merkle</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">STH Signatures</div>
+            <div class="metric-value">ECDSA</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Append Policy</div>
+            <div class="metric-value">Append-Only</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Domain Separated</div>
+            <div class="metric-value">Yes</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Merkle Tree Construction (span 7) -->
+        <article class="panel panel-merkle" data-panel="merkle-tree">
+          <header class="panel-header">
+            <p class="panel-kicker">Tree Structure</p>
+            <h2>Merkle Tree Construction</h2>
+            <p>Ballots are hashed into leaves, paired into nodes, and reduced to a single root hash.</p>
+          </header>
+          <svg viewBox="0 0 780 500" role="img" aria-label="Binary Merkle tree diagram with domain separators">
+            <defs>
+              <marker id="merkleArr" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 5 10 L 10 0 z" fill="#3a6fa0" />
+              </marker>
+            </defs>
+
+            <!-- Root -->
+            <rect x="290" y="20" width="200" height="54" rx="10" fill="#e6f7ee" stroke="#b5e2c6" stroke-width="2" />
+            <text x="330" y="46" font-size="14" fill="#1a6b3a" font-weight="700" font-family="JetBrains Mono, monospace">Root Hash</text>
+            <text x="315" y="64" font-size="10" fill="#1a6b3a" font-family="JetBrains Mono, monospace">→ included in STH</text>
+
+            <!-- Level 1 nodes -->
+            <rect x="130" y="130" width="200" height="54" rx="10" fill="#eef4fb" stroke="#aac3df" />
+            <text x="155" y="156" font-size="12" fill="#1f446d" font-family="JetBrains Mono, monospace">Node(L0‖L1)</text>
+            <text x="155" y="173" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:node:v1</text>
+
+            <rect x="450" y="130" width="200" height="54" rx="10" fill="#eef4fb" stroke="#aac3df" />
+            <text x="475" y="156" font-size="12" fill="#1f446d" font-family="JetBrains Mono, monospace">Node(L2‖L3)</text>
+            <text x="475" y="173" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:node:v1</text>
+
+            <!-- Leaf nodes -->
+            <rect x="40" y="250" width="160" height="54" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="58" y="276" font-size="12" fill="#0f243e" font-family="JetBrains Mono, monospace">Leaf 0</text>
+            <text x="58" y="293" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:leaf:v1</text>
+
+            <rect x="230" y="250" width="160" height="54" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="248" y="276" font-size="12" fill="#0f243e" font-family="JetBrains Mono, monospace">Leaf 1</text>
+            <text x="248" y="293" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:leaf:v1</text>
+
+            <rect x="420" y="250" width="160" height="54" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="438" y="276" font-size="12" fill="#0f243e" font-family="JetBrains Mono, monospace">Leaf 2</text>
+            <text x="438" y="293" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:leaf:v1</text>
+
+            <rect x="610" y="250" width="160" height="54" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="628" y="276" font-size="12" fill="#0f243e" font-family="JetBrains Mono, monospace">Leaf 3</text>
+            <text x="628" y="293" font-size="10" fill="#496789" font-family="JetBrains Mono, monospace">bb:leaf:v1</text>
+
+            <!-- Tree connections -->
+            <line x1="390" y1="74" x2="230" y2="126" stroke="#3a6fa0" stroke-width="2" />
+            <line x1="390" y1="74" x2="550" y2="126" stroke="#3a6fa0" stroke-width="2" />
+            <line x1="230" y1="184" x2="120" y2="246" stroke="#3a6fa0" stroke-width="2" />
+            <line x1="230" y1="184" x2="310" y2="246" stroke="#3a6fa0" stroke-width="2" />
+            <line x1="550" y1="184" x2="500" y2="246" stroke="#3a6fa0" stroke-width="2" />
+            <line x1="550" y1="184" x2="690" y2="246" stroke="#3a6fa0" stroke-width="2" />
+
+            <!-- Domain separator callouts -->
+            <rect x="40" y="340" width="360" height="140" rx="10" fill="#fff5e6" stroke="#f0d9a8" />
+            <text x="60" y="366" font-size="12" fill="#8e5b10" font-weight="700">Domain Separators</text>
+            <text x="60" y="390" font-size="11" fill="#8e5b10" font-family="JetBrains Mono, monospace">Leaf: "votechain:bb:leaf:v1:" ‖ body</text>
+            <text x="60" y="410" font-size="11" fill="#8e5b10" font-family="JetBrains Mono, monospace">Node: "votechain:bb:node:v1:" ‖ L ‖ R</text>
+            <text x="60" y="430" font-size="11" fill="#8e5b10" font-family="JetBrains Mono, monospace">Empty: SHA256("votechain:bb:empty:v1")</text>
+            <text x="60" y="458" font-size="11" fill="#8e5b10">Leaf body = canonicalJson(payload)</text>
+            <text x="60" y="474" font-size="11" fill="#8e5b10">Odd leaves duplicate: right = left</text>
+
+            <!-- Hash construction -->
+            <rect x="420" y="340" width="350" height="140" rx="10" fill="#eef4fb" stroke="#aac3df" />
+            <text x="440" y="366" font-size="12" fill="#1f446d" font-weight="700">Hash Construction</text>
+            <text x="440" y="392" font-size="11" fill="#1f446d" font-family="JetBrains Mono, monospace">bbLeafHash(payload):</text>
+            <text x="460" y="412" font-size="11" fill="#496789" font-family="JetBrains Mono, monospace">sha256B64u(prefix ‖ utf8(json))</text>
+            <text x="440" y="440" font-size="11" fill="#1f446d" font-family="JetBrains Mono, monospace">bbNodeHash(left, right):</text>
+            <text x="460" y="460" font-size="11" fill="#496789" font-family="JetBrains Mono, monospace">sha256(prefix ‖ left ‖ right)</text>
+          </svg>
+        </article>
+
+        <!-- Panel 2: Signed Tree Head (span 5) -->
+        <article class="panel panel-sth" data-panel="signed-tree-head">
+          <header class="panel-header">
+            <p class="panel-kicker">Commitment</p>
+            <h2>Signed Tree Head (STH)</h2>
+            <p>Each BB update produces a signed snapshot of the tree state, creating an unforgeable commitment.</p>
+          </header>
+          <div class="sth-structure">
+            <div class="sth-field">
+              <span class="sth-key">tree_size</span>
+              <span class="sth-type">number</span>
+              <span class="sth-desc">Count of leaves at signing time</span>
+            </div>
+            <div class="sth-field">
+              <span class="sth-key">root_hash</span>
+              <span class="sth-type">string (base64url)</span>
+              <span class="sth-desc">Merkle root of all leaves</span>
+            </div>
+            <div class="sth-field">
+              <span class="sth-key">timestamp</span>
+              <span class="sth-type">string (ISO 8601)</span>
+              <span class="sth-desc">When the STH was issued</span>
+            </div>
+            <div class="sth-field">
+              <span class="sth-key">kid</span>
+              <span class="sth-type">string</span>
+              <span class="sth-desc">BB key identifier</span>
+            </div>
+            <div class="sth-field sth-field-sig">
+              <span class="sth-key">sig</span>
+              <span class="sth-type">string (base64url)</span>
+              <span class="sth-desc">ECDSA signature over canonical JSON of unsigned fields</span>
+            </div>
+          </div>
+          <div class="sth-verify">
+            <div class="sth-verify-label">Verification</div>
+            <code>verifyB64u(bb.jwk_public, canonicalJson(unsigned), sig)</code>
+            <p>Sign: <code>signB64u(bb.jwk_private, canonicalJson(&#123; tree_size, root_hash, timestamp, kid &#125;))</code></p>
+          </div>
+        </article>
+
+        <!-- Panel 3: Inclusion Proof Verification (span 12) -->
+        <article class="panel panel-inclusion" data-panel="inclusion-proof">
+          <header class="panel-header">
+            <p class="panel-kicker">Audit</p>
+            <h2>Inclusion Proof Verification</h2>
+            <p>Given a leaf and its index, walk sibling hashes up the tree to the root. If the computed root matches the STH root, the leaf is proven to exist.</p>
+          </header>
+          <div class="proof-flow">
+            <div class="proof-step">
+              <div class="proof-badge">1</div>
+              <div class="proof-content">
+                <strong>Start with leaf hash</strong>
+                <code>acc = b64uToBytes(proof.leaf_hash)</code>
+              </div>
+            </div>
+            <div class="proof-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="proof-step">
+              <div class="proof-badge">2</div>
+              <div class="proof-content">
+                <strong>Walk sibling path</strong>
+                <code>for each step in proof.path:</code>
+                <code>  if step.side == 'left':</code>
+                <code>    acc = bbNodeHash(sibling, acc)</code>
+                <code>  else:</code>
+                <code>    acc = bbNodeHash(acc, sibling)</code>
+              </div>
+            </div>
+            <div class="proof-arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="proof-step proof-step-verify">
+              <div class="proof-badge proof-badge-ok">3</div>
+              <div class="proof-content">
+                <strong>Compare to STH root</strong>
+                <code>bytesToB64u(acc) === proof.root_hash</code>
+                <p>If match: leaf is proven included in the tree at the signed state</p>
+              </div>
+            </div>
+          </div>
+          <div class="proof-structure">
+            <div class="proof-interface">
+              <div class="proof-iface-title">PocInclusionProof</div>
+              <div class="proof-field"><span>leaf_hash</span> string</div>
+              <div class="proof-field"><span>root_hash</span> string</div>
+              <div class="proof-field"><span>tree_size</span> number</div>
+              <div class="proof-field"><span>leaf_index</span> number</div>
+              <div class="proof-field"><span>path</span> Array&lt;&#123; side: 'left'|'right', hash: string &#125;&gt;</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 4: STH History & Monitoring (span 6) -->
+        <article class="panel panel-history" data-panel="sth-history">
+          <header class="panel-header">
+            <p class="panel-kicker">Timeline</p>
+            <h2>STH History and Monitoring</h2>
+            <p>Each BB append triggers a new STH. Monitors compare STH snapshots to detect equivocation.</p>
+          </header>
+          <div class="timeline">
+            <div class="timeline-entry">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">STH #1</div>
+                <code>tree_size: 1, root: ab3f...</code>
+                <span>First ballot appended</span>
+              </div>
+            </div>
+            <div class="timeline-entry">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">STH #2</div>
+                <code>tree_size: 2, root: 7c1e...</code>
+                <span>Second ballot appended</span>
+              </div>
+            </div>
+            <div class="timeline-entry">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">STH #n</div>
+                <code>tree_size: n, root: d4f2...</code>
+                <span>Each append grows the tree</span>
+              </div>
+            </div>
+          </div>
+          <div class="monitor-note">
+            <strong>Non-equivocation</strong>: If two monitors observe different STHs for the same tree_size, the BB operator is cheating.
+            The trust-portal page computes the root independently and compares against the latest STH.
+          </div>
+        </article>
+
+        <!-- Panel 5: VCL Event Anchoring (span 6) -->
+        <article class="panel panel-anchor" data-panel="vcl-anchoring">
+          <header class="panel-header">
+            <p class="panel-kicker">Chain Of Trust</p>
+            <h2>VCL Event Anchoring</h2>
+            <p>Each ballot cast creates a chain: individual ballot to BB leaf to STH to VCL event, providing end-to-end auditability.</p>
+          </header>
+          <div class="anchor-chain">
+            <div class="anchor-node">
+              <div class="anchor-label">Ballot Cast</div>
+              <code>encrypted ballot + nullifier + credential proof</code>
+            </div>
+            <div class="anchor-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="anchor-node">
+              <div class="anchor-label">BB Leaf</div>
+              <code>bbLeafHash(payload) → leaf_hash</code>
+            </div>
+            <div class="anchor-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="anchor-node">
+              <div class="anchor-label">Signed Tree Head</div>
+              <code>issueBbSth(state) → STH with root + sig</code>
+            </div>
+            <div class="anchor-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="anchor-node anchor-node-vcl">
+              <div class="anchor-label">VCL Events</div>
+              <code>ewp_ballot_cast + bb_sth_published</code>
+              <span>Signed with VCL key, immutable audit trail</span>
+            </div>
+          </div>
+          <div class="anchor-note">
+            The VCL event payload includes <code>sth_root_hash</code>, binding the
+            ballot cast to a specific tree state. Any tampering breaks the signature chain.
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0; color: var(--ink);
+      background: radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%), linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page { width: min(1480px, calc(100% - 32px)); max-width: 1480px; margin: 40px auto 80px; }
+
+    .hero {
+      padding: 32px 36px 28px; border: 1px solid var(--line); border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+    .hero-text { flex: 1; }
+    .hero-kicker { margin: 0 0 10px; font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); }
+    .hero h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 42px); line-height: 1.12; color: var(--ink); }
+    .hero-subtitle { margin: 14px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; max-width: 640px; }
+    .hero-verdict { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 4px; }
+    .verdict-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #e6f7ee, #d0f0dd); border: 2.5px solid var(--ok-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(26,107,58,0.12); }
+    .verdict-check { width: 32px; height: 32px; color: var(--ok-ink); }
+    .verdict-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ok-ink); }
+    .top-metrics { margin-top: 24px; display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; }
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
+    .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
+    .metric-pass .metric-value { color: var(--ok-ink); }
+
+    .panel-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px; box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06); }
+    .panel h2 { margin: 0 0 6px; font-family: var(--serif); font-size: 24px; line-height: 1.2; }
+    .panel p { margin: 0; color: var(--ink-soft); font-size: 14px; line-height: 1.5; }
+    .panel-header { margin-bottom: 18px; }
+    .panel-kicker { margin: 0 0 5px; font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
+
+    /* ── Merkle Tree ─────────────────────── */
+
+    .panel-merkle { grid-column: span 7; }
+    .panel-merkle svg { width: 100%; height: auto; display: block; border: 1px solid #d2deec; border-radius: 10px; background: #f9fcff; }
+
+    /* ── Signed Tree Head ────────────────── */
+
+    .panel-sth { grid-column: span 5; }
+
+    .sth-structure { display: grid; gap: 6px; margin-bottom: 14px; }
+
+    .sth-field {
+      display: grid; grid-template-columns: 120px 160px 1fr; gap: 8px; align-items: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: #fff; font-size: 13px;
+    }
+
+    .sth-key { font-family: var(--mono); font-weight: 600; font-size: 12px; }
+    .sth-type { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .sth-desc { font-size: 12px; color: var(--ink-soft); }
+    .sth-field-sig { border-color: var(--ok-border); background: var(--ok-bg); }
+    .sth-field-sig .sth-key { color: var(--ok-ink); }
+
+    .sth-verify {
+      border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: #f8fbff;
+    }
+
+    .sth-verify-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 6px; }
+    .sth-verify code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink); margin-bottom: 6px; word-break: break-all; }
+    .sth-verify p { font-size: 12px; }
+    .sth-verify p code { display: inline; font-size: 10px; }
+
+    /* ── Inclusion Proof ─────────────────── */
+
+    .panel-inclusion { grid-column: span 12; }
+
+    .proof-flow {
+      display: flex; align-items: stretch; gap: 0; margin-bottom: 16px;
+    }
+
+    .proof-step {
+      flex: 1; display: flex; align-items: flex-start; gap: 12px;
+      border: 1px solid var(--line); border-radius: 12px; padding: 16px 14px; background: #fff;
+    }
+
+    .proof-step-verify { border-color: var(--ok-border); background: var(--ok-bg); }
+
+    .proof-badge {
+      width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff; background: var(--stage-1); flex-shrink: 0;
+    }
+
+    .proof-badge-ok { background: var(--ok-ink); }
+
+    .proof-content { flex: 1; }
+    .proof-content strong { display: block; font-size: 14px; margin-bottom: 4px; }
+    .proof-content code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); line-height: 1.6; }
+    .proof-content p { font-size: 12px; margin-top: 4px; }
+    .proof-step-verify .proof-content code { color: var(--ok-ink); }
+
+    .proof-arrow {
+      display: flex; align-items: center; justify-content: center; width: 28px; flex-shrink: 0; color: var(--accent);
+    }
+    .proof-arrow svg { width: 22px; height: 22px; }
+
+    .proof-structure { display: flex; justify-content: center; }
+
+    .proof-interface {
+      border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; background: #fafbfd;
+      display: inline-block;
+    }
+
+    .proof-iface-title {
+      font-family: var(--mono); font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--stage-1);
+    }
+
+    .proof-field {
+      font-family: var(--mono); font-size: 12px; padding: 3px 0; border-bottom: 1px solid #e2e9f2;
+    }
+    .proof-field:last-child { border-bottom: 0; }
+    .proof-field span { font-weight: 600; margin-right: 8px; }
+
+    /* ── STH History ─────────────────────── */
+
+    .panel-history { grid-column: span 6; }
+
+    .timeline { display: grid; gap: 0; margin-bottom: 14px; }
+
+    .timeline-entry {
+      display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;
+      border-left: 2px solid var(--line); margin-left: 8px; padding-left: 20px; position: relative;
+    }
+
+    .timeline-dot {
+      position: absolute; left: -6px; top: 14px; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--stage-1); border: 2px solid #fff;
+    }
+
+    .timeline-content { flex: 1; }
+    .timeline-label { font-family: var(--mono); font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+    .timeline-content code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .timeline-content span { font-size: 12px; color: var(--ink-soft); }
+
+    .monitor-note {
+      border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: #f8fbff;
+      font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+    }
+
+    .monitor-note strong { color: var(--ink); }
+
+    /* ── VCL Anchoring ───────────────────── */
+
+    .panel-anchor { grid-column: span 6; }
+
+    .anchor-chain { display: grid; gap: 0; margin-bottom: 14px; }
+
+    .anchor-node {
+      border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fff;
+    }
+
+    .anchor-node-vcl {
+      border-color: var(--ok-border); background: var(--ok-bg);
+    }
+
+    .anchor-label { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 4px; }
+    .anchor-node-vcl .anchor-label { color: var(--ok-ink); }
+    .anchor-node code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink); }
+    .anchor-node-vcl code { color: var(--ok-ink); }
+    .anchor-node span { display: block; font-size: 11px; color: var(--ok-ink); margin-top: 2px; }
+
+    .anchor-arrow { display: flex; justify-content: center; padding: 3px 0; color: var(--line-strong); }
+    .anchor-arrow svg { width: 20px; height: 10px; }
+
+    .anchor-note {
+      border: 1px dashed var(--line); border-radius: 10px; padding: 12px 14px; background: #f8fbff;
+      font-size: 13px; color: var(--ink-soft); line-height: 1.5;
+    }
+    .anchor-note code { font-family: var(--mono); font-size: 11px; }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics { grid-template-columns: repeat(3, 1fr); }
+      .panel-merkle, .panel-sth, .panel-inclusion, .panel-history, .panel-anchor { grid-column: span 12; }
+      .proof-flow { flex-direction: column; }
+      .proof-arrow { transform: rotate(90deg); width: auto; padding: 4px 0; }
+      .sth-field { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict { flex-direction: row; align-self: flex-start; }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+    }
+  </style>
+</BaseLayout>

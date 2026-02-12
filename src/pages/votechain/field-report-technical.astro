@@ -1,0 +1,294 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+const diagramVersion = '20260212-1239';
+---
+
+<BaseLayout
+  title="VoteChain Technical Evidence Pack"
+  description="Full technical appendix for the VoteChain air-gapped runtime demo: architecture controls, test protocol, detailed result matrix, attack simulations, and readiness gaps."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-11',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'technical appendix', 'evidence pack', 'air gap', 'election testing'],
+  }}
+>
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center mb-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">
+        Technical Appendix
+      </p>
+      <h1 class="font-serif text-2xl md:text-3xl text-navy-900 font-bold">
+        VoteChain Runtime Evidence Pack
+      </h1>
+      <p class="text-navy-600 font-serif italic mt-2 text-sm max-w-2xl mx-auto">
+        Detailed engineering documentation for the February 11, 2026 demonstration cycle.
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-gold-300 bg-cream-50 p-5 mb-8">
+      <div class="flex items-start gap-3">
+        <Icon name="file-check" class="text-gold-700 mt-0.5 flex-shrink-0" />
+        <div class="text-navy-800 text-sm space-y-2">
+          <p>
+            This page is the deep technical companion to the
+            <a href="/votechain/field-report" class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">field report summary</a>.
+          </p>
+          <p>
+            Raw evidence snapshot:
+            <a
+              href="/votechain/evidence/field-report-evidence-pack-2026-02-11.json"
+              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
+            >
+              field-report-evidence-pack-2026-02-11.json
+            </a>
+          </p>
+          <p>
+            Visual diagram board:
+            <a
+              href="/votechain/evidence/diagram-board"
+              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
+            >
+              /votechain/evidence/diagram-board
+            </a>
+            with exported PNGs under
+            <a
+              href="/votechain/evidence/diagrams/diagram-board-full.png"
+              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
+            >
+              /votechain/evidence/diagrams/
+            </a>
+          </p>
+          <p>
+            Raspberry Pi integration guide:
+            <a
+              href="/votechain/pi-integration"
+              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
+            >
+              /votechain/pi-integration
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <article class="bg-parchment rounded-lg shadow-lg p-6 md:p-8 text-navy-900">
+      <h2 id="scope-system" class="font-serif text-2xl font-bold mb-3">Scope And System Under Test</h2>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Date window: February 11, 2026 through February 12, 2026 (UTC).</li>
+        <li>Runtime: polling-place machine + airgap ingest/relay/ledger + central ingest/relay/ledger + observers.</li>
+        <li>Execution profile: 5 machines, 100 sessions per machine, random spoils enabled.</li>
+        <li>Database: PostgreSQL only (no SQLite), dual-plane data stores.</li>
+      </ul>
+
+      <h2 id="hardening-controls" class="font-serif text-2xl font-bold mb-3">Implemented Hardening Controls</h2>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Control Area</th>
+              <th class="text-left py-2 px-3 font-semibold">Implemented State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3">Machine API boundary</td>
+              <td class="py-2 px-3">Bearer auth + CIDR allow-list + air-gap mode validation</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3">Ingest boundary</td>
+              <td class="py-2 px-3">Authenticated bundle ingest + strict bundle integrity checks</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3">Relay/ledger trust</td>
+              <td class="py-2 px-3">Pinned ACK key IDs + role allow-list + quorum ACK enforcement</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3">Session isolation</td>
+              <td class="py-2 px-3">Machine-local data reset after each voter session</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3">Operator mode</td>
+              <td class="py-2 px-3">Strict compose profile (internal networks, no published app ports)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="execution-protocol" class="font-serif text-2xl font-bold mb-3">Execution Protocol (Command-Level)</h2>
+      <pre class="bg-cream-100 border border-navy-200 rounded-md p-3 text-xs overflow-x-auto mb-6"><code>./scripts/generate-compose-env.sh
+docker compose down -v --remove-orphans
+docker compose up -d --build
+
+./scripts/run-mock-election-cycle.py --machines 5 --sessions-per-machine 100 --spoil-rate 0.12 --seed 20260211
+./scripts/run-mock-election-cycle.py --machines 5 --sessions-per-machine 100 --spoil-rate 0.12 --seed 20260212
+
+./scripts/simulate-ballot-box-duplicates.py --force-machine-bypass-on-duplicate
+./scripts/simulate-rogue-node-attack.sh
+
+go run ./cmd/votechain-audit-verify -dataset &lt;mock-election-data.json&gt; -run-report &lt;mock-election-run.json&gt;</code></pre>
+
+      <h2 id="visual-evidence" class="font-serif text-2xl font-bold mb-3">Visual Evidence Diagrams</h2>
+      <p class="mb-3">
+        The diagram board is rendered from an Astro route and exported via Playwright:
+        <code>npm run export:diagrams</code>.
+      </p>
+      <div class="mb-4">
+        <a href="/votechain/evidence/diagram-board" class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">
+          Open full diagram board page
+        </a>
+      </div>
+      <figure class="mb-6">
+        <img
+          src={`/votechain/evidence/diagrams/diagram-board-full.png?v=${diagramVersion}`}
+          alt="VoteChain full visual diagram board for field-test stages and verification outcomes"
+          class="w-full rounded-lg border border-navy-200"
+          loading="lazy"
+        />
+        <figcaption class="text-xs text-navy-600 mt-2">
+          Full board export: stage flow, machine session matrix, test coverage, ledger path, and run outcomes.
+        </figcaption>
+      </figure>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <figure>
+          <img
+            src={`/votechain/evidence/diagrams/stage-flow.png?v=${diagramVersion}`}
+            alt="Stage flow diagram from bootstrap through audit verification"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <figure>
+          <img
+            src={`/votechain/evidence/diagrams/session-grid.png?v=${diagramVersion}`}
+            alt="Per-machine session and reset-pass matrix"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <figure>
+          <img
+            src={`/votechain/evidence/diagrams/test-coverage.png?v=${diagramVersion}`}
+            alt="Security and integrity test coverage panel"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <figure>
+          <img
+            src={`/votechain/evidence/diagrams/verification-chain.png?v=${diagramVersion}`}
+            alt="Airgap and central ledger verification path diagram"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+        <figure>
+          <img
+            src={`/votechain/evidence/diagrams/run-outcomes.png?v=${diagramVersion}`}
+            alt="Election cycle run outcomes summary panel"
+            class="w-full rounded-lg border border-navy-200"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+
+      <h2 id="result-matrix" class="font-serif text-2xl font-bold mb-3">Election Cycle Result Matrix</h2>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Run ID</th>
+              <th class="text-left py-2 px-3 font-semibold">Seed</th>
+              <th class="text-left py-2 px-3 font-semibold">Sessions</th>
+              <th class="text-left py-2 px-3 font-semibold">Spoiled</th>
+              <th class="text-left py-2 px-3 font-semibold">Cast</th>
+              <th class="text-left py-2 px-3 font-semibold">Receipts</th>
+              <th class="text-left py-2 px-3 font-semibold">Winner</th>
+              <th class="text-left py-2 px-3 font-semibold">Verification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">20260211T211648Z</td>
+              <td class="py-2 px-3 font-mono">20260211</td>
+              <td class="py-2 px-3">500</td>
+              <td class="py-2 px-3">59</td>
+              <td class="py-2 px-3">441</td>
+              <td class="py-2 px-3">441</td>
+              <td class="py-2 px-3">cand_a (226)</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">passed</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-mono">20260211T211810Z</td>
+              <td class="py-2 px-3 font-mono">20260212</td>
+              <td class="py-2 px-3">500</td>
+              <td class="py-2 px-3">57</td>
+              <td class="py-2 px-3">443</td>
+              <td class="py-2 px-3">443</td>
+              <td class="py-2 px-3">cand_b (225)</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">passed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Ledger Convergence Values</h3>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-xs border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Run ID</th>
+              <th class="text-left py-2 px-3 font-semibold">Central index/hash</th>
+              <th class="text-left py-2 px-3 font-semibold">Airgap index/hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">20260211T211648Z</td>
+              <td class="py-2 px-3 font-mono">500 / 9d2b9e91906db63abaf53fc448a5281c3c14c1ad388cf1769c1be225c115d29c</td>
+              <td class="py-2 px-3 font-mono">500 / aa71d3e7d933da15b34278c1ae546d5ef54e089313d5d75c9f2cdfd1cf23b1e9</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-mono">20260211T211810Z</td>
+              <td class="py-2 px-3 font-mono">500 / cbf0ef1de1f1b2995fa9b5935960c2134dc7fe69638d1d77534302ea6f9dba27</td>
+              <td class="py-2 px-3 font-mono">500 / 09a0d3677331e318a4ab36c71c13c8a317fd9fb9d9460fdc9e2d9420bbbefab3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="adversarial-tests" class="font-serif text-2xl font-bold mb-3">Adversarial Test Results</h2>
+      <h3 class="font-serif text-lg font-semibold mb-2">Duplicate-vote simulation</h3>
+      <ul class="list-disc pl-6 space-y-2 mb-4">
+        <li>21 attempts total: 12 valid, 6 duplicate check-ins blocked, 3 unregistered blocked.</li>
+        <li>Forced duplicate bypass attempts reached machine API and were rejected by nullifier rules.</li>
+        <li>Machine-side non-nullifier rejection class stayed at zero in the demonstrated run.</li>
+      </ul>
+      <h3 class="font-serif text-lg font-semibold mb-2">Rogue-node simulation</h3>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Startup defense: invalid relay role rejected during config validation.</li>
+        <li>Runtime defense: ACK-key spoof produced pending outbox + degraded observer state.</li>
+        <li>Recovery: restoring valid relay config drained outbox and returned observer to healthy.</li>
+      </ul>
+
+      <h2 id="open-gaps" class="font-serif text-2xl font-bold mb-3">Open Technical Gaps</h2>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Independent third-party audit package publication is still pending.</li>
+        <li>Jurisdiction-level certification and legal acceptance are not complete.</li>
+        <li>Procedural integration with local pollbook and canvass operations remains jurisdiction-specific work.</li>
+        <li>Statewide-scale incident-response and continuity drills require formal partner participation.</li>
+      </ul>
+
+      <h2 id="readiness-statement" class="font-serif text-2xl font-bold mb-3">Readiness Statement</h2>
+      <p>
+        The demonstrated stack is suitable for public working-group elections, adversarial exercises,
+        and engineering validation cycles. It is not yet suitable for binding election deployment
+        without certification-track completion and independent external audit acceptance.
+      </p>
+    </article>
+  </div>
+</BaseLayout>

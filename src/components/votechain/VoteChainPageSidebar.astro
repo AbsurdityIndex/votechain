@@ -1,0 +1,106 @@
+---
+import Icon from '../ui/Icon.astro';
+
+interface NavLink {
+  href: string;
+  label: string;
+  icon: string;
+}
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const mainLinks: NavLink[] = [
+  { href: '/votechain', label: 'Overview', icon: 'home' },
+  { href: '/votechain/field-report', label: 'Field Report', icon: 'archive' },
+  { href: '/votechain/field-report-technical', label: 'Technical Appendix', icon: 'file-check' },
+  { href: '/votechain/pi-integration', label: 'Pi Integration', icon: 'cpu' },
+  { href: '/votechain/architecture', label: 'Architecture', icon: 'git-branch' },
+  { href: '/votechain/credential-integrity', label: 'Credential Integrity', icon: 'shield' },
+  { href: '/votechain/prd', label: 'VoteChain PRD', icon: 'scroll' },
+  { href: '/votechain/ewp', label: 'EWP PRD', icon: 'file-text' },
+  { href: '/votechain/assurance', label: 'Assurance', icon: 'clipboard-list' },
+  { href: '/votechain/faq', label: 'FAQ', icon: 'help-circle' },
+];
+
+const evidenceLinks: NavLink[] = [
+  { href: '/votechain/evidence/diagram-board', label: 'Field Test Board', icon: 'layout' },
+  { href: '/votechain/evidence/pi-integration-board', label: 'Pi Integration Board', icon: 'network' },
+  { href: '/votechain/evidence/crypto-ceremony-board', label: 'Crypto Ceremony', icon: 'lock' },
+  { href: '/votechain/evidence/poc-engine-board', label: 'POC Engine', icon: 'box' },
+  { href: '/votechain/evidence/bulletin-board-board', label: 'Bulletin Board', icon: 'database' },
+  { href: '/votechain/evidence/worker-ledger-board', label: 'Worker Ledger', icon: 'server' },
+  { href: '/votechain/evidence/fraud-detection-board', label: 'Fraud Detection', icon: 'alert-triangle' },
+  { href: '/votechain/evidence/e2e-verification-board', label: 'E2E Verification', icon: 'check-circle' },
+];
+
+function normalize(path: string) {
+  return path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
+}
+
+function isActive(href: string) {
+  const p = normalize(currentPath);
+  const h = normalize(href);
+  if (h === '/votechain') return p === '/votechain';
+  return p === h || p.startsWith(`${h}/`);
+}
+
+function renderLink(link: NavLink) {
+  const active = isActive(link.href);
+  return { active, link };
+}
+---
+
+<aside
+  class="hidden xl:block xl:sticky bg-white border border-navy-200 rounded-lg p-4 overflow-y-auto"
+  style="top: calc(var(--layout-content-top, 96px) + 0.75rem); max-height: calc(100dvh - var(--layout-content-top, 96px) - 1.5rem);"
+>
+  <p class="text-xs font-mono uppercase tracking-widest text-gold-600 mb-3">VoteChain Pages</p>
+  <nav aria-label="VoteChain pages" class="space-y-1.5 text-sm">
+    {
+      mainLinks.map((link) => {
+        const active = isActive(link.href);
+        return (
+          <a
+            href={link.href}
+            class:list={[
+              'flex items-center gap-2 rounded px-2.5 py-1.5 transition-colors',
+              active
+                ? 'bg-gold-50 dark:bg-gold-800/20 text-navy-900 font-semibold'
+                : 'text-navy-700 hover:text-gold-700 hover:bg-cream-50 dark:hover:bg-cream-300/10',
+            ]}
+          >
+            <Icon name={link.icon as any} size={15} class={active ? 'text-gold-700' : 'text-navy-500'} />
+            {link.label}
+          </a>
+        );
+      })
+    }
+  </nav>
+
+  <p class="text-xs font-mono uppercase tracking-widest text-gold-600 mt-5 mb-3">Evidence Boards</p>
+  <nav aria-label="Evidence boards" class="space-y-1.5 text-sm">
+    {
+      evidenceLinks.map((link) => {
+        const active = isActive(link.href);
+        return (
+          <a
+            href={link.href}
+            class:list={[
+              'flex items-center gap-2 rounded px-2.5 py-1.5 transition-colors',
+              active
+                ? 'bg-gold-50 dark:bg-gold-800/20 text-navy-900 font-semibold'
+                : 'text-navy-700 hover:text-gold-700 hover:bg-cream-50 dark:hover:bg-cream-300/10',
+            ]}
+          >
+            <Icon name={link.icon as any} size={15} class={active ? 'text-gold-700' : 'text-navy-500'} />
+            {link.label}
+          </a>
+        );
+      })
+    }
+  </nav>
+</aside>

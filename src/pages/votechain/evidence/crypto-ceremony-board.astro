@@ -1,0 +1,915 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+---
+
+<BaseLayout
+  title="VoteChain Cryptographic Ceremony Board"
+  description="Visual evidence board for VoteChain cryptographic primitives: blind Schnorr, threshold issuance, ECIES, Shamir, and nullifier derivation."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-12',
+    modifiedTime: '2026-02-12',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'evidence', 'cryptography', 'diagram board'],
+  }}
+>
+  <article class="board-canvas">
+    <div class="page">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="hero-text">
+            <p class="hero-kicker">VoteChain Evidence Board</p>
+            <h1>Cryptographic Ceremony<br/>Diagram Board</h1>
+            <p class="hero-subtitle">
+              How the four cryptographic primitives work together to provide credential issuance,
+              ballot encryption, vote unlinkability, and threshold trust distribution.
+            </p>
+          </div>
+          <div class="hero-verdict">
+            <div class="verdict-ring">
+              <svg viewBox="0 0 48 48" class="verdict-check"><path d="M14 24l8 8 12-14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="verdict-label">All Primitives Verified</div>
+          </div>
+        </div>
+        <div class="top-metrics">
+          <div class="metric">
+            <div class="metric-label">Primitives</div>
+            <div class="metric-value">4</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Curve</div>
+            <div class="metric-value">secp256k1</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Threshold</div>
+            <div class="metric-value">2-of-3</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Hash</div>
+            <div class="metric-value">SHA-256</div>
+          </div>
+          <div class="metric metric-pass">
+            <div class="metric-label">Cipher</div>
+            <div class="metric-value">AES-256-GCM</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+
+        <!-- Panel 1: Blind Schnorr Protocol (span 12) -->
+        <article class="panel panel-schnorr" data-panel="blind-schnorr">
+          <header class="panel-header">
+            <p class="panel-kicker">Credential Issuance</p>
+            <h2>Blind Schnorr Signature Protocol</h2>
+            <p>Four-step interactive protocol producing an unlinkable credential. The issuer never learns which voter received which signature.</p>
+          </header>
+          <svg viewBox="0 0 1420 520" role="img" aria-label="Blind Schnorr four-step sequence diagram">
+            <defs>
+              <marker id="arrRight" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
+              </marker>
+              <marker id="arrLeft" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 10 0 L 0 5 L 10 10 z" fill="#b8892e" />
+              </marker>
+            </defs>
+
+            <!-- Column headers -->
+            <rect x="40" y="20" width="320" height="480" rx="12" fill="#e9f3ff" stroke="#aac3df" />
+            <text x="60" y="52" font-size="14" fill="#1f446d" class="caps">Issuer (sk_I, PK_I = sk_I·G)</text>
+
+            <rect x="540" y="20" width="840" height="480" rx="12" fill="#f0faf4" stroke="#a8d8b8" />
+            <text x="560" y="52" font-size="14" fill="#246843" class="caps">Voter (blinds + unblinds)</text>
+
+            <!-- Step 1 -->
+            <rect x="60" y="76" width="280" height="90" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="80" y="100" font-size="15" fill="#0f243e" font-weight="bold">Step 1: Generate Nonce</text>
+            <text x="80" y="122" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">k ← random ∈ Z_q</text>
+            <text x="80" y="142" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">R = k·G</text>
+            <text x="80" y="158" font-size="11" fill="#496789">Send R (33 bytes compressed) to voter</text>
+
+            <line x1="340" y1="120" x2="558" y2="120" stroke="#3a6fa0" stroke-width="3" marker-end="url(#arrRight)" />
+            <text x="400" y="110" font-size="11" fill="#3a6fa0" class="caps">R (commitment)</text>
+
+            <!-- Step 2 -->
+            <rect x="560" y="76" width="410" height="130" rx="10" fill="#fff" stroke="#9fd1b2" />
+            <text x="580" y="100" font-size="15" fill="#0f243e" font-weight="bold">Step 2: Blind the Nonce</text>
+            <text x="580" y="122" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">α, β ← random ∈ Z_q</text>
+            <text x="580" y="142" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">R' = R + α·G + β·PK_I</text>
+            <text x="580" y="162" font-size="12" fill="#496789" font-family="JetBrains Mono, monospace">c' = SHA256("votechain:blind_schnorr:v1:"</text>
+            <text x="610" y="178" font-size="12" fill="#496789" font-family="JetBrains Mono, monospace">‖ R' ‖ PK_I ‖ voter_pk_xonly)</text>
+            <text x="580" y="198" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">c = c' − β mod q</text>
+
+            <line x1="560" y1="230" x2="342" y2="230" stroke="#b8892e" stroke-width="3" marker-end="url(#arrLeft)" />
+            <text x="400" y="222" font-size="11" fill="#8e5b10" class="caps">c (blinded challenge)</text>
+
+            <!-- Step 3 -->
+            <rect x="60" y="250" width="280" height="80" rx="10" fill="#fff" stroke="#9fb7d4" />
+            <text x="80" y="274" font-size="15" fill="#0f243e" font-weight="bold">Step 3: Sign Challenge</text>
+            <text x="80" y="296" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">s = k − c·sk_I mod q</text>
+            <text x="80" y="318" font-size="11" fill="#496789">Return scalar s to voter</text>
+
+            <line x1="340" y1="290" x2="558" y2="290" stroke="#3a6fa0" stroke-width="3" marker-end="url(#arrRight)" />
+            <text x="400" y="282" font-size="11" fill="#3a6fa0" class="caps">s (partial signature)</text>
+
+            <!-- Step 4 -->
+            <rect x="560" y="250" width="410" height="80" rx="10" fill="#fff" stroke="#9fd1b2" />
+            <text x="580" y="274" font-size="15" fill="#0f243e" font-weight="bold">Step 4: Unblind Signature</text>
+            <text x="580" y="296" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">s' = s + α mod q</text>
+            <text x="580" y="318" font-size="11" fill="#496789">Final credential signature: (R', s')</text>
+
+            <!-- Verification -->
+            <rect x="1000" y="76" width="360" height="130" rx="10" fill="#e6f7ee" stroke="#b5e2c6" />
+            <text x="1020" y="100" font-size="14" fill="#1a6b3a" font-weight="bold">Verification Equation</text>
+            <text x="1020" y="126" font-size="14" fill="#1a6b3a" font-family="JetBrains Mono, monospace">s'·G + c'·PK_I == R'</text>
+            <text x="1020" y="152" font-size="12" fill="#1a6b3a">Anyone can verify the credential</text>
+            <text x="1020" y="172" font-size="12" fill="#1a6b3a">without learning which voter holds it</text>
+            <text x="1020" y="192" font-size="11" fill="#1a6b3a">Message m = voter's x-only public key (32 bytes)</text>
+
+            <!-- Domain separator callout -->
+            <rect x="560" y="370" width="800" height="110" rx="10" fill="#fff5e6" stroke="#f0d9a8" />
+            <text x="580" y="398" font-size="13" fill="#8e5b10" font-weight="bold">Domain Separator</text>
+            <text x="580" y="422" font-size="13" fill="#8e5b10" font-family="JetBrains Mono, monospace">"votechain:blind_schnorr:v1:" ‖ R' ‖ PK_I ‖ m</text>
+            <text x="580" y="448" font-size="12" fill="#8e5b10">Prevents cross-protocol hash collisions. The challenge hash binds</text>
+            <text x="580" y="466" font-size="12" fill="#8e5b10">to the blinded nonce R', issuer identity PK_I, and voter identity m.</text>
+          </svg>
+        </article>
+
+        <!-- Panel 2: Threshold Issuance (span 7) -->
+        <article class="panel panel-threshold" data-panel="threshold-issuance">
+          <header class="panel-header">
+            <p class="panel-kicker">Trust Distribution</p>
+            <h2>Threshold Issuance (2-of-3)</h2>
+            <p>Each issuer independently signs the credential. The voter aggregates t valid blind Schnorr signatures from n issuers.</p>
+          </header>
+          <div class="issuer-grid">
+            <div class="issuer-node">
+              <div class="issuer-badge issuer-badge-1">I<sub>1</sub></div>
+              <div class="issuer-details">
+                <div class="issuer-name">Federal Issuer</div>
+                <div class="issuer-role">Manifest authority</div>
+                <code>blindSchnorrIssuance(sk₁)</code>
+              </div>
+            </div>
+            <div class="issuer-node">
+              <div class="issuer-badge issuer-badge-2">I<sub>2</sub></div>
+              <div class="issuer-details">
+                <div class="issuer-name">State Issuer</div>
+                <div class="issuer-role">Jurisdiction authority</div>
+                <code>blindSchnorrIssuance(sk₂)</code>
+              </div>
+            </div>
+            <div class="issuer-node">
+              <div class="issuer-badge issuer-badge-3">I<sub>3</sub></div>
+              <div class="issuer-details">
+                <div class="issuer-name">Oversight Issuer</div>
+                <div class="issuer-role">Independent verifier</div>
+                <code>blindSchnorrIssuance(sk₃)</code>
+              </div>
+            </div>
+          </div>
+          <div class="threshold-summary">
+            <div class="threshold-formula">
+              <code>issuer_threshold: &#123; t: 2, n: 3 &#125;</code>
+            </div>
+            <p>Voter needs signatures from any 2 of 3 issuers. No single issuer can block or forge a credential.</p>
+          </div>
+        </article>
+
+        <!-- Panel 3: Nullifier Derivation (span 5) -->
+        <article class="panel panel-nullifier" data-panel="nullifier-derivation">
+          <header class="panel-header">
+            <p class="panel-kicker">Vote Unlinkability</p>
+            <h2>Nullifier Derivation</h2>
+            <p>Deterministic one-way binding of voter identity to election, preventing double votes without revealing who voted.</p>
+          </header>
+          <div class="nullifier-construction">
+            <div class="null-step">
+              <div class="null-label">Function</div>
+              <code>computeNullifier(pk, election_id)</code>
+            </div>
+            <div class="null-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="null-step">
+              <div class="null-label">Hash Construction</div>
+              <code>SHA256("votechain:nullifier:v1:" ‖ pk ‖ election_id)</code>
+            </div>
+            <div class="null-arrow"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="null-step null-step-result">
+              <div class="null-label">Output</div>
+              <code>0x-prefixed hex string (Hex0x)</code>
+            </div>
+          </div>
+          <div class="null-properties">
+            <div class="null-prop">
+              <strong>Deterministic</strong>
+              <span>Same voter + same election always produces the same nullifier</span>
+            </div>
+            <div class="null-prop">
+              <strong>One-way</strong>
+              <span>Cannot reverse the hash to recover voter identity</span>
+            </div>
+            <div class="null-prop">
+              <strong>Unlinkable</strong>
+              <span>Different elections produce different nullifiers for the same voter</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 4: ECIES Ballot Encryption (span 6) -->
+        <article class="panel panel-ecies" data-panel="ecies-encryption">
+          <header class="panel-header">
+            <p class="panel-kicker">Ballot Secrecy</p>
+            <h2>ECIES Ballot-Key Wrapping</h2>
+            <p>Ephemeral ECDH key agreement followed by AES-GCM encryption protects ballot content until threshold tally.</p>
+          </header>
+          <div class="ecies-flow">
+            <div class="ecies-step">
+              <div class="ecies-badge">1</div>
+              <div class="ecies-content">
+                <strong>Ephemeral ECDH</strong>
+                <code>ephSk ← random</code>
+                <code>shared = pk_election · ephSk</code>
+              </div>
+            </div>
+            <div class="ecies-connector"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="ecies-step">
+              <div class="ecies-badge">2</div>
+              <div class="ecies-content">
+                <strong>KDF (Domain-Separated)</strong>
+                <code>SHA256("votechain:poc:ecies-wrapkey:v1:"</code>
+                <code>  ‖ shared ‖ election_id ‖ ballot_id)</code>
+              </div>
+            </div>
+            <div class="ecies-connector"><svg viewBox="0 0 24 12" fill="none"><path d="M12 0v10M6 6l6 5 6-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="ecies-step">
+              <div class="ecies-badge">3</div>
+              <div class="ecies-content">
+                <strong>AES-256-GCM Encrypt</strong>
+                <code>iv ← 12 random bytes</code>
+                <code>suite: "poc_ecies_aesgcm_v1"</code>
+                <code>AAD: &#123; election_id, ballot_id, suite &#125;</code>
+              </div>
+            </div>
+          </div>
+          <div class="ecies-output">
+            <div class="ecies-field">
+              <span>wrapped_ballot_key</span>
+              <code>iv ‖ ciphertext (base64url)</code>
+            </div>
+            <div class="ecies-field">
+              <span>wrapped_ballot_key_epk</span>
+              <code>ephemeral public key (33 bytes, base64url)</code>
+            </div>
+          </div>
+        </article>
+
+        <!-- Panel 5: Shamir Secret Sharing (span 6) -->
+        <article class="panel panel-shamir" data-panel="shamir-sharing">
+          <header class="panel-header">
+            <p class="panel-kicker">Key Custody</p>
+            <h2>Shamir Secret Sharing</h2>
+            <p>The election private key is split into shares using polynomial interpolation. No single trustee holds enough to decrypt.</p>
+          </header>
+          <div class="shamir-flow">
+            <div class="shamir-section">
+              <h3>Split (shamirSplit)</h3>
+              <div class="shamir-detail">
+                <code>f(x) = a₀ + a₁x + ... + a<sub>t-1</sub>x<sup>t-1</sup> mod q</code>
+                <p>where a₀ = election secret, remaining coefficients are random scalars over the secp256k1 order</p>
+              </div>
+              <div class="shamir-shares">
+                <div class="share-chip">Share 1: f(1)</div>
+                <div class="share-chip">Share 2: f(2)</div>
+                <div class="share-chip">Share 3: f(3)</div>
+              </div>
+            </div>
+            <div class="shamir-divider"></div>
+            <div class="shamir-section">
+              <h3>Combine (shamirCombine)</h3>
+              <div class="shamir-detail">
+                <code>secret = Σ y_i · L_i(0) mod q</code>
+                <p>Lagrange interpolation at x=0 recovers the constant term. Any t shares are sufficient; fewer reveal nothing.</p>
+              </div>
+              <div class="shamir-params">
+                <div class="param-chip"><span>Type</span><strong>ShamirShare &#123; x: bigint, y: bigint &#125;</strong></div>
+                <div class="param-chip"><span>Field</span><strong>secp256k1 scalar field (q)</strong></div>
+                <div class="param-chip"><span>Threshold</span><strong>t ≥ 2, n ≥ t</strong></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </article>
+
+  <style>
+    .board-canvas {
+      --ink: #0f223b;
+      --ink-soft: #35506f;
+      --line: #c5d1de;
+      --line-strong: #a0b3c8;
+      --card: #ffffff;
+      --bg-a: #f3f6fb;
+      --bg-b: #e8edf4;
+      --accent: #b8892e;
+      --accent-soft: #f4ead1;
+      --ok-bg: #e6f7ee;
+      --ok-ink: #1a6b3a;
+      --ok-border: #b5e2c6;
+      --warn-bg: #fff5e6;
+      --warn-ink: #8e5b10;
+      --stage-1: #3a6fa0;
+      --stage-2: #2d8a5e;
+      --stage-3: #b8892e;
+      --stage-4: #1a6b3a;
+      --mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --serif: "Libre Caslon Text", "Book Antiqua", "Palatino Linotype", serif;
+      --sans: "Inter", "Avenir Next", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    .board-canvas {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 15% 10%, rgba(255,255,255,0.7) 0, transparent 60%),
+        linear-gradient(155deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      font-family: var(--sans);
+    }
+
+    .page {
+      width: min(1480px, calc(100% - 32px));
+      max-width: 1480px;
+      margin: 40px auto 80px;
+    }
+
+    /* ── Hero ─────────────────────────────── */
+
+    .hero {
+      padding: 32px 36px 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.9) inset,
+        0 20px 50px -12px rgba(15,34,59,0.10);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .hero-text { flex: 1; }
+
+    .hero-kicker {
+      margin: 0 0 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1.12;
+      color: var(--ink);
+    }
+
+    .hero-subtitle {
+      margin: 14px 0 0;
+      color: var(--ink-soft);
+      font-size: 16px;
+      line-height: 1.5;
+      max-width: 640px;
+    }
+
+    .hero-verdict {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      padding-top: 4px;
+    }
+
+    .verdict-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e6f7ee, #d0f0dd);
+      border: 2.5px solid var(--ok-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(26,107,58,0.12);
+    }
+
+    .verdict-check {
+      width: 32px;
+      height: 32px;
+      color: var(--ok-ink);
+    }
+
+    .verdict-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ok-ink);
+    }
+
+    .top-metrics {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+
+    .metric-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
+    }
+
+    .metric-value {
+      margin-top: 6px;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 700;
+      font-family: var(--serif);
+    }
+
+    .metric-pass {
+      border-color: var(--ok-border);
+      background: linear-gradient(180deg, #f0faf4, #e6f7ee);
+    }
+
+    .metric-pass .metric-value {
+      color: var(--ok-ink);
+    }
+
+    /* ── Panel Grid ──────────────────────── */
+
+    .panel-grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 24px;
+      box-shadow: 0 8px 24px -4px rgba(15,34,59,0.06);
+    }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-family: var(--serif);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .panel-header {
+      margin-bottom: 18px;
+    }
+
+    .panel-kicker {
+      margin: 0 0 5px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+    }
+
+    .caps {
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-family: var(--mono);
+    }
+
+    /* ── Blind Schnorr Panel ────────────── */
+
+    .panel-schnorr { grid-column: span 12; }
+
+    .panel-schnorr svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #d2deec;
+      border-radius: 10px;
+      background: #f9fcff;
+    }
+
+    /* ── Threshold Issuance ──────────────── */
+
+    .panel-threshold { grid-column: span 7; }
+
+    .issuer-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .issuer-node {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #fff, #fafbfd);
+    }
+
+    .issuer-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .issuer-badge-1 { background: var(--stage-1); }
+    .issuer-badge-2 { background: var(--stage-2); }
+    .issuer-badge-3 { background: var(--stage-3); }
+
+    .issuer-details {
+      flex: 1;
+    }
+
+    .issuer-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .issuer-role {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    .issuer-details code {
+      display: inline-block;
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--stage-1);
+      background: #eef4fb;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .threshold-summary {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: #f8fbff;
+    }
+
+    .threshold-formula {
+      margin-bottom: 8px;
+    }
+
+    .threshold-formula code {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .threshold-summary p {
+      font-size: 13px;
+    }
+
+    /* ── Nullifier Panel ─────────────────── */
+
+    .panel-nullifier { grid-column: span 5; }
+
+    .nullifier-construction {
+      margin-bottom: 16px;
+    }
+
+    .null-step {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .null-step code {
+      display: block;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+      word-break: break-all;
+    }
+
+    .null-step-result {
+      background: linear-gradient(180deg, #f0faf4, #e6f7ee);
+      border-color: var(--ok-border);
+    }
+
+    .null-step-result code {
+      color: var(--ok-ink);
+      font-weight: 600;
+    }
+
+    .null-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+
+    .null-arrow {
+      display: flex;
+      justify-content: center;
+      padding: 4px 0;
+      color: var(--line-strong);
+    }
+
+    .null-arrow svg {
+      width: 20px;
+      height: 10px;
+    }
+
+    .null-properties {
+      display: grid;
+      gap: 8px;
+    }
+
+    .null-prop {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fafbfd;
+    }
+
+    .null-prop strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .null-prop span {
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    /* ── ECIES Panel ─────────────────────── */
+
+    .panel-ecies { grid-column: span 6; }
+
+    .ecies-flow {
+      margin-bottom: 14px;
+    }
+
+    .ecies-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    .ecies-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--stage-1);
+      flex-shrink: 0;
+    }
+
+    .ecies-content {
+      flex: 1;
+    }
+
+    .ecies-content strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .ecies-content code {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    .ecies-connector {
+      display: flex;
+      justify-content: center;
+      padding: 3px 0;
+      color: var(--line-strong);
+    }
+
+    .ecies-connector svg {
+      width: 20px;
+      height: 10px;
+    }
+
+    .ecies-output {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ecies-field {
+      border: 1px solid var(--ok-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--ok-bg);
+    }
+
+    .ecies-field span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ok-ink);
+      margin-bottom: 4px;
+    }
+
+    .ecies-field code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ok-ink);
+    }
+
+    /* ── Shamir Panel ────────────────────── */
+
+    .panel-shamir { grid-column: span 6; }
+
+    .shamir-flow {
+      display: grid;
+      gap: 16px;
+    }
+
+    .shamir-section h3 {
+      margin: 0 0 8px;
+      font-family: var(--serif);
+      font-size: 17px;
+    }
+
+    .shamir-detail {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #fafbfd;
+      margin-bottom: 10px;
+    }
+
+    .shamir-detail code {
+      display: block;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .shamir-detail p {
+      font-size: 12px;
+    }
+
+    .shamir-shares {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .share-chip {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      background: #fff;
+    }
+
+    .shamir-divider {
+      height: 1px;
+      background: var(--line);
+    }
+
+    .shamir-params {
+      display: grid;
+      gap: 8px;
+    }
+
+    .param-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: #fff;
+    }
+
+    .param-chip span {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      flex-shrink: 0;
+      width: 70px;
+    }
+
+    .param-chip strong {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* ── Responsive ──────────────────────── */
+
+    @media (max-width: 1100px) {
+      .top-metrics {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .panel-schnorr,
+      .panel-threshold,
+      .panel-nullifier,
+      .panel-ecies,
+      .panel-shamir {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page { margin: 20px auto 40px; }
+      .hero { padding: 20px; }
+      .hero-top { flex-direction: column; gap: 16px; }
+      .hero-verdict {
+        flex-direction: row;
+        align-self: flex-start;
+      }
+      .verdict-ring { width: 44px; height: 44px; }
+      .verdict-check { width: 22px; height: 22px; }
+      .hero h1 { font-size: 26px; }
+      .top-metrics { grid-template-columns: repeat(2, 1fr); }
+      .panel-grid { gap: 12px; }
+      .shamir-shares { grid-template-columns: 1fr; }
+    }
+  </style>
+</BaseLayout>
