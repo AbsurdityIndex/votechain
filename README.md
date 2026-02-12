@@ -85,6 +85,8 @@ Pages projects:
 - Test: `votechain-test`
 - Production: `votechain` (`votechain-dap.pages.dev`)
 
+Automated deploy pipeline: `.github/workflows/pages-deploy.yml` (GitHub Actions).
+
 ### Type checking
 
 ```bash

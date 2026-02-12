@@ -46,6 +46,11 @@ Smoke-check production URLs:
 
 ## 4. CI Behavior
 
-Pushes to `main` run `.woodpecker.yml` and automatically deploy to `votechain-test`.
+Pushes to `main` run `.github/workflows/pages-deploy.yml` and automatically deploy to `votechain-test`.
 
-Production deploy in CI is manual-only (`deploy-production` step) to avoid accidental promotion.
+Production deploys also run automatically on push to `main`. For manual runs (`workflow_dispatch`), production deploy requires `deploy_production=true`.
+
+Required GitHub repository secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
