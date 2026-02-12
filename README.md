@@ -70,6 +70,21 @@ npm run build        # Static build → dist/
 npm run preview      # Preview production build
 ```
 
+### Deploy (Pages)
+
+```bash
+# Deploy to test project
+npm run deploy:test
+
+# Deploy to production project
+npm run deploy:prod
+```
+
+Pages projects:
+
+- Test: `votechain-test`
+- Production: `votechain` (`votechain-dap.pages.dev`)
+
 ### Type checking
 
 ```bash
@@ -137,6 +152,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ## Security
 
 See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy.
+
+## Releasing
+
+See [RELEASING.md](RELEASING.md) for test and production deployment workflow.
 
 ## License
 
