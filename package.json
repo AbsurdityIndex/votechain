@@ -43,6 +43,9 @@
     "rehype-external-links": "^3.0.0",
     "tailwindcss": "^4.1.18"
   },
+  "overrides": {
+    "lodash": ">=4.17.22"
+  },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "playwright": "^1.56.1",

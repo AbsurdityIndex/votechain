@@ -48,10 +48,6 @@ function isActive(href: string) {
   return p === h || p.startsWith(`${h}/`);
 }
 
-function renderLink(link: NavLink) {
-  const active = isActive(link.href);
-  return { active, link };
-}
 ---
 
 <aside
