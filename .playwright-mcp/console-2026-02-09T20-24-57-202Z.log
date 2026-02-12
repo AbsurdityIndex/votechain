@@ -1,0 +1,4 @@
+[     200ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4328/api/votechain/poc/replicate:0
+[     200ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4328/api/visitors.json:0
+[     201ms] [WARNING] [VCL] Manifest replication failed: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON @ http://localhost:4328/src/votechain-poc/state.ts:185
+[     205ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4328/api/visitors.json:0

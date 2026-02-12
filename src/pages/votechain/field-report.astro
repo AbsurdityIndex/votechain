@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+---
+
+<BaseLayout
+  title="VoteChain Field Report: Air-Gapped Runtime Demo"
+  description="Field report on the open-source VoteChain polling-place runtime demo: architecture, election-cycle results, attack simulations, and remaining gaps before any real-election use."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-11',
+    modifiedTime: '2026-02-11',
+    author: 'Absurdity Index',
+    section: 'Engineering',
+    tags: ['votechain', 'field report', 'air gap', 'election security', 'raspberry pi'],
+  }}
+>
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center mb-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">
+        Engineering Field Report
+      </p>
+      <h1 class="font-serif text-2xl md:text-3xl text-navy-900 font-bold">
+        Air-Gapped Runtime Demonstration (February 11, 2026)
+      </h1>
+      <p class="text-navy-600 font-serif italic mt-2 text-sm max-w-2xl mx-auto">
+        What was built, what was verified, what failed, and what still has to be proven before
+        real-election deployment.
+      </p>
+    </div>
+
+    <div class="rounded-lg border border-gold-300 bg-cream-50 p-5 mb-8">
+      <div class="flex items-start gap-3">
+        <Icon name="alert-triangle" class="text-gold-700 mt-0.5 flex-shrink-0" />
+        <div class="text-navy-800 text-sm space-y-2">
+          <p>
+            <strong>Status:</strong> Ready for public working-group test elections and adversarial
+            drills. <strong>Not</strong> certified for a binding public election.
+          </p>
+          <p>
+            This report documents demonstrated capabilities and unresolved certification, legal,
+            and operational requirements.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <article class="bg-parchment rounded-lg shadow-lg p-6 md:p-8 text-navy-900">
+      <h2 class="font-serif text-2xl font-bold mb-3">What Was Built</h2>
+      <p class="mb-4">
+        The open-source runtime now includes a full polling-place stack that can run on Raspberry
+        Pi-class hardware with an explicit air-gap boundary and a separate central verification
+        boundary.
+      </p>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Polling-place machine API/runtime for casting, challenge, verify, and close workflows.</li>
+        <li>Air-gap anchor plane: ingest, relay, and three replicated air-gap ledger nodes.</li>
+        <li>Central plane: ingest, relay, and three replicated central ledger nodes.</li>
+        <li>Observer services for health, consistency, and outbox-state verification.</li>
+        <li>
+          Hardened Compose topology with strict mode support (no host-exposed service ports).
+        </li>
+        <li>Bearer auth + allow-list controls for machine and ingest boundaries.</li>
+      </ul>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">How The Demonstration Was Run</h2>
+      <ol class="list-decimal pl-6 space-y-2 mb-6">
+        <li>Generate mock voter-session data with random spoil behavior.</li>
+        <li>Run 5 polling-place machines with 100 sessions per machine (500 total sessions).</li>
+        <li>Reset machine-local state after each voter session.</li>
+        <li>Ingest each signed bundle into both air-gap and central planes.</li>
+        <li>Wait for both relay outboxes to drain and verify ledger convergence.</li>
+      </ol>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">Measured Results</h2>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Run</th>
+              <th class="text-left py-2 px-3 font-semibold">Sessions</th>
+              <th class="text-left py-2 px-3 font-semibold">Spoiled</th>
+              <th class="text-left py-2 px-3 font-semibold">Cast</th>
+              <th class="text-left py-2 px-3 font-semibold">Winner</th>
+              <th class="text-left py-2 px-3 font-semibold">Verification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">20260211T211648Z</td>
+              <td class="py-2 px-3">500</td>
+              <td class="py-2 px-3">59</td>
+              <td class="py-2 px-3">441</td>
+              <td class="py-2 px-3">cand_a (226)</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">passed</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-mono">20260211T211810Z</td>
+              <td class="py-2 px-3">500</td>
+              <td class="py-2 px-3">57</td>
+              <td class="py-2 px-3">443</td>
+              <td class="py-2 px-3">cand_b (225)</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">passed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mb-6">
+        Both runs showed zero pending outbox events at completion, matching receipt counts for
+        non-spoiled ballots, and converged index/hash values across all three nodes in each ledger
+        plane.
+      </p>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">Adversarial Simulation Outcomes</h2>
+      <h3 class="font-serif text-lg font-semibold mb-2">Duplicate-vote attempts</h3>
+      <ul class="list-disc pl-6 space-y-2 mb-4">
+        <li>21 attempts total: 12 allowed check-ins, 6 duplicate check-ins denied, 3 unregistered denied.</li>
+        <li>Forced bypass attempts at the machine API were rejected with nullifier collision errors.</li>
+        <li>No non-nullifier rejection category appeared in the demonstrated run.</li>
+      </ul>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Unauthorized node behavior</h3>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Relay startup blocks invalid node roles outside federal/state/oversight.</li>
+        <li>
+          Runtime ACK-key spoofing produced a pending outbox record and degraded observer status,
+          then recovered after restoring valid relay config.
+        </li>
+      </ul>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">What We Learned</h2>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>End-to-end session lifecycle is executable at realistic polling-place concurrency.</li>
+        <li>Random spoil handling is preserved through bundle export, ingest, and verification.</li>
+        <li>Machine reset between sessions is operationally viable in automated cycles.</li>
+        <li>Key detection controls for duplicate voting and rogue-node behavior work as designed.</li>
+        <li>Independent audit verification can be automated and signed as part of each cycle run.</li>
+      </ul>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">What Is Still Missing</h2>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>Election certification or legal authorization in any U.S. jurisdiction.</li>
+        <li>Full independent third-party audit package and formal certification artifacts.</li>
+        <li>Jurisdiction-specific integration with pollbook, chain-of-custody, and canvass procedures.</li>
+        <li>Complete operational readiness for statewide scale and election-night incident response.</li>
+      </ul>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">Notes Along The Way</h2>
+      <ul class="list-disc pl-6 space-y-2 mb-6">
+        <li>
+          Initial Compose hardening with fully internal networks blocked host health checks in the
+          demo harness; strict mode was retained as a separate operator profile.
+        </li>
+        <li>
+          Strict profile transitions were reliable only after clean stack resets (`down` then `up`)
+          to avoid stale container-network DNS behavior.
+        </li>
+        <li>
+          The independent audit tool required schema and tolerance updates to accept new run-report
+          fields and post-run ledger growth.
+        </li>
+        <li>
+          Rogue-node simulation scripting required portability fixes to run on both macOS and Linux
+          toolchains.
+        </li>
+      </ul>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">Next Gate Before Any Real Election Use</h2>
+      <ol class="list-decimal pl-6 space-y-2">
+        <li>External cryptographic/protocol and secure-code audits with public findings.</li>
+        <li>Jurisdiction-by-jurisdiction legal and procedural mapping with election authorities.</li>
+        <li>Independent red-team and live failover drills under formal observer oversight.</li>
+        <li>Certification-track evidence package aligned to federal and state requirements.</li>
+      </ol>
+    </article>
+  </div>
+</BaseLayout>

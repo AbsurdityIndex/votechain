@@ -1,0 +1,8 @@
+[     200ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/api/visitors.json:0
+[     206ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/api/visitors.json:0
+[    7601ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/api/votechain/poc/replicate:0
+[    7601ms] [WARNING] [VCL] credential_issued replication failed: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON @ http://localhost:4321/src/votechain-poc/credential.ts:86
+[   41891ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/api/votechain/poc/replicate:0
+[   41892ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4321/api/votechain/poc/replicate:0
+[   41892ms] [WARNING] [VCL] Replication of bb_sth_published failed: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON @ http://localhost:4321/src/votechain-poc/cast.ts:174
+[   41892ms] [WARNING] [VCL] Replication of ewp_ballot_cast failed: SyntaxError: Unexpected token '<', "<!doctype "... is not valid JSON @ http://localhost:4321/src/votechain-poc/cast.ts:174

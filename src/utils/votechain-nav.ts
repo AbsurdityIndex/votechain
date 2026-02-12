@@ -15,6 +15,7 @@ export type VoteChainAssuranceDoc = VoteChainSubpageItem;
 
 export const VOTECHAIN_PRIMARY_NAV: VoteChainNavItem[] = [
   { href: '/votechain', label: 'Overview', icon: 'home' },
+  { href: '/votechain/field-report', label: 'Field Report', icon: 'archive' },
   { href: '/votechain/architecture', label: 'Architecture', icon: 'git-branch' },
   { href: '/votechain/credential-integrity', label: 'Credential Integrity', icon: 'shield' },
   { href: '/votechain/prd', label: 'VoteChain PRD', icon: 'scroll' },

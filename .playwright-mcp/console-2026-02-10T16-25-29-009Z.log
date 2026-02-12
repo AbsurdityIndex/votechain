@@ -1,0 +1,3 @@
+[     695ms] [ERROR] Refused to execute script from 'https://votechain.pages.dev/votechain/poc/vote/httpsvotechainapp.local/wp-includes/js/wp-emoji-release.min.js?ver=6.1' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled. @ https://votechain.pages.dev/votechain/poc/vote/:0
+[    1639ms] [WARNING] [Meta pixel] 247718045804240 is unavailable on this website due to it's traffic permission settings. Go to https://www.facebook.com/business/help/572690630080597 to learn more. @ https://connect.facebook.net/en_US/fbevents.js:171
+[   27531ms] [ERROR] Failed to load resource: the server responded with a status of 405 () @ https://votechain.pages.dev/api/votechain/poc/unlock:0
