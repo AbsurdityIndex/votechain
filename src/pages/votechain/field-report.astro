@@ -111,6 +111,135 @@ import Icon from '../../components/ui/Icon.astro';
         plane.
       </p>
 
+      <h3 class="font-serif text-lg font-semibold mb-2">Run-level derived metrics</h3>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Run</th>
+              <th class="text-left py-2 px-3 font-semibold">Spoil rate</th>
+              <th class="text-left py-2 px-3 font-semibold">Cast completion rate</th>
+              <th class="text-left py-2 px-3 font-semibold">Outbox pending at finish</th>
+              <th class="text-left py-2 px-3 font-semibold">Ledger consistency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">20260211T211648Z</td>
+              <td class="py-2 px-3">11.8% (59/500)</td>
+              <td class="py-2 px-3">88.2% (441/500)</td>
+              <td class="py-2 px-3">0</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">matched</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-mono">20260211T211810Z</td>
+              <td class="py-2 px-3">11.4% (57/500)</td>
+              <td class="py-2 px-3">88.6% (443/500)</td>
+              <td class="py-2 px-3">0</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">matched</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Per-machine sample split (run 20260211T211648Z)</h3>
+      <div class="overflow-x-auto mb-6">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-cream-100 border-b border-navy-200">
+              <th class="text-left py-2 px-3 font-semibold">Machine</th>
+              <th class="text-left py-2 px-3 font-semibold">Sessions</th>
+              <th class="text-left py-2 px-3 font-semibold">Spoiled</th>
+              <th class="text-left py-2 px-3 font-semibold">Cast</th>
+              <th class="text-left py-2 px-3 font-semibold">Reset checks passed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">machine-1</td>
+              <td class="py-2 px-3">100</td>
+              <td class="py-2 px-3">12</td>
+              <td class="py-2 px-3">88</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">100/100</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">machine-2</td>
+              <td class="py-2 px-3">100</td>
+              <td class="py-2 px-3">11</td>
+              <td class="py-2 px-3">89</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">100/100</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">machine-3</td>
+              <td class="py-2 px-3">100</td>
+              <td class="py-2 px-3">14</td>
+              <td class="py-2 px-3">86</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">100/100</td>
+            </tr>
+            <tr class="border-b border-navy-100">
+              <td class="py-2 px-3 font-mono">machine-4</td>
+              <td class="py-2 px-3">100</td>
+              <td class="py-2 px-3">10</td>
+              <td class="py-2 px-3">90</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">100/100</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-mono">machine-5</td>
+              <td class="py-2 px-3">100</td>
+              <td class="py-2 px-3">12</td>
+              <td class="py-2 px-3">88</td>
+              <td class="py-2 px-3 text-green-700 font-semibold">100/100</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="font-serif text-2xl font-bold mb-3">Evidence Examples</h2>
+      <p class="mb-3">
+        The excerpts below are representative samples from run artifacts. IDs are shortened and
+        non-essential fields are omitted for readability.
+      </p>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Example: run report summary</h3>
+      <pre class="bg-navy-900 text-cream-50 text-xs rounded-lg p-4 overflow-x-auto mb-6"><code>{`{
+  "run_id": "20260211T211648Z",
+  "machines": 5,
+  "sessions_total": 500,
+  "spoiled_total": 59,
+  "cast_total": 441,
+  "receipts_total": 441,
+  "airgap_outbox_pending": 0,
+  "central_outbox_pending": 0,
+  "airgap_nodes_consistent": true,
+  "central_nodes_consistent": true
+}`}</code></pre>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Example: duplicate-vote rejection</h3>
+      <pre class="bg-navy-900 text-cream-50 text-xs rounded-lg p-4 overflow-x-auto mb-6"><code>{`2026-02-11T21:24:07Z machine-3 vote.reject
+reason=NULLIFIER_COLLISION
+credential_id=cred_3f1e...
+nullifier=nf_7b9d...
+session_id=sess_302
+`}</code></pre>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Example: rogue ACK-key detection and recovery</h3>
+      <pre class="bg-navy-900 text-cream-50 text-xs rounded-lg p-4 overflow-x-auto mb-6"><code>{`2026-02-11T22:01:13Z observer status=DEGRADED
+component=relay-airgap issue=ACK_KEY_MISMATCH pending_events=1
+
+2026-02-11T22:03:42Z relay-airgap config_restored=true
+
+2026-02-11T22:03:58Z observer status=HEALTHY
+component=relay-airgap pending_events=0
+`}</code></pre>
+
+      <h3 class="font-serif text-lg font-semibold mb-2">Example: session reset verification</h3>
+      <pre class="bg-navy-900 text-cream-50 text-xs rounded-lg p-4 overflow-x-auto mb-6"><code>{`2026-02-11T21:18:52Z machine-1 session=sess_117 reset.check=PASS
+residual_ballot_cache=0 residual_receipt_cache=0 residual_credentials=0
+
+2026-02-11T21:19:23Z machine-1 session=sess_118 reset.check=PASS
+residual_ballot_cache=0 residual_receipt_cache=0 residual_credentials=0
+`}</code></pre>
+
       <h2 class="font-serif text-2xl font-bold mb-3">Adversarial Simulation Outcomes</h2>
       <h3 class="font-serif text-lg font-semibold mb-2">Duplicate-vote attempts</h3>
       <ul class="list-disc pl-6 space-y-2 mb-4">
