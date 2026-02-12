@@ -454,7 +454,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
     .metric { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: #fff; }
     .metric-label { font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
-    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); }
+    .metric-value { margin-top: 6px; font-size: 24px; line-height: 1; font-weight: 700; font-family: var(--serif); overflow-wrap: break-word; word-break: break-word; }
     .metric-pass { border-color: var(--ok-border); background: linear-gradient(180deg, #f0faf4, #e6f7ee); }
     .metric-pass .metric-value { color: var(--ok-ink); }
 
@@ -570,7 +570,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
     /* ── Voter Journey ───────────────────── */
 
-    .panel-journey { grid-column: span 12; }
+    .panel-journey { grid-column: span 12; min-width: 0; overflow: hidden; }
 
     .journey-pipeline {
       display: flex; align-items: stretch; gap: 0;
@@ -578,7 +578,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     }
 
     .journey-step {
-      flex: 1; min-width: 160px;
+      flex: 1; min-width: 0;
       border: 1px solid var(--line); border-radius: 12px;
       padding: 16px 14px; background: linear-gradient(180deg, #fff, #fafbfd);
       border-top: 3px solid var(--line); position: relative;

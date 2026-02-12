@@ -371,13 +371,13 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 
     /* ── Signed Tree Head ────────────────── */
 
-    .panel-sth { grid-column: span 5; }
+    .panel-sth { grid-column: span 5; min-width: 0; overflow: hidden; }
 
     .sth-structure { display: grid; gap: 6px; margin-bottom: 14px; }
 
     .sth-field {
-      display: grid; grid-template-columns: 120px 160px 1fr; gap: 8px; align-items: center;
-      border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: #fff; font-size: 13px;
+      display: grid; grid-template-columns: 100px 130px 1fr; gap: 8px; align-items: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; font-size: 13px;
     }
 
     .sth-key { font-family: var(--mono); font-weight: 600; font-size: 12px; }
@@ -391,9 +391,9 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
     }
 
     .sth-verify-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin-bottom: 6px; }
-    .sth-verify code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink); margin-bottom: 6px; word-break: break-all; }
-    .sth-verify p { font-size: 12px; }
-    .sth-verify p code { display: inline; font-size: 10px; }
+    .sth-verify code { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink); margin-bottom: 6px; overflow-wrap: break-word; word-break: break-all; }
+    .sth-verify p { font-size: 12px; overflow-wrap: break-word; }
+    .sth-verify p code { display: inline; font-size: 10px; overflow-wrap: break-word; word-break: break-all; }
 
     /* ── Inclusion Proof ─────────────────── */
 
