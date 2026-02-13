@@ -1,0 +1,10 @@
+# Default repository ownership
+* @coreysteinwand
+
+# Documentation and assurance artifacts
+/docs/ @coreysteinwand
+/CLAUDE.md @coreysteinwand
+
+# Public evidence and POC artifacts
+/public/votechain/evidence/ @coreysteinwand
+/public/votechain/evidence/icons/ @coreysteinwand

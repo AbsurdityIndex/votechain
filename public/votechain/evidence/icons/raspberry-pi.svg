@@ -1,1 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="8" cy="8" r="0.5" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="0.5" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="0.5" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="0.5" fill="currentColor" stroke="none"/><rect x="9" y="13" width="6" height="5" rx="0.5"/><line x1="7" y1="2" x2="7" y2="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="17" y1="2" x2="17" y2="4"/></svg>
+version https://git-lfs.github.com/spec/v1
+oid sha256:36bf647d85a37152284d4761bc3749a49e50f5a10449a8673abab1edc7eb85fd
+size 726

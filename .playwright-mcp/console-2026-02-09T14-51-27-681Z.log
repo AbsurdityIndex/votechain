@@ -1,4 +1,0 @@
-[     123ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4327/api/visitors.json:0
-[     124ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4327/api/visitors.json:0
-[   24245ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4327/api/visitors.json:0
-[   24266ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:4327/api/visitors.json:0

@@ -15,6 +15,7 @@ Thank you for your interest in contributing. VoteChain is a research project exp
 ```bash
 git clone https://github.com/AbsurdityIndex/votechain.git
 cd votechain
+git lfs install
 npm install
 npm test            # Verify everything passes
 npm run dev         # Start the dev server
@@ -32,6 +33,7 @@ npm run dev         # Start the dev server
    npm run build
    ```
 5. **Write a clear PR description** explaining what changed and why.
+6. **Respect code ownership.** Changes touching files in tracked ownership paths follow [CODEOWNERS](CODEOWNERS).
 
 ## Code style
 

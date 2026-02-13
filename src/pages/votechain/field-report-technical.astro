@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/ui/Icon.astro';
-
-const diagramVersion = '20260212-1239';
 ---
 
 <BaseLayout
@@ -55,13 +53,7 @@ const diagramVersion = '20260212-1239';
             >
               /votechain/evidence/diagram-board
             </a>
-            with exported PNGs under
-            <a
-              href="/votechain/evidence/diagrams/diagram-board-full.png"
-              class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700"
-            >
-              /votechain/evidence/diagrams/
-            </a>
+            (interactive source route; no screenshot artifacts are embedded in the UI).
           </p>
           <p>
             Raspberry Pi integration guide:
@@ -134,67 +126,26 @@ go run ./cmd/votechain-audit-verify -dataset &lt;mock-election-data.json&gt; -ru
 
       <h2 id="visual-evidence" class="font-serif text-2xl font-bold mb-3">Visual Evidence Diagrams</h2>
       <p class="mb-3">
-        The diagram board is rendered from an Astro route and exported via Playwright:
-        <code>npm run export:diagrams</code>.
+        The diagram board is now embedded directly from the canonical evidence route so we no longer
+        depend on static PNG renders for layout.
       </p>
       <div class="mb-4">
         <a href="/votechain/evidence/diagram-board" class="underline decoration-gold-500 underline-offset-2 hover:text-gold-700">
           Open full diagram board page
         </a>
       </div>
-      <figure class="mb-6">
-        <img
-          src={`/votechain/evidence/diagrams/diagram-board-full.png?v=${diagramVersion}`}
-          alt="VoteChain full visual diagram board for field-test stages and verification outcomes"
-          class="w-full rounded-lg border border-navy-200"
+      <div class="mb-6 overflow-hidden rounded-lg border border-navy-200 bg-white">
+        <iframe
+          src="/votechain/evidence/diagram-board"
+          title="VoteChain visual evidence board"
           loading="lazy"
-        />
-        <figcaption class="text-xs text-navy-600 mt-2">
-          Full board export: stage flow, machine session matrix, test coverage, ledger path, and run outcomes.
-        </figcaption>
-      </figure>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <figure>
-          <img
-            src={`/votechain/evidence/diagrams/stage-flow.png?v=${diagramVersion}`}
-            alt="Stage flow diagram from bootstrap through audit verification"
-            class="w-full rounded-lg border border-navy-200"
-            loading="lazy"
-          />
-        </figure>
-        <figure>
-          <img
-            src={`/votechain/evidence/diagrams/session-grid.png?v=${diagramVersion}`}
-            alt="Per-machine session and reset-pass matrix"
-            class="w-full rounded-lg border border-navy-200"
-            loading="lazy"
-          />
-        </figure>
-        <figure>
-          <img
-            src={`/votechain/evidence/diagrams/test-coverage.png?v=${diagramVersion}`}
-            alt="Security and integrity test coverage panel"
-            class="w-full rounded-lg border border-navy-200"
-            loading="lazy"
-          />
-        </figure>
-        <figure>
-          <img
-            src={`/votechain/evidence/diagrams/verification-chain.png?v=${diagramVersion}`}
-            alt="Airgap and central ledger verification path diagram"
-            class="w-full rounded-lg border border-navy-200"
-            loading="lazy"
-          />
-        </figure>
-        <figure>
-          <img
-            src={`/votechain/evidence/diagrams/run-outcomes.png?v=${diagramVersion}`}
-            alt="Election cycle run outcomes summary panel"
-            class="w-full rounded-lg border border-navy-200"
-            loading="lazy"
-          />
-        </figure>
+          class="w-full h-[540px] md:h-[640px]"
+        ></iframe>
       </div>
+      <p class="text-xs text-navy-600 mt-2">
+        The embedded board is interactive and fully responsive; use the source route for the full-width
+        version when needed.
+      </p>
 
       <h2 id="result-matrix" class="font-serif text-2xl font-bold mb-3">Election Cycle Result Matrix</h2>
       <div class="overflow-x-auto mb-6">

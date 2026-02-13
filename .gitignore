@@ -16,3 +16,9 @@ dist/
 # Debug & review artifacts
 .playwright-mcp/
 .verify/
+playwright-artifacts/
+playwright-report/
+test-results/
+coverage/
+public/votechain/evidence/diagrams/debug/
+*.log

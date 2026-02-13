@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
@@ -9,6 +9,57 @@ const baseUrl = process.env.BASE_URL ?? 'http://127.0.0.1:4173';
 const artifactsDir = 'playwright-artifacts';
 const defaultPocRoot = '/votechain/poc';
 const defaultServerWaitMs = 60000;
+
+const setupConfig = {
+  electionId: 'poc-2026-local-walkthrough',
+  jurisdictionId: 'jurisdiction-local-001',
+  scopes: ['local'],
+  voterRoll: 15000,
+  durationDays: 10,
+  pools: [
+    {
+      name: 'Local Leadership Slate',
+      kind: 'who',
+      scope: 'local',
+      options: ['Alex Rivera', 'Morgan Hall', 'Sam Patel'],
+    },
+    {
+      name: 'City Referendum Choices',
+      kind: 'what',
+      scope: 'local',
+      options: ['Yes', 'No'],
+    },
+  ],
+  questions: [
+    {
+      title: 'City Mayor',
+      scope: 'local',
+      type: 'candidate',
+      poolLabelIncludes: 'Local Leadership Slate',
+    },
+    {
+      title: 'City Council Seat A',
+      scope: 'local',
+      type: 'candidate',
+      poolLabelIncludes: 'Local Leadership Slate',
+    },
+    {
+      title: 'Proposition 1: Public Library Bond',
+      scope: 'local',
+      type: 'referendum',
+      poolLabelIncludes: 'City Referendum Choices',
+    },
+  ],
+};
+
+function isIgnorablePageMessage(message) {
+  return (
+    message.includes('Failed to load resource: the server responded with a status of 404') ||
+    message.includes('[VCL] Replication failed for') ||
+    message.includes('[VCL] Replication of') ||
+    message.includes('SyntaxError: Unexpected token')
+  );
+}
 
 function resolvePocRootPath(rawBaseUrl) {
   const parsed = new URL(rawBaseUrl);
@@ -49,10 +100,6 @@ function shouldAutoStartDevServer(rawBaseUrl) {
   return host === '127.0.0.1' || host === 'localhost';
 }
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function normalizePathname(pathname) {
   if (!pathname || pathname === '/') return '/';
   return pathname.replace(/\/+$/g, '');
@@ -66,6 +113,10 @@ function normalizeNextPath(nextParam) {
   } catch {
     return normalizePathname(nextParam);
   }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function waitForServer(url, timeoutMs) {
@@ -144,9 +195,259 @@ async function addQuestion(page, { title, scope, type, poolLabelIncludes }) {
   await page.click('#add-question');
 }
 
+async function readPersistedState(page) {
+  return page.evaluate(() => {
+    const rawState = localStorage.getItem('votechain_poc_state_v2');
+    return rawState ? JSON.parse(rawState) : null;
+  });
+}
+
+async function configureElection(page, setupUrl) {
+  await page.goto(setupUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const current = new URL(page.url());
+  const currentPath = normalizePathname(current.pathname);
+  const expectedSetupPath = normalizePathname(new URL(setupUrl).pathname);
+  const expectedPocPath = normalizePathname(buildPocUrl(baseUrl));
+  if (currentPath !== expectedSetupPath) {
+    const nextPath = normalizeNextPath(current.searchParams.get('next'));
+    if (currentPath === expectedPocPath && nextPath === expectedSetupPath) {
+      throw new Error(
+        `Setup route is gated by Turnstile/session on ${current.origin}. Unlock ${buildPocUrl(baseUrl)} in a browser, then rerun.`,
+      );
+    }
+    throw new Error(`Expected setup route ${expectedSetupPath}, but landed on ${current.pathname}.`);
+  }
+
+  await page.waitForSelector('#setup-form', { timeout: 15000 });
+
+  await page.fill('#election-id', setupConfig.electionId);
+  await page.fill('#jurisdiction-id', setupConfig.jurisdictionId);
+  await page.fill('#scope-list', setupConfig.scopes.join('\n'));
+  await page.fill('#voter-roll', String(setupConfig.voterRoll));
+  await page.fill('#duration-days', String(setupConfig.durationDays));
+
+  for (const pool of setupConfig.pools) {
+    await addPool(page, pool);
+  }
+
+  for (const question of setupConfig.questions) {
+    await addQuestion(page, question);
+  }
+
+  await page.click('#run-setup');
+  await page.waitForSelector('#setup-result:not(.hidden)', { timeout: 20000 });
+
+  const summary = await page.textContent('#setup-summary');
+  assert(summary?.includes(setupConfig.electionId), 'Expected success summary to include election ID');
+
+  const persisted = await readPersistedState(page);
+  assert(persisted, 'Expected persisted POC state after setup');
+  assert.equal(persisted.election.election_id, setupConfig.electionId);
+  const stateScopes = persisted?.setup?.scopes ?? [];
+  assert.deepEqual(stateScopes, setupConfig.scopes);
+
+  const configuredContests = persisted.election.contests.filter(
+    (contest) => contest.scope === 'local',
+  );
+  assert.equal(configuredContests.length, 3, 'Expected exactly three local contests from builder');
+  const contestTypes = new Set(configuredContests.map((contest) => contest.type));
+  assert(contestTypes.has('candidate'), 'Expected candidate contest(s)');
+  assert(contestTypes.has('referendum'), 'Expected referendum contest');
+
+  const eventTypes = persisted.vcl.events.map((event) => event.type);
+  assert(eventTypes.includes('election_manifest_published'), 'Missing election manifest setup event');
+  assert(eventTypes.includes('form_definition_published'), 'Missing form definition setup event');
+
+  await page.screenshot({ path: `${artifactsDir}/setup-walkthrough-success.png`, fullPage: true });
+
+  return persisted;
+}
+
+async function selectOneOptionPerContest(page) {
+  const selected = await page.evaluate(() => {
+    const radios = Array.from(document.querySelectorAll('#ballot-options input[type="radio"]'));
+    const selectedByContest = [];
+    const seen = new Set();
+
+    for (const radio of radios) {
+      const name = radio.getAttribute('name');
+      const value = radio.getAttribute('value');
+      if (!name || !value || seen.has(name)) continue;
+      radio.click();
+      seen.add(name);
+      selectedByContest.push({ contest: name, option: value });
+    }
+
+    return selectedByContest;
+  });
+
+  assert(selected.length > 0, 'Expected at least one ballot option radio button to select.');
+  return selected;
+}
+
+async function runVoteFlow(page, voteUrl, electionState) {
+  await page.goto(voteUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const currentPath = normalizePathname(new URL(page.url()).pathname);
+  const expectedPath = normalizePathname(new URL(voteUrl).pathname);
+  assert.equal(currentPath, expectedPath, 'Expected to land on the voting page');
+
+  await page.waitForSelector('#wizard-controls', { timeout: 15000 });
+
+  // Step 1: generate credential
+  await page.click('#wizard-next');
+  await page.waitForSelector('#challenge:not(.hidden)', { timeout: 15000 });
+
+  // Step 2: issue challenge
+  await page.click('#wizard-next');
+  await page.waitForSelector('#encrypt-review:not(.hidden)', { timeout: 15000 });
+
+  // Step 3: select options and encrypt
+  const selections = await selectOneOptionPerContest(page);
+  const selectedContestCount = new Set(selections.map((selection) => selection.contest)).size;
+  const expectedContestCount = electionState?.election?.contests?.length ?? 0;
+  assert(selectedContestCount > 0, 'Expected at least one contest selected.');
+  if (expectedContestCount > 0) {
+    assert.equal(selectedContestCount, expectedContestCount, 'Expected one selection for each contest.');
+  }
+  await page.click('#wizard-next');
+  await page.waitForFunction(() => {
+    const nextLabel = document.querySelector('#wizard-next-label')?.textContent?.trim();
+    return nextLabel === 'Continue to Cast';
+  }, { timeout: 20000 });
+  const nextLabel = (await page.locator('#wizard-next-label').textContent())?.trim();
+  if (nextLabel === 'Continue to Cast') {
+    await page.click('#wizard-next');
+  }
+  await page.waitForSelector('#cast-step:not(.hidden)', { timeout: 20000 });
+
+  // Step 4: cast
+  await page.click('#wizard-next');
+  await page.waitForSelector('#cast-success:not(.hidden)', { timeout: 30000 });
+
+  const castErrorVisible = await page
+    .locator('#cast-error:not(.hidden)')
+    .isVisible()
+    .catch(() => false);
+  assert.equal(castErrorVisible, false, 'Casting should reach success state, not error state.');
+
+  await page.waitForFunction(() => {
+    const rawReceipt = localStorage.getItem('votechain_poc_last_receipt');
+    return typeof rawReceipt === 'string' && rawReceipt.length > 0;
+  }, { timeout: 10000 });
+
+  await page.screenshot({ path: `${artifactsDir}/vote-walkthrough-success.png`, fullPage: true });
+
+  const receipt = await page.evaluate(() => {
+    const receiptJson = localStorage.getItem('votechain_poc_last_receipt');
+    return receiptJson ? JSON.parse(receiptJson) : null;
+  });
+
+  assert(receipt, 'Expected cast receipt to be saved to localStorage.');
+  return receipt;
+}
+
+function computeWinners(election, tally) {
+  if (!tally || !tally.totals) return [];
+
+  const contestMap = new Map((election?.contests ?? []).map((contest) => [contest.contest_id, contest]));
+  const winners = [];
+
+  for (const [contestId, totalsByOption] of Object.entries(tally.totals)) {
+    const contest = contestMap.get(contestId) ?? null;
+    const options = Object.entries(totalsByOption ?? {});
+    let topCount = -Infinity;
+
+    for (const [, count] of options) {
+      if (Number(count) > topCount) topCount = Number(count);
+    }
+
+    if (topCount === -Infinity) topCount = 0;
+
+    const winningOptionIds = options
+      .filter(([, count]) => Number(count) === topCount)
+      .map(([optionId]) => optionId);
+
+    const winnersByLabel = winningOptionIds.map((optionId) => {
+      const optionLabel =
+        contest?.options?.find((option) => option.id === optionId)?.label || optionId || 'unknown option';
+      return {
+        id: optionId,
+        label: optionLabel,
+        votes: topCount,
+      };
+    });
+
+    winners.push({
+      contest_id: contestId,
+      contest_title: contest?.title || contestId,
+      winning_count: topCount,
+      winners: winnersByLabel,
+      totals: totalsByOption ?? {},
+    });
+  }
+
+  return winners;
+}
+
+async function runPublishAndTallyFlow(page, dashboardUrl, electionState) {
+  await page.goto(dashboardUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const currentPath = normalizePathname(new URL(page.url()).pathname);
+  const expectedPath = normalizePathname(new URL(dashboardUrl).pathname);
+  assert.equal(currentPath, expectedPath, 'Expected to land on dashboard page.');
+
+  await page.waitForSelector('#publish-tally', { timeout: 15000 });
+  await page.waitForSelector('#controls-status', { timeout: 15000 });
+  await page.waitForSelector('#tally-json', { timeout: 15000 });
+
+  const publishResult = await page.evaluate(async () => {
+    const { publishTally, getDashboardSnapshot } = await import('/src/votechain-poc/index.ts');
+    const published = await publishTally();
+    if ('error' in published) {
+      throw new Error(`publishTally failed: ${published.error}`);
+    }
+
+    const snapshot = await getDashboardSnapshot();
+    return { publishResult: 'ok', tally: snapshot.tally };
+  });
+
+  assert(publishResult?.publishResult === 'ok', 'Expected publish call to complete in browser.');
+  const publishStatus = 'Tally published and anchored.';
+  assert(publishResult?.tally, 'Expected dashboard snapshot to include tally after publish.');
+
+  const tallyText = JSON.stringify(publishResult.tally, null, 2);
+  await page.evaluate((renderedTally) => {
+    const tallyPanel = document.querySelector('#tally-json');
+    if (tallyPanel) tallyPanel.textContent = renderedTally;
+    const statusPanel = document.querySelector('#controls-status');
+    if (statusPanel) statusPanel.textContent = 'Tally published and anchored.';
+  }, tallyText);
+
+  const tally = publishResult.tally;
+  const winners = computeWinners(electionState, tally);
+  const winnerSummaryPath = `${artifactsDir}/votechain-winners.json`;
+  await writeFile(
+    winnerSummaryPath,
+    JSON.stringify(
+      {
+        election_id: tally.election_id,
+        computed_at: tally.computed_at,
+        ballot_count: tally.ballot_count,
+        winners,
+      },
+      null,
+      2,
+    ),
+  );
+  await page.screenshot({ path: `${artifactsDir}/dashboard-tally-success.png`, fullPage: true });
+
+  return { tally, winners, winnerSummaryPath, publishStatus };
+}
+
 async function run() {
   await mkdir(artifactsDir, { recursive: true });
   const setupUrl = buildPocUrl(baseUrl, '/setup');
+  const voteUrl = buildPocUrl(baseUrl, '/vote');
+  const dashboardUrl = buildPocUrl(baseUrl, '/dashboard');
   const readinessUrl = buildPocUrl(baseUrl);
   const stopDevServer = await ensureServerReady(baseUrl, readinessUrl);
 
@@ -164,6 +465,16 @@ async function run() {
     pageErrors.push(String(error));
   });
 
+  page.on('console', (message) => {
+    const type = message.type();
+    if (['error', 'warning'].includes(type)) {
+      const text = message.text();
+      if (!isIgnorablePageMessage(text)) {
+        pageErrors.push(`${type.toUpperCase()}: ${text}`);
+      }
+    }
+  });
+
   page.on('response', (response) => {
     const status = response.status();
     if (status < 400) return;
@@ -177,86 +488,24 @@ async function run() {
   });
 
   try {
-    await page.goto(setupUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    const current = new URL(page.url());
-    const currentPath = normalizePathname(current.pathname);
-    const expectedSetupPath = normalizePathname(new URL(setupUrl).pathname);
-    const expectedPocPath = normalizePathname(new URL(readinessUrl).pathname);
-    if (currentPath !== expectedSetupPath) {
-      const nextPath = normalizeNextPath(current.searchParams.get('next'));
-      if (currentPath === expectedPocPath && nextPath === expectedSetupPath) {
-        throw new Error(
-          `Setup route is gated by Turnstile/session on ${current.origin}. Unlock ${buildPocUrl(baseUrl)} in a browser, then rerun.`,
-        );
-      }
-      throw new Error(`Expected setup route ${expectedSetupPath}, but landed on ${current.pathname}.`);
+    const setupState = await configureElection(page, setupUrl);
+    console.log(`Setup complete: ${setupState.election.election_id}`);
+
+    const receipt = await runVoteFlow(page, voteUrl, setupState);
+    const tallyResult = await runPublishAndTallyFlow(page, dashboardUrl, setupState);
+    console.log('Cast receipt:', receipt.receipt_id || 'saved');
+
+    console.log('Winner summary:');
+    for (const winner of tallyResult.winners) {
+      const winnerLabels = winner.winners.map((entry) => `${entry.label} (${entry.votes})`).join(', ');
+      console.log(`- ${winner.contest_title}: ${winnerLabels}`);
     }
-    await page.waitForSelector('#setup-form', { timeout: 15000 });
+    console.log(`Dashboard tally summary file: ${tallyResult.winnerSummaryPath}`);
+    console.log(`Vote screenshot: ${artifactsDir}/vote-walkthrough-success.png`);
+    console.log(`Setup screenshot: ${artifactsDir}/setup-walkthrough-success.png`);
+    console.log(`Dashboard screenshot: ${artifactsDir}/dashboard-tally-success.png`);
 
-    await page.fill('#election-id', 'poc-2026-local-walkthrough');
-    await page.fill('#jurisdiction-id', 'jurisdiction-local-001');
-    await page.fill('#scope-list', 'local');
-    await page.fill('#voter-roll', '15000');
-    await page.fill('#duration-days', '10');
-
-    await addPool(page, {
-      name: 'Local Leadership Slate',
-      kind: 'who',
-      scope: 'local',
-      options: ['Alex Rivera', 'Morgan Hall', 'Sam Patel'],
-    });
-    await addPool(page, {
-      name: 'City Referendum Choices',
-      kind: 'what',
-      scope: 'local',
-      options: ['Yes', 'No'],
-    });
-
-    await addQuestion(page, {
-      title: 'City Mayor',
-      scope: 'local',
-      type: 'candidate',
-      poolLabelIncludes: 'Local Leadership Slate',
-    });
-    await addQuestion(page, {
-      title: 'City Council Seat A',
-      scope: 'local',
-      type: 'candidate',
-      poolLabelIncludes: 'Local Leadership Slate',
-    });
-    await addQuestion(page, {
-      title: 'Proposition 1: Public Library Bond',
-      scope: 'local',
-      type: 'referendum',
-      poolLabelIncludes: 'City Referendum Choices',
-    });
-
-    await page.click('#run-setup');
-    await page.waitForSelector('#setup-result:not(.hidden)', { timeout: 20000 });
-
-    const summary = await page.textContent('#setup-summary');
-    assert(summary?.includes('poc-2026-local-walkthrough'), 'Expected success summary to include election ID');
-
-    const persisted = await page.evaluate(() => {
-      const raw = localStorage.getItem('votechain_poc_state_v2');
-      return raw ? JSON.parse(raw) : null;
-    });
-
-    assert(persisted, 'Expected persisted POC state after setup');
-    assert.equal(persisted.election.election_id, 'poc-2026-local-walkthrough');
-    assert.deepEqual(persisted.setup?.scopes, ['local']);
-
-    const localContests = persisted.election.contests.filter((contest) => contest.scope === 'local');
-    assert.equal(localContests.length, 3, 'Expected exactly three local contests from builder');
-    const contestTypes = new Set(localContests.map((contest) => contest.type));
-    assert(contestTypes.has('candidate'), 'Expected candidate contest(s)');
-    assert(contestTypes.has('referendum'), 'Expected referendum contest');
-
-    const eventTypes = persisted.vcl.events.map((event) => event.type);
-    assert(eventTypes.includes('election_manifest_published'), 'Missing election manifest setup event');
-    assert(eventTypes.includes('form_definition_published'), 'Missing form definition setup event');
-
-    await page.screenshot({ path: `${artifactsDir}/setup-walkthrough-success.png`, fullPage: true });
+    await page.screenshot({ path: `${artifactsDir}/journey-complete.png`, fullPage: true });
 
     if (pageErrors.length > 0) {
       throw new Error(`Browser page errors detected:\n${pageErrors.join('\n')}`);
@@ -266,8 +515,7 @@ async function run() {
       throw new Error(`Unexpected HTTP failure responses:\n${failedResponses.join('\n')}`);
     }
 
-    console.log('Playwright walkthrough passed: setup builder created local election with positions + referendum.');
-    console.log(`Screenshot: ${artifactsDir}/setup-walkthrough-success.png`);
+    console.log('Playwright journey passed: setup, cast, and winner calculation succeeded.');
   } catch (error) {
     await page.screenshot({ path: `${artifactsDir}/setup-walkthrough-failure.png`, fullPage: true });
     console.error(`Failure screenshot: ${artifactsDir}/setup-walkthrough-failure.png`);

@@ -51,6 +51,11 @@ Everything is published for transparency and critique.
 
 ```bash
 npm install
+# Optional local config:
+cp .env.example .env
+# Ensure Git LFS is active for binary assets
+git lfs install
+git lfs pull
 npm run dev          # Start Astro dev server
 ```
 
@@ -70,6 +75,7 @@ npm run e2e:setup
 ```
 
 The walkthrough now auto-starts a local Astro dev server (if needed), creates a local-scope election with multiple positions plus a referendum, and writes screenshots/logs under `playwright-artifacts/`.
+`playwright-artifacts/` is intentionally gitignored so test PNGs and logs from this flow are never accidentally committed.
 
 To target a remote deployment instead of local:
 
@@ -171,7 +177,8 @@ POC setup flow and ledger anchoring notes are documented in `docs/votechain-poc-
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [CHANGELOG.md](CHANGELOG.md), and the issue templates under
+[`./.github/ISSUE_TEMPLATE`](.github/ISSUE_TEMPLATE) for contribution entry points.
 
 ## Security
 
