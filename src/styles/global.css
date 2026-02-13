@@ -84,8 +84,8 @@ body {
   line-height: 1.6;
 }
 
-/* Mermaid diagrams in evidence boards */
-.board-canvas .mermaid-diagram {
+/* Mermaid diagrams */
+.mermaid-diagram {
   margin: 0;
   border: 1px solid #d2deec;
   border-radius: 10px;
@@ -94,7 +94,7 @@ body {
   overflow-x: auto;
 }
 
-.board-canvas .mermaid-diagram svg {
+.mermaid-diagram svg {
   display: block;
   width: 100%;
   height: auto;
@@ -103,8 +103,8 @@ body {
   background: transparent;
 }
 
-.board-canvas .mermaid-diagram svg .label img,
-.board-canvas .mermaid-diagram svg img,
+.mermaid-diagram svg .label img,
+.mermaid-diagram svg img,
 .diagram-inspector-overlay .mermaid-diagram svg .label img,
 .diagram-inspector-overlay .mermaid-diagram svg img {
   width: 24px !important;

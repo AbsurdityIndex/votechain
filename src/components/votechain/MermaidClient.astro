@@ -6,7 +6,6 @@
     var MERMAID_CDN_CANDIDATES = ['/votechain/mermaid.min.js', '/mermaid.min.js'];
     var MERMAID_ICON_PREFIX = '/evidence/icons/';
     var MERMAID_ICON_PREFIX_LEGACY = '/votechain/evidence/icons/';
-    var MERMAID_ICON_PREFIX_WITHOUT_BASE = '/evidence/icons/';
 
     function isThenable(x) {
       return !!x && (typeof x === 'object' || typeof x === 'function') && typeof x.then === 'function';
@@ -103,7 +102,6 @@
       return dedupeStrings([
         scriptBase + MERMAID_ICON_PREFIX + iconName,
         MERMAID_ICON_PREFIX_LEGACY + iconName,
-        MERMAID_ICON_PREFIX_WITHOUT_BASE + iconName,
       ]);
     }
 
@@ -134,6 +132,8 @@
       img.dataset.votechainNodeIconIndex = '0';
 
       var currentIndex = 0;
+      img.src = candidates[currentIndex];
+
       function onNodeIconError() {
         var nextIndex = currentIndex + 1;
         if (nextIndex >= candidates.length) return;
