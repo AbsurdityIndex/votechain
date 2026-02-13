@@ -34,6 +34,12 @@ export const VOTECHAIN_POC_MODULES: VoteChainSubpageItem[] = [
     icon: 'home',
   },
   {
+    href: '/votechain/poc/setup',
+    label: 'Setup',
+    description: 'Configure a new election with arbitrary user-defined scopes.',
+    icon: 'file-plus',
+  },
+  {
     href: '/votechain/poc/vote',
     label: 'Voting Client',
     description: 'Cast an encrypted ballot with credential issuance and ZK proof.',

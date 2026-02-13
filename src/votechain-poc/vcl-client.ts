@@ -91,6 +91,7 @@ export interface ProxyReplicationResult {
 
 type VclEventType =
   | 'election_manifest_published'
+  | 'form_definition_published'
   | 'credential_issued'
   | 'ewp_ballot_cast'
   | 'bb_sth_published'
@@ -100,6 +101,7 @@ type VclEventType =
 
 const ORIGINATING_TYPES_MAP: Record<VclEventType, NodeRole> = {
   election_manifest_published: 'federal',
+  form_definition_published: 'federal',
   tally_published: 'federal',
   credential_issued: 'state',
   ewp_ballot_cast: 'state',

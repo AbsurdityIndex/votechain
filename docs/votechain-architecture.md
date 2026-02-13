@@ -99,38 +99,45 @@ available); click the background (or `Clear focus`) to reset.
 ```mermaid
 %% diagram-id: ownership-map-high-level
 flowchart LR
+  classDef voter fill:#d4edda,stroke:#28a745,color:#155724
+  classDef ea fill:#cce5ff,stroke:#0d6efd,color:#004085
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
+  classDef ewp fill:#fff3cd,stroke:#fd7e14,color:#856404
+  classDef trustee fill:#fdebd0,stroke:#d68910,color:#7e5109
+  classDef monitor fill:#f8d7da,stroke:#dc3545,color:#721c24
+
   subgraph VOTERS["Voters"]
-    VC["Voter Client(s)"]
+    VC(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Voter Client(s)"]):::voter
   end
 
   subgraph EA["Election Authority (State/Local)"]
-    EAOPS["EA Ops: enroll, attest, recover, review, publish"]
+    EAOPS(["<img src='/votechain/evidence/icons/building.svg' width='14' height='14'/> EA Ops: enroll, attest, recover, review, publish"]):::ea
   end
 
   subgraph VCL["VoteChain Consortium"]
-    VCLW["Write Gateway/SDK"]
-    VCLN["Permissioned ledger (74 nodes)"]
-    VCLR["Read API (public, replicated)"]
+    VCLW{{"<img src='/votechain/evidence/icons/transfer.svg' width='14' height='14'/> Write Gateway/SDK"}}:::vchain
+    VCLN[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> Permissioned ledger (74 nodes)")]:::vchain
+    VCLR(["<img src='/votechain/evidence/icons/radio.svg' width='14' height='14'/> Read API (public, replicated)"]):::vchain
     VCLW --> VCLN
     VCLN --> VCLR
   end
 
   subgraph EWP["EWP Operators"]
-    GW["EWP Gateways (A/B/C)"]
+    GW{{"<img src='/votechain/evidence/icons/router.svg' width='14' height='14'/> EWP Gateways (A/B/C)"}}:::ewp
   end
 
   subgraph BB["Public Bulletin Board"]
-    BLOG["Append-only log"]
-    STH["STH signer (HSM)"]
+    BLOG[("<img src='/votechain/evidence/icons/clipboard.svg' width='14' height='14'/> Append-only log")]:::ewp
+    STH[["<img src='/votechain/evidence/icons/key.svg' width='14' height='14'/> STH signer (HSM)"]]:::trustee
     BLOG --> STH
   end
 
   subgraph TRUST["Trustees/Guardians"]
-    TS["Threshold trustees"]
+    TS[["<img src='/votechain/evidence/icons/key.svg' width='14' height='14'/> Threshold trustees"]]:::trustee
   end
 
   subgraph MON["Independent Monitors"]
-    M["Monitors"]
+    M(("<img src='/votechain/evidence/icons/eye.svg' width='14' height='14'/> Monitors")):::monitor
   end
 
   EAOPS -->|attestations + flags + review actions| VCLW
@@ -151,22 +158,24 @@ flowchart LR
 ```mermaid
 %% diagram-id: votechain-consortium-74
 flowchart TB
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
+
   subgraph OPS["Node Operators (74 total)"]
-    F["Federal (6)"]
-    S["State (50)"]
-    A["Auditor (12)"]
-    O["Oversight (6)"]
+    F[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Federal (6)"]]:::vchain
+    S[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> State (50)"]]:::vchain
+    A[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Auditor (12)"]]:::vchain
+    O[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Oversight (6)"]]:::vchain
   end
 
-  F --> CQ["Category-quorum consensus"]
+  F --> CQ{{"<img src='/votechain/evidence/icons/handshake.svg' width='14' height='14'/> Category-quorum consensus"}}:::vchain
   S --> CQ
   A --> CQ
   O --> CQ
 
-  CQ --> LEDGER["VoteChain ledger (74 nodes)"]
+  CQ --> LEDGER[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> VoteChain ledger (74 nodes)")]:::vchain
 
-  WG["Write Gateway/SDK"] -->|submit tx| LEDGER
-  LEDGER -->|serve queries| RA["Read API (public, replicated)"]
+  WG{{"<img src='/votechain/evidence/icons/transfer.svg' width='14' height='14'/> Write Gateway/SDK"}}:::vchain -->|submit tx| LEDGER
+  LEDGER -->|serve queries| RA(["<img src='/votechain/evidence/icons/radio.svg' width='14' height='14'/> Read API (public, replicated)"]):::vchain
 ```
 
 ### 4C EWP Cast-to-Tally (Sequence)
@@ -207,50 +216,58 @@ sequenceDiagram
 ```mermaid
 %% diagram-id: full-alignment-dense
 flowchart LR
+  classDef voter fill:#d4edda,stroke:#28a745,color:#155724
+  classDef ea fill:#cce5ff,stroke:#0d6efd,color:#004085
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
+  classDef ewp fill:#fff3cd,stroke:#fd7e14,color:#856404
+  classDef trustee fill:#fdebd0,stroke:#d68910,color:#7e5109
+  classDef monitor fill:#f8d7da,stroke:#dc3545,color:#721c24
+  classDef fraud fill:#fce4ec,stroke:#e53935,color:#b71c1c
+
   %% Voter environments
   subgraph VOTERS["Voter Environments"]
-    VC1["Voter Client (Mode 1: Polling Place Device)"]
-    VC2["Voter Client (Mode 2: Supervised Kiosk)"]
-    VC3["Voter Client (Mode 3: Personal Device - Gated)"]
+    VC1(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Voter Client (Mode 1: Polling Place Device)"]):::voter
+    VC2(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Voter Client (Mode 2: Supervised Kiosk)"]):::voter
+    VC3(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Voter Client (Mode 3: Personal Device - Gated)"]):::voter
   end
 
   %% Election authority (state/local)
   subgraph EA["Election Authority (State/Local)"]
-    ENR["Enrollment Service"]
-    ISS["Attestation Issuer (HSM)"]
-    REC["Recovery Service (In-Person)"]
-    FE["Fraud Detection Engine"]
-    OP["Oversight Portal (Case Review)"]
-    TP["Tally Publisher (Public Artifacts)"]
+    ENR(["<img src='/votechain/evidence/icons/building.svg' width='14' height='14'/> Enrollment Service"]):::ea
+    ISS[["<img src='/votechain/evidence/icons/lock.svg' width='14' height='14'/> Attestation Issuer (HSM)"]]:::ea
+    REC(["<img src='/votechain/evidence/icons/refresh-cw.svg' width='14' height='14'/> Recovery Service (In-Person)"]):::ea
+    FE{{"<img src='/votechain/evidence/icons/shield-check.svg' width='14' height='14'/> Fraud Detection Engine"}}:::fraud
+    OP(["<img src='/votechain/evidence/icons/scale.svg' width='14' height='14'/> Oversight Portal (Case Review)"]):::ea
+    TP(["<img src='/votechain/evidence/icons/bar-chart.svg' width='14' height='14'/> Tally Publisher (Public Artifacts)"]):::ea
   end
 
   %% VoteChain consortium
   subgraph VCL["VoteChain Consortium (Permissioned Ledger)"]
-    VCLW["VoteChain Write Gateway/SDK"]
-    VCLN["VoteChain Nodes (74, category quorum)"]
-    VCLR["VoteChain Read API (Public, Replicated)"]
+    VCLW{{"<img src='/votechain/evidence/icons/transfer.svg' width='14' height='14'/> VoteChain Write Gateway/SDK"}}:::vchain
+    VCLN[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> VoteChain Nodes (74, category quorum)")]:::vchain
+    VCLR(["<img src='/votechain/evidence/icons/radio.svg' width='14' height='14'/> VoteChain Read API (Public, Replicated)"]):::vchain
     VCLW -->|submit tx| VCLN
     VCLN -->|serve queries| VCLR
   end
 
   %% EWP services
   subgraph EWP["EWP Services (Multiple Operators)"]
-    G1["EWP Gateway A"]
-    G2["EWP Gateway B"]
-    G3["EWP Gateway C"]
+    G1{{"<img src='/votechain/evidence/icons/router.svg' width='14' height='14'/> EWP Gateway A"}}:::ewp
+    G2{{"<img src='/votechain/evidence/icons/router.svg' width='14' height='14'/> EWP Gateway B"}}:::ewp
+    G3{{"<img src='/votechain/evidence/icons/router.svg' width='14' height='14'/> EWP Gateway C"}}:::ewp
   end
 
   subgraph BB["Bulletin Board (Public Append-Only Log)"]
-    BLOG["BB Log + Inclusion/Consistency APIs"]
-    STH["STH Signer (HSM)"]
+    BLOG[("<img src='/votechain/evidence/icons/clipboard.svg' width='14' height='14'/> BB Log + Inclusion/Consistency APIs")]:::ewp
+    STH[["<img src='/votechain/evidence/icons/key.svg' width='14' height='14'/> STH Signer (HSM)"]]:::trustee
   end
 
   subgraph TRUSTEES["Trustees / Guardians (Independent)"]
-    TS["Trustee Service (Key Ceremony + Decrypt Proofs)"]
+    TS[["<img src='/votechain/evidence/icons/key.svg' width='14' height='14'/> Trustee Service (Key Ceremony + Decrypt Proofs)"]]:::trustee
   end
 
   subgraph MON["Independent Monitors"]
-    M["Monitor (Independent)"]
+    M(("<img src='/votechain/evidence/icons/eye.svg' width='14' height='14'/> Monitor")):::monitor
   end
 
   %% Enrollment and credential lifecycle

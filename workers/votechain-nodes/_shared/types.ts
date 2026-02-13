@@ -3,6 +3,7 @@ export type NodeRole = 'federal' | 'state' | 'oversight';
 
 export type VclEventType =
   | 'election_manifest_published'
+  | 'form_definition_published'
   | 'credential_issued'
   | 'ewp_ballot_cast'
   | 'bb_sth_published'

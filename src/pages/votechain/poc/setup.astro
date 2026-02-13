@@ -1,0 +1,1146 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Icon from '../../../components/ui/Icon.astro';
+---
+
+<BaseLayout
+  title="VoteChain POC Election Setup"
+  description="Configure a VoteChain POC election with arbitrary scopes and anchor the resulting manifest to the distributed ledger."
+  ogType="article"
+  article={{
+    publishedTime: '2026-02-13',
+    author: 'Absurdity Index',
+    section: 'Policy',
+    tags: ['votechain', 'poc', 'setup', 'ledger'],
+  }}
+>
+  <main class="bg-parchment min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4 space-y-6">
+      <header class="text-center">
+        <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">POC Admin Tool</p>
+        <h1 class="font-serif text-3xl text-navy-900 font-bold">Election Setup</h1>
+        <p class="text-navy-600 mt-2 text-sm max-w-2xl mx-auto">
+          Create a new election bundle in one pass. Scopes are free-form labels, so this works for
+          local/state/federal, college/apartment, mock elections, or any custom partition.
+        </p>
+      </header>
+
+      <section class="rounded-xl border border-gold-300 bg-cream-50 p-4 text-sm text-navy-700">
+        <div class="flex items-start gap-2">
+          <Icon name="alert-triangle" class="text-gold-700 mt-0.5" size={16} />
+          <p>
+            Running setup resets the current POC election state (manifest, bulletin board, tally, and
+            prior receipts) and initializes a fresh election configuration.
+          </p>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl border border-navy-200 p-5 shadow-sm">
+        <h2 class="font-serif text-xl text-navy-900 font-bold mb-4">Election Configuration</h2>
+
+        <form id="setup-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Election ID</span>
+            <input
+              id="election-id"
+              type="text"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900"
+              value="poc-2026-bundle"
+            />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Jurisdiction ID</span>
+            <input
+              id="jurisdiction-id"
+              type="text"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900"
+              value="poc_jurisdiction_hash_bundle"
+            />
+          </label>
+
+          <label class="block md:col-span-2">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">
+              Scopes (one per line)
+            </span>
+            <textarea
+              id="scope-list"
+              rows="5"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900 font-mono"
+            >local
+state
+federal</textarea>
+            <p class="text-xs text-navy-500 mt-1">
+              Examples: <code>college</code>, <code>apartment</code>, <code>mock</code>, <code>district-7</code>.
+            </p>
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Voter Roll Ceiling</span>
+            <input
+              id="voter-roll"
+              type="number"
+              min="1000"
+              max="5000000"
+              value="50000"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900"
+            />
+          </label>
+
+          <label class="block">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Election Duration (days)</span>
+            <input
+              id="duration-days"
+              type="number"
+              min="1"
+              max="90"
+              value="7"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900"
+            />
+          </label>
+
+          <div class="md:col-span-2 rounded-lg border border-navy-200 bg-cream-50 p-4 space-y-3">
+            <div>
+              <h3 class="font-serif text-base text-navy-900 font-bold">Step 1: Define Option Pools</h3>
+              <p class="text-xs text-navy-600 mt-1">
+                Create reusable pools first. Questions must bind to these pools, so options are never typed directly into a question.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <label class="block md:col-span-2">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Pool Name</span>
+                <input
+                  id="pool-name"
+                  type="text"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                  placeholder="City Council Candidates"
+                />
+              </label>
+              <label class="block">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Pool Type</span>
+                <select
+                  id="pool-kind"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                >
+                  <option value="who">Who (Candidate options)</option>
+                  <option value="what">What (Referendum choices)</option>
+                </select>
+              </label>
+              <label class="block">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Scope Binding</span>
+                <select
+                  id="pool-scope"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                >
+                  <option value="*">Any Scope</option>
+                </select>
+              </label>
+              <label class="block md:col-span-2">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Pool Options (one per line)</span>
+                <textarea
+                  id="pool-options"
+                  rows="4"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900 font-mono"
+                  placeholder="Alice Carter&#10;Brooke Lin&#10;Devin Shah"
+                ></textarea>
+              </label>
+              <div class="flex items-end">
+                <button
+                  id="add-pool"
+                  type="button"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-navy-300 bg-white px-3 py-2 text-sm font-semibold text-navy-800 hover:bg-navy-50"
+                >
+                  <Icon name="file-plus" class="text-navy-600" size={14} />
+                  Add Pool
+                </button>
+              </div>
+            </div>
+            <p id="pool-status" class="hidden text-xs font-mono"></p>
+            <div id="pool-list" class="space-y-2"></div>
+          </div>
+
+          <div class="md:col-span-2 rounded-lg border border-navy-200 bg-cream-50 p-4 space-y-3">
+            <div>
+              <h3 class="font-serif text-base text-navy-900 font-bold">Step 2: Build Questions</h3>
+              <p class="text-xs text-navy-600 mt-1">
+                Bind each question to a compatible pool. Candidate questions require <code>Who</code> pools, and referendum questions require <code>What</code> pools.
+              </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label class="block md:col-span-2">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Question / Contest Title</span>
+                <input
+                  id="question-title"
+                  type="text"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                  placeholder="City Mayor"
+                />
+              </label>
+              <label class="block">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Scope</span>
+                <select
+                  id="question-scope"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                ></select>
+              </label>
+              <label class="block">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Form Type</span>
+                <select
+                  id="question-type"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                >
+                  <option value="candidate">Candidate (Who)</option>
+                  <option value="referendum">Referendum (What)</option>
+                </select>
+              </label>
+              <label class="block md:col-span-2">
+                <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Bound Option Pool</span>
+                <select
+                  id="question-pool"
+                  class="mt-1 w-full rounded-md border border-navy-200 bg-white px-3 py-2 text-sm text-navy-900"
+                ></select>
+              </label>
+              <div class="md:col-span-2 flex justify-start">
+                <button
+                  id="add-question"
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-md border border-navy-300 bg-white px-3 py-2 text-sm font-semibold text-navy-800 hover:bg-navy-50"
+                >
+                  <Icon name="check-square" class="text-navy-600" size={14} />
+                  Add Question
+                </button>
+              </div>
+            </div>
+            <p id="question-status" class="hidden text-xs font-mono"></p>
+            <p id="builder-status" class="hidden text-xs font-mono"></p>
+            <div id="question-list" class="space-y-2"></div>
+          </div>
+
+          <div class="md:col-span-2 flex flex-wrap gap-3 pt-2">
+            <button
+              id="run-setup"
+              type="submit"
+              class="inline-flex items-center gap-2 rounded-md bg-navy-800 px-4 py-2 text-white text-sm font-semibold hover:bg-navy-900 transition-colors"
+            >
+              <Icon name="check-circle" class="text-gold-400" size={16} />
+              Create Election Bundle
+            </button>
+            <a
+              href="/votechain/poc"
+              class="inline-flex items-center gap-2 rounded-md border border-navy-300 px-4 py-2 text-navy-700 text-sm font-semibold hover:bg-navy-50"
+            >
+              <Icon name="arrow-left" class="text-navy-500" size={16} />
+              Back To POC
+            </a>
+          </div>
+        </form>
+      </section>
+
+      <section class="bg-white rounded-xl border border-navy-200 p-5 shadow-sm">
+        <h2 class="font-serif text-xl text-navy-900 font-bold mb-3">Generated Contest Preview</h2>
+        <p class="text-sm text-navy-600 mb-3">
+          If no custom contest JSON is provided, setup generates default contests per scope.
+        </p>
+        <div id="contest-preview" class="space-y-3"></div>
+      </section>
+
+      <section class="bg-white rounded-xl border border-navy-200 p-5 shadow-sm">
+        <h2 class="font-serif text-xl text-navy-900 font-bold mb-3">Ledger Anchoring Flow</h2>
+        <p class="text-sm text-navy-600 mb-3">
+          Setup anchors both the manifest and form definition to the VoteChain ledger using
+          <code>election_manifest_published</code> and <code>form_definition_published</code> events.
+        </p>
+        <pre class="rounded-lg bg-navy-900 text-cream-100 p-3 overflow-x-auto text-xs leading-relaxed font-mono">
+Setup Form
+   |
+   v
+setupPocElection(config)
+   |
+   +-- Generate keys + election crypto material
+   +-- Build and sign manifest
+   +-- Initialize BB/VCL state
+   +-- Create VCL event: election_manifest_published
+   +-- Create VCL event: form_definition_published
+   |
+   v
+Append to local POC ledger
+   |
+   v
+Replicate setup events via proxy -> federal node
+Read/verify from federal + state + oversight nodes
+        </pre>
+        <p class="text-xs text-navy-500 mt-2">
+          Full design doc: <code>docs/votechain-poc-setup-ledger-flow.md</code>
+        </p>
+      </section>
+
+      <section id="setup-result" class="hidden rounded-xl border border-green-300 bg-green-50 p-4">
+        <h3 class="font-serif text-lg text-green-900 font-bold">Setup Completed</h3>
+        <p id="setup-summary" class="text-sm text-green-800 mt-1"></p>
+        <div class="mt-3 flex flex-wrap gap-3">
+          <a href="/votechain/poc/vote" class="inline-flex items-center gap-2 rounded-md bg-green-700 px-3 py-1.5 text-white text-sm font-semibold hover:bg-green-800">
+            <Icon name="vote" class="text-white" size={14} />
+            Open Voting Client
+          </a>
+          <a href="/votechain/poc/dashboard" class="inline-flex items-center gap-2 rounded-md border border-green-400 px-3 py-1.5 text-green-900 text-sm font-semibold hover:bg-green-100">
+            <Icon name="bar-chart" class="text-green-800" size={14} />
+            Open Dashboard
+          </a>
+          <button
+            id="export-setup-package"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-md border border-green-400 px-3 py-1.5 text-green-900 text-sm font-semibold hover:bg-green-100"
+          >
+            <Icon name="download" class="text-green-800" size={14} />
+            Download Setup Package
+          </button>
+        </div>
+        <p id="setup-transfer-status" class="hidden text-xs mt-2 font-mono"></p>
+      </section>
+
+      <section class="rounded-xl border border-navy-200 bg-white p-4">
+        <h3 class="font-serif text-lg text-navy-900 font-bold">Air-Gap Publish</h3>
+        <p class="text-sm text-navy-600 mt-1">
+          On the connected environment, upload a previously exported setup package and publish
+          both setup events to the federal ledger node.
+        </p>
+        <div class="mt-3 flex flex-col gap-3 md:flex-row md:items-end">
+          <label class="block flex-1">
+            <span class="text-xs font-mono uppercase tracking-widest text-navy-500">Setup Package File</span>
+            <input
+              id="setup-package-file"
+              type="file"
+              accept="application/json,.json"
+              class="mt-1 w-full rounded-md border border-navy-200 bg-cream-50 px-3 py-2 text-sm text-navy-900"
+            />
+          </label>
+          <button
+            id="publish-setup-package"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-md bg-navy-800 px-4 py-2 text-white text-sm font-semibold hover:bg-navy-900 transition-colors"
+          >
+            <Icon name="send" class="text-gold-400" size={14} />
+            Publish Package To Ledger
+          </button>
+        </div>
+        <p id="publish-package-status" class="hidden text-xs mt-2 font-mono"></p>
+      </section>
+
+      <section id="setup-error" class="hidden rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800"></section>
+    </div>
+  </main>
+
+  <script>
+    import {
+      setupPocElection,
+      getPocState,
+      replicateViaProxy,
+      getDefaultContestsForScopes,
+      buildScopeBundleSetupConfig,
+    } from '../../../votechain-poc';
+
+    type PoolKind = 'who' | 'what';
+    type ContestType = 'candidate' | 'referendum';
+
+    type SetupContestOptionInput = {
+      id?: string;
+      label: string;
+    };
+
+    type SetupContestInput = {
+      scope: string;
+      title: string;
+      type: ContestType;
+      options: SetupContestOptionInput[];
+      contest_id?: string;
+    };
+
+    type SetupContestPreview = {
+      scope?: string;
+      title: string;
+      options: Array<{ label: string }>;
+    };
+
+    type OptionPool = {
+      pool_id: string;
+      name: string;
+      kind: PoolKind;
+      scope: string; // '*' means any scope
+      options: SetupContestOptionInput[];
+    };
+
+    type ContestDraft = {
+      draft_id: string;
+      scope: string;
+      title: string;
+      type: ContestType;
+      pool_id: string;
+    };
+
+    type BuilderResult = {
+      contests: SetupContestInput[] | null;
+      error: string | null;
+    };
+
+    type SetupPackageEvent = {
+      type: 'election_manifest_published' | 'form_definition_published';
+      payload: Record<string, unknown>;
+      tx_id: string;
+      recorded_at: string;
+    };
+
+    type SetupPackage = {
+      schema: 'votechain_poc_setup_package_v1';
+      exported_at: string;
+      election_id: string;
+      manifest_id: string;
+      form_definition_hash?: string;
+      events: SetupPackageEvent[];
+    };
+
+    function mustGetElement<T extends HTMLElement>(id: string): T {
+      const element = document.getElementById(id);
+      if (!element) throw new Error(`Missing required element #${id}`);
+      return element as T;
+    }
+
+    function isRecord(value: unknown): value is Record<string, unknown> {
+      return !!value && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    function slugify(value: string): string {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return slug || 'item';
+    }
+
+    function canonical(value: string): string {
+      return value.trim().toLowerCase();
+    }
+
+    function parseLines(rawText: string): string[] {
+      const seen = new Set<string>();
+      const values: string[] = [];
+      for (const line of rawText.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const key = canonical(trimmed);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        values.push(trimmed);
+      }
+      return values;
+    }
+
+    function parseScopes(rawText: string): string[] {
+      const parsed = parseLines(rawText);
+      return parsed.length > 0 ? parsed : ['General'];
+    }
+
+    function contestTypeToPoolKind(type: ContestType): PoolKind {
+      return type === 'candidate' ? 'who' : 'what';
+    }
+
+    function poolScopeMatches(poolScope: string, contestScope: string): boolean {
+      return poolScope === '*' || canonical(poolScope) === canonical(contestScope);
+    }
+
+    function formatPoolKind(kind: PoolKind): string {
+      return kind === 'who' ? 'Who' : 'What';
+    }
+
+    function formatScope(scope: string): string {
+      return scope === '*' ? 'Any Scope' : scope;
+    }
+
+    function setStatus(element: HTMLElement, message: string, isError: boolean): void {
+      element.textContent = message;
+      element.classList.remove('hidden', 'text-red-700', 'text-green-700');
+      element.classList.add(isError ? 'text-red-700' : 'text-green-700');
+    }
+
+    function clearStatus(element: HTMLElement): void {
+      element.textContent = '';
+      element.classList.add('hidden');
+      element.classList.remove('text-red-700', 'text-green-700');
+    }
+
+    const setupForm = mustGetElement<HTMLFormElement>('setup-form');
+    const electionIdInput = mustGetElement<HTMLInputElement>('election-id');
+    const jurisdictionIdInput = mustGetElement<HTMLInputElement>('jurisdiction-id');
+    const scopeListInput = mustGetElement<HTMLTextAreaElement>('scope-list');
+    const voterRollInput = mustGetElement<HTMLInputElement>('voter-roll');
+    const durationInput = mustGetElement<HTMLInputElement>('duration-days');
+
+    const poolNameInput = mustGetElement<HTMLInputElement>('pool-name');
+    const poolKindSelect = mustGetElement<HTMLSelectElement>('pool-kind');
+    const poolScopeSelect = mustGetElement<HTMLSelectElement>('pool-scope');
+    const poolOptionsInput = mustGetElement<HTMLTextAreaElement>('pool-options');
+    const addPoolButton = mustGetElement<HTMLButtonElement>('add-pool');
+    const poolStatus = mustGetElement<HTMLParagraphElement>('pool-status');
+    const poolList = mustGetElement<HTMLDivElement>('pool-list');
+
+    const questionTitleInput = mustGetElement<HTMLInputElement>('question-title');
+    const questionScopeSelect = mustGetElement<HTMLSelectElement>('question-scope');
+    const questionTypeSelect = mustGetElement<HTMLSelectElement>('question-type');
+    const questionPoolSelect = mustGetElement<HTMLSelectElement>('question-pool');
+    const addQuestionButton = mustGetElement<HTMLButtonElement>('add-question');
+    const questionStatus = mustGetElement<HTMLParagraphElement>('question-status');
+    const builderStatus = mustGetElement<HTMLParagraphElement>('builder-status');
+    const questionList = mustGetElement<HTMLDivElement>('question-list');
+
+    const contestPreview = mustGetElement<HTMLDivElement>('contest-preview');
+    const setupResult = mustGetElement<HTMLElement>('setup-result');
+    const setupSummary = mustGetElement<HTMLParagraphElement>('setup-summary');
+    const exportSetupPackageButton = mustGetElement<HTMLButtonElement>('export-setup-package');
+    const setupTransferStatus = mustGetElement<HTMLParagraphElement>('setup-transfer-status');
+    const setupPackageFileInput = mustGetElement<HTMLInputElement>('setup-package-file');
+    const publishSetupPackageButton = mustGetElement<HTMLButtonElement>('publish-setup-package');
+    const publishPackageStatus = mustGetElement<HTMLParagraphElement>('publish-package-status');
+    const setupError = mustGetElement<HTMLElement>('setup-error');
+    const runSetupButton = mustGetElement<HTMLButtonElement>('run-setup');
+
+    const optionPools: OptionPool[] = [];
+    const contestDrafts: ContestDraft[] = [];
+
+    function updateScopeSelections(): void {
+      const scopes = parseScopes(scopeListInput.value);
+
+      const previousPoolScope = poolScopeSelect.value || '*';
+      poolScopeSelect.replaceChildren();
+      const anyScopeOption = document.createElement('option');
+      anyScopeOption.value = '*';
+      anyScopeOption.textContent = 'Any Scope';
+      poolScopeSelect.appendChild(anyScopeOption);
+      for (const scope of scopes) {
+        const option = document.createElement('option');
+        option.value = scope;
+        option.textContent = scope;
+        poolScopeSelect.appendChild(option);
+      }
+      poolScopeSelect.value = Array.from(poolScopeSelect.options).some((opt) => opt.value === previousPoolScope)
+        ? previousPoolScope
+        : '*';
+
+      const previousQuestionScope = questionScopeSelect.value || scopes[0] || 'General';
+      questionScopeSelect.replaceChildren();
+      for (const scope of scopes) {
+        const option = document.createElement('option');
+        option.value = scope;
+        option.textContent = scope;
+        questionScopeSelect.appendChild(option);
+      }
+      questionScopeSelect.value = Array.from(questionScopeSelect.options).some((opt) => opt.value === previousQuestionScope)
+        ? previousQuestionScope
+        : (scopes[0] || 'General');
+    }
+
+    function eligiblePoolsForQuestion(scope: string, type: ContestType): OptionPool[] {
+      const neededKind = contestTypeToPoolKind(type);
+      return optionPools.filter(
+        (pool) => pool.kind === neededKind && poolScopeMatches(pool.scope, scope),
+      );
+    }
+
+    function renderQuestionPoolSelect(): void {
+      const scope = questionScopeSelect.value;
+      const type = questionTypeSelect.value as ContestType;
+      const eligible = eligiblePoolsForQuestion(scope, type);
+      const previous = questionPoolSelect.value;
+
+      questionPoolSelect.replaceChildren();
+      if (eligible.length === 0) {
+        const empty = document.createElement('option');
+        empty.value = '';
+        empty.textContent = `No compatible ${formatPoolKind(contestTypeToPoolKind(type))} pools`;
+        questionPoolSelect.appendChild(empty);
+        questionPoolSelect.value = '';
+        return;
+      }
+
+      for (const pool of eligible) {
+        const option = document.createElement('option');
+        option.value = pool.pool_id;
+        option.textContent = `${pool.name} (${pool.options.length} options, ${formatScope(pool.scope)})`;
+        questionPoolSelect.appendChild(option);
+      }
+
+      questionPoolSelect.value = eligible.some((pool) => pool.pool_id === previous)
+        ? previous
+        : eligible[0].pool_id;
+    }
+
+    function renderPoolList(): void {
+      poolList.replaceChildren();
+
+      if (optionPools.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-xs text-navy-500';
+        empty.textContent = 'No pools yet. Add at least one pool before creating questions.';
+        poolList.appendChild(empty);
+        return;
+      }
+
+      for (const pool of optionPools) {
+        const card = document.createElement('div');
+        card.className = 'rounded-md border border-navy-200 bg-white p-3';
+
+        const headingRow = document.createElement('div');
+        headingRow.className = 'flex items-center justify-between gap-2';
+
+        const title = document.createElement('p');
+        title.className = 'text-sm font-semibold text-navy-900';
+        title.textContent = pool.name;
+        headingRow.appendChild(title);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'text-xs text-red-700 hover:text-red-800';
+        remove.dataset.removePool = pool.pool_id;
+        remove.textContent = 'remove';
+        headingRow.appendChild(remove);
+
+        card.appendChild(headingRow);
+
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-navy-600 mt-1';
+        meta.textContent = `${formatPoolKind(pool.kind)} pool • ${formatScope(pool.scope)} • ${pool.options.length} options`;
+        card.appendChild(meta);
+
+        const options = document.createElement('p');
+        options.className = 'text-xs text-navy-500 mt-1';
+        options.textContent = pool.options.map((entry) => entry.label).join(', ');
+        card.appendChild(options);
+
+        poolList.appendChild(card);
+      }
+    }
+
+    function renderQuestionList(): void {
+      questionList.replaceChildren();
+
+      if (contestDrafts.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'text-xs text-navy-500';
+        empty.textContent = 'No questions yet. Add one or more questions to use custom pools.';
+        questionList.appendChild(empty);
+        return;
+      }
+
+      for (const draft of contestDrafts) {
+        const pool = optionPools.find((entry) => entry.pool_id === draft.pool_id);
+
+        const card = document.createElement('div');
+        card.className = 'rounded-md border border-navy-200 bg-white p-3';
+
+        const headingRow = document.createElement('div');
+        headingRow.className = 'flex items-center justify-between gap-2';
+
+        const title = document.createElement('p');
+        title.className = 'text-sm font-semibold text-navy-900';
+        title.textContent = draft.title;
+        headingRow.appendChild(title);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'text-xs text-red-700 hover:text-red-800';
+        remove.dataset.removeQuestion = draft.draft_id;
+        remove.textContent = 'remove';
+        headingRow.appendChild(remove);
+
+        card.appendChild(headingRow);
+
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-navy-600 mt-1';
+        meta.textContent = `${draft.scope} • ${draft.type} • ${pool ? `pool: ${pool.name}` : 'pool missing'}`;
+        card.appendChild(meta);
+
+        questionList.appendChild(card);
+      }
+    }
+
+    function buildContestInputsFromDrafts(): SetupContestInput[] {
+      return contestDrafts.map((draft, index) => {
+        const pool = optionPools.find((entry) => entry.pool_id === draft.pool_id);
+        if (!pool) {
+          throw new Error(`Missing option pool for question: ${draft.title}`);
+        }
+
+        return {
+          scope: draft.scope,
+          title: draft.title,
+          type: draft.type,
+          contest_id: `${slugify(draft.scope)}-${slugify(draft.title)}-${index + 1}`,
+          options: pool.options.map((option, optionIndex) => ({
+            id: option.id || `${slugify(pool.pool_id)}-${optionIndex + 1}`,
+            label: option.label,
+          })),
+        };
+      });
+    }
+
+    function buildSetupPackageFromState(state: {
+      election: { election_id: string };
+      manifest: { manifest_id: string };
+      setup?: { form_definition_hash?: string };
+      vcl: {
+        events: Array<{
+          type: string;
+          payload: Record<string, unknown>;
+          tx_id: string;
+          recorded_at: string;
+        }>;
+      };
+    }): SetupPackage {
+      const events = state.vcl.events
+        .filter(
+          (event): event is SetupPackageEvent =>
+            (event.type === 'election_manifest_published' || event.type === 'form_definition_published')
+            && typeof event.tx_id === 'string'
+            && typeof event.recorded_at === 'string',
+        )
+        .map((event) => ({
+          type: event.type,
+          payload: event.payload,
+          tx_id: event.tx_id,
+          recorded_at: event.recorded_at,
+        }));
+
+      if (events.length === 0) {
+        throw new Error('No setup events were found to export.');
+      }
+
+      return {
+        schema: 'votechain_poc_setup_package_v1',
+        exported_at: new Date().toISOString(),
+        election_id: state.election.election_id,
+        manifest_id: state.manifest.manifest_id,
+        form_definition_hash: state.setup?.form_definition_hash,
+        events,
+      };
+    }
+
+    function downloadJsonFile(filename: string, data: unknown): void {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function parseSetupPackage(raw: string): SetupPackage {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (error) {
+        throw new Error(`Invalid setup package JSON: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      if (!isRecord(parsed)) throw new Error('Setup package must be a JSON object.');
+      if (parsed.schema !== 'votechain_poc_setup_package_v1') {
+        throw new Error('Unsupported setup package schema.');
+      }
+
+      const election_id = typeof parsed.election_id === 'string' ? parsed.election_id.trim() : '';
+      const manifest_id = typeof parsed.manifest_id === 'string' ? parsed.manifest_id.trim() : '';
+      const exported_at = typeof parsed.exported_at === 'string' ? parsed.exported_at.trim() : '';
+      if (!election_id || !manifest_id || !exported_at) {
+        throw new Error('Setup package is missing required metadata fields.');
+      }
+
+      const eventsRaw = parsed.events;
+      if (!Array.isArray(eventsRaw) || eventsRaw.length === 0) {
+        throw new Error('Setup package must include at least one event.');
+      }
+
+      const events: SetupPackageEvent[] = [];
+      for (const event of eventsRaw) {
+        if (!isRecord(event)) continue;
+        const type = event.type;
+        const payload = event.payload;
+        const tx_id = event.tx_id;
+        const recorded_at = event.recorded_at;
+        if (
+          (type === 'election_manifest_published' || type === 'form_definition_published')
+          && isRecord(payload)
+          && typeof tx_id === 'string'
+          && typeof recorded_at === 'string'
+        ) {
+          events.push({ type, payload, tx_id, recorded_at });
+        }
+      }
+
+      if (events.length === 0) {
+        throw new Error('Setup package has no valid setup events.');
+      }
+
+      return {
+        schema: 'votechain_poc_setup_package_v1',
+        election_id,
+        manifest_id,
+        exported_at,
+        form_definition_hash:
+          typeof parsed.form_definition_hash === 'string' ? parsed.form_definition_hash : undefined,
+        events,
+      };
+    }
+
+    function validateBuilder(scopes: string[]): string | null {
+      if (optionPools.length === 0 && contestDrafts.length === 0) return null;
+      if (optionPools.length > 0 && contestDrafts.length === 0) {
+        return 'At least one question is required after defining pools.';
+      }
+
+      const availableScopes = new Set(scopes.map((scope) => canonical(scope)));
+      for (const draft of contestDrafts) {
+        if (!availableScopes.has(canonical(draft.scope))) {
+          return `Question "${draft.title}" uses a scope that is not in the scope list.`;
+        }
+
+        const pool = optionPools.find((entry) => entry.pool_id === draft.pool_id);
+        if (!pool) return `Question "${draft.title}" references a missing pool.`;
+
+        const requiredKind = contestTypeToPoolKind(draft.type);
+        if (pool.kind !== requiredKind) {
+          return `Question "${draft.title}" is ${draft.type} but uses a ${pool.kind} pool.`;
+        }
+        if (!poolScopeMatches(pool.scope, draft.scope)) {
+          return `Question "${draft.title}" is bound to scope "${draft.scope}" but pool "${pool.name}" is bound to "${pool.scope}".`;
+        }
+        if (pool.options.length < 2) {
+          return `Pool "${pool.name}" must have at least two options.`;
+        }
+      }
+
+      return null;
+    }
+
+    function getBuilderResult(scopes: string[]): BuilderResult {
+      const error = validateBuilder(scopes);
+      if (error) return { contests: null, error };
+      if (contestDrafts.length === 0) return { contests: null, error: null };
+      return { contests: buildContestInputsFromDrafts(), error: null };
+    }
+
+    function toPreviewContests(contests: SetupContestInput[]): SetupContestPreview[] {
+      return contests.map((contest) => ({
+        scope: contest.scope,
+        title: contest.title,
+        options: contest.options.map((option) => ({ label: option.label })),
+      }));
+    }
+
+    function currentBaseConfig() {
+      return buildScopeBundleSetupConfig({
+        election_id: electionIdInput.value.trim(),
+        jurisdiction_id: jurisdictionIdInput.value.trim(),
+        scopes: parseScopes(scopeListInput.value),
+        voter_roll_size: Number(voterRollInput.value),
+        duration_days: Number(durationInput.value),
+      });
+    }
+
+    function currentConfig() {
+      const base = currentBaseConfig();
+      const builder = getBuilderResult(base.scopes);
+      if (builder.error) throw new Error(builder.error);
+      return builder.contests ? { ...base, contests: builder.contests } : base;
+    }
+
+    function groupContestsByScope(contests: SetupContestPreview[]): Map<string, SetupContestPreview[]> {
+      const grouped = new Map<string, SetupContestPreview[]>();
+      for (const contest of contests) {
+        const scope = contest.scope || 'General';
+        const existing = grouped.get(scope);
+        if (existing) {
+          existing.push(contest);
+        } else {
+          grouped.set(scope, [contest]);
+        }
+      }
+      return grouped;
+    }
+
+    function renderPreview(): void {
+      const base = currentBaseConfig();
+      const builder = getBuilderResult(base.scopes);
+
+      if (builder.error) {
+        setStatus(builderStatus, builder.error, true);
+        runSetupButton.setAttribute('disabled', 'true');
+      } else {
+        if (builder.contests) {
+          setStatus(builderStatus, `Using ${builder.contests.length} builder question(s).`, false);
+        } else {
+          clearStatus(builderStatus);
+        }
+        runSetupButton.removeAttribute('disabled');
+      }
+
+      const contests = builder.contests
+        ? toPreviewContests(builder.contests)
+        : getDefaultContestsForScopes(base.scopes);
+
+      const grouped = groupContestsByScope(contests);
+      contestPreview.replaceChildren();
+
+      for (const [scope, scopeContests] of grouped.entries()) {
+        const scopeCard = document.createElement('div');
+        scopeCard.className = 'rounded-lg border border-navy-200 bg-cream-50 p-3';
+
+        const heading = document.createElement('p');
+        heading.className = 'text-xs font-mono uppercase tracking-widest text-navy-500 mb-2';
+        heading.textContent = `${scope} scope`;
+        scopeCard.appendChild(heading);
+
+        const list = document.createElement('ul');
+        list.className = 'space-y-1';
+
+        for (const contest of scopeContests) {
+          const item = document.createElement('li');
+          item.className = 'text-sm text-navy-800';
+          item.textContent = `${contest.title} (${contest.options.length} options)`;
+          list.appendChild(item);
+        }
+
+        scopeCard.appendChild(list);
+        contestPreview.appendChild(scopeCard);
+      }
+    }
+
+    function renderBuilderState(): void {
+      updateScopeSelections();
+      renderQuestionPoolSelect();
+      renderPoolList();
+      renderQuestionList();
+      renderPreview();
+    }
+
+    function addOptionPool(): void {
+      clearStatus(poolStatus);
+      clearStatus(questionStatus);
+
+      const name = poolNameInput.value.trim();
+      const kind = poolKindSelect.value as PoolKind;
+      const scope = poolScopeSelect.value || '*';
+      const optionLabels = parseLines(poolOptionsInput.value);
+
+      if (!name) {
+        setStatus(poolStatus, 'Pool name is required.', true);
+        return;
+      }
+      if (optionLabels.length < 2) {
+        setStatus(poolStatus, 'Each pool needs at least two options.', true);
+        return;
+      }
+      if (optionPools.some((pool) => canonical(pool.name) === canonical(name) && canonical(pool.scope) === canonical(scope) && pool.kind === kind)) {
+        setStatus(poolStatus, 'A pool with this name/type/scope already exists.', true);
+        return;
+      }
+
+      const basePoolId = `${slugify(scope === '*' ? 'any' : scope)}-${slugify(kind)}-${slugify(name)}`;
+      let pool_id = basePoolId;
+      let suffix = 2;
+      while (optionPools.some((pool) => pool.pool_id === pool_id)) {
+        pool_id = `${basePoolId}-${suffix}`;
+        suffix += 1;
+      }
+
+      const options = optionLabels.map((label, index) => ({
+        id: `${slugify(pool_id)}-opt-${index + 1}`,
+        label,
+      }));
+
+      optionPools.push({
+        pool_id,
+        name,
+        kind,
+        scope,
+        options,
+      });
+
+      poolNameInput.value = '';
+      poolOptionsInput.value = '';
+      setStatus(poolStatus, `Added pool "${name}".`, false);
+      renderBuilderState();
+    }
+
+    function addQuestion(): void {
+      clearStatus(questionStatus);
+
+      const title = questionTitleInput.value.trim();
+      const scope = questionScopeSelect.value;
+      const type = questionTypeSelect.value as ContestType;
+      const pool_id = questionPoolSelect.value;
+
+      if (!title) {
+        setStatus(questionStatus, 'Question title is required.', true);
+        return;
+      }
+
+      const pool = optionPools.find((entry) => entry.pool_id === pool_id);
+      if (!pool) {
+        setStatus(questionStatus, 'Select a valid option pool before adding a question.', true);
+        return;
+      }
+
+      const requiredKind = contestTypeToPoolKind(type);
+      if (pool.kind !== requiredKind) {
+        setStatus(questionStatus, `Question type ${type} requires a ${requiredKind} pool.`, true);
+        return;
+      }
+      if (!poolScopeMatches(pool.scope, scope)) {
+        setStatus(questionStatus, `Pool "${pool.name}" is bound to ${formatScope(pool.scope)} and cannot be used for scope "${scope}".`, true);
+        return;
+      }
+
+      const draft_id = `${slugify(scope)}-${slugify(title)}-${contestDrafts.length + 1}`;
+      contestDrafts.push({
+        draft_id,
+        scope,
+        title,
+        type,
+        pool_id: pool.pool_id,
+      });
+
+      questionTitleInput.value = '';
+      setStatus(questionStatus, `Added question "${title}".`, false);
+      renderBuilderState();
+    }
+
+    function removePool(poolId: string): void {
+      const inUse = contestDrafts.some((draft) => draft.pool_id === poolId);
+      if (inUse) {
+        setStatus(poolStatus, 'Remove questions bound to this pool before deleting the pool.', true);
+        return;
+      }
+      const index = optionPools.findIndex((pool) => pool.pool_id === poolId);
+      if (index < 0) return;
+      const [removed] = optionPools.splice(index, 1);
+      setStatus(poolStatus, `Removed pool "${removed.name}".`, false);
+      renderBuilderState();
+    }
+
+    function removeQuestion(draftId: string): void {
+      const index = contestDrafts.findIndex((draft) => draft.draft_id === draftId);
+      if (index < 0) return;
+      const [removed] = contestDrafts.splice(index, 1);
+      setStatus(questionStatus, `Removed question "${removed.title}".`, false);
+      renderBuilderState();
+    }
+
+    scopeListInput.addEventListener('input', () => {
+      renderBuilderState();
+    });
+    questionTypeSelect.addEventListener('change', () => {
+      renderQuestionPoolSelect();
+      renderPreview();
+    });
+    questionScopeSelect.addEventListener('change', () => {
+      renderQuestionPoolSelect();
+      renderPreview();
+    });
+    addPoolButton.addEventListener('click', addOptionPool);
+    addQuestionButton.addEventListener('click', addQuestion);
+
+    poolList.addEventListener('click', (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest<HTMLButtonElement>('button[data-remove-pool]');
+      if (!button) return;
+      removePool(button.dataset.removePool || '');
+    });
+
+    questionList.addEventListener('click', (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest<HTMLButtonElement>('button[data-remove-question]');
+      if (!button) return;
+      removeQuestion(button.dataset.removeQuestion || '');
+    });
+
+    exportSetupPackageButton.addEventListener('click', async () => {
+      clearStatus(setupTransferStatus);
+      try {
+        const state = await getPocState();
+        const setupPackage = buildSetupPackageFromState(state);
+        downloadJsonFile(`votechain-setup-${slugify(setupPackage.election_id)}.json`, setupPackage);
+        setStatus(setupTransferStatus, `Exported setup package with ${setupPackage.events.length} event(s).`, false);
+      } catch (error) {
+        setStatus(setupTransferStatus, `Export failed: ${error instanceof Error ? error.message : String(error)}`, true);
+      }
+    });
+
+    publishSetupPackageButton.addEventListener('click', async () => {
+      clearStatus(publishPackageStatus);
+      const file = setupPackageFileInput.files?.[0];
+      if (!file) {
+        setStatus(publishPackageStatus, 'Choose a setup package JSON file first.', true);
+        return;
+      }
+
+      publishSetupPackageButton.setAttribute('disabled', 'true');
+      publishSetupPackageButton.textContent = 'Publishing...';
+      try {
+        const text = await file.text();
+        const setupPackage = parseSetupPackage(text);
+
+        let replicated = 0;
+        for (const event of setupPackage.events) {
+          const result = await replicateViaProxy({
+            type: event.type,
+            payload: event.payload,
+            tx_id: event.tx_id,
+            recorded_at: event.recorded_at,
+          });
+          if (!result.ok) {
+            throw new Error(`Failed to publish ${event.type}: ${result.error ?? 'unknown error'}`);
+          }
+          replicated += 1;
+        }
+
+        setStatus(
+          publishPackageStatus,
+          `Published ${replicated} setup event(s) for election ${setupPackage.election_id}.`,
+          false,
+        );
+      } catch (error) {
+        setStatus(publishPackageStatus, `Publish failed: ${error instanceof Error ? error.message : String(error)}`, true);
+      } finally {
+        publishSetupPackageButton.removeAttribute('disabled');
+        publishSetupPackageButton.innerHTML = '<svg class="icon text-gold-400" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>Publish Package To Ledger';
+      }
+    });
+
+    setupForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setupResult.classList.add('hidden');
+      setupError.classList.add('hidden');
+      setupError.textContent = '';
+
+      const previousButtonMarkup = runSetupButton.innerHTML;
+      runSetupButton.setAttribute('disabled', 'true');
+      runSetupButton.textContent = 'Creating...';
+
+      try {
+        const config = currentConfig();
+        const state = await setupPocElection(config);
+        setupSummary.textContent = `Election ${state.election.election_id} created with ${state.election.contests.length} contests across ${state.setup?.scopes.length ?? config.scopes.length} scopes. Manifest: ${state.manifest.manifest_id}`;
+        setupResult.classList.remove('hidden');
+      } catch (error) {
+        setupError.textContent = `Setup failed: ${error instanceof Error ? error.message : String(error)}`;
+        setupError.classList.remove('hidden');
+      } finally {
+        runSetupButton.removeAttribute('disabled');
+        runSetupButton.innerHTML = previousButtonMarkup;
+        renderBuilderState();
+      }
+    });
+
+    renderBuilderState();
+  </script>
+</BaseLayout>

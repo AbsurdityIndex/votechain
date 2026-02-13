@@ -1173,6 +1173,26 @@
       });
     }
 
+    function normalizeRenderedMermaidSvgSizing() {
+      var svgs = document.querySelectorAll('.mermaid-diagram svg');
+      if (svgs.length === 0) return;
+      svgs.forEach(function (svg) {
+        if (!(svg instanceof SVGElement)) return;
+        var vb = svg.getAttribute('viewBox');
+        if (vb) {
+          var parts = vb.trim().split(/\s+/);
+          if (parts.length === 4) {
+            var width = parseFloat(parts[2]);
+            if (!Number.isNaN(width) && width > 0) {
+              svg.setAttribute('width', String(width));
+              svg.removeAttribute('height');
+            }
+          }
+        }
+        svg.style.maxWidth = 'none';
+      });
+    }
+
     function runMermaid() {
       // Mermaid script loads asynchronously and provides window.mermaid.
       var isDark = document.documentElement.classList.contains('dark');
@@ -1181,7 +1201,7 @@
         startOnLoad: false,
         theme: isDark ? 'dark' : 'default',
         securityLevel: 'loose',
-        flowchart: { useMaxWidth: true, htmlLabels: true },
+        flowchart: { useMaxWidth: true, htmlLabels: true, padding: 16 },
         sequence: { useMaxWidth: true },
       });
 
@@ -1201,14 +1221,19 @@
       if (isThenable(runResult)) {
         runResult
           .then(function () {
+            normalizeRenderedMermaidSvgSizing();
             enhanceMermaidDiagrams();
           })
           .catch(function () {
+            normalizeRenderedMermaidSvgSizing();
             enhanceMermaidDiagrams();
           });
       } else {
         // Mermaid might run synchronously; defer enhancement to next tick.
-        setTimeout(enhanceMermaidDiagrams, 0);
+        setTimeout(function () {
+          normalizeRenderedMermaidSvgSizing();
+          enhanceMermaidDiagrams();
+        }, 0);
       }
     }
 

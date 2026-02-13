@@ -20,6 +20,7 @@ const MAX_LIST_LIMIT = 200;
 
 const VCL_EVENT_TYPES: VclEventType[] = [
   'election_manifest_published',
+  'form_definition_published',
   'credential_issued',
   'ewp_ballot_cast',
   'bb_sth_published',
@@ -303,4 +304,3 @@ export class LedgerDO {
     return jsonError(404, 'NOT_FOUND', 'Not found.');
   }
 }
-

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Icon from '../../../components/ui/Icon.astro';
+import MermaidClient from '../../../components/votechain/MermaidClient.astro';
 
 ---
 
@@ -59,137 +60,66 @@ import Icon from '../../../components/ui/Icon.astro';
           <p class="label">End-To-End Topology</p>
           <h2>Where Every Raspberry Pi Sits</h2>
           <p>Left to right: polling-place booth Pis, transfer boundary, airgap Pis, central verification hosts.</p>
-          <svg viewBox="0 0 1580 760" role="img" aria-label="Raspberry Pi topology with zones and connections">
-            <defs>
-              <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f6db3" />
-              </marker>
-              <marker id="arrowGold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#b9862c" />
-              </marker>
-            </defs>
+          <pre data-language="mermaid">{`%% diagram-id: pi-lab-topology
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph POLL["Boundary: Polling Place Zone (VLAN10)"]
+    direction TB
+    PMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Polling Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>VLAN10 polling LAN · Ports 22, 443, 9100</span>"]:::net
+    B1["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi 1</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 vote terminal · Ports 443, 9100</span>"]:::hw
+    B2["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi 2</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 vote terminal · Ports 443, 9100</span>"]:::hw
+    B3["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi 3</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 vote terminal · Ports 443, 9100</span>"]:::hw
+    B4["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi 4</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 vote terminal · Ports 443, 9100</span>"]:::hw
+    B5["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi 5</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 vote terminal · Ports 443, 9100</span>"]:::hw
+    OPS["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Ops Pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Poll worker operations Pi · Ports 443, 1514</span>"]:::hw
+    PSW["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Polling Switch</b><br/><span style='font-size:0.8em;opacity:0.65'>Layer-2 booth uplink switch · Forwards signed bundles</span>"]:::net
+    B1 --> PSW
+    B2 --> PSW
+    B3 --> PSW
+    B4 --> PSW
+    B5 --> PSW
+    OPS --> PSW
+  end
 
-            <rect x="20" y="20" width="560" height="720" rx="12" fill="#e9f3ff" stroke="#aac3df" />
-            <text x="38" y="52" font-size="16" fill="#1f446d" class="caps">Polling Place Zone (VLAN10 | 10.10.10.0/24)</text>
+  subgraph XFER["Boundary: Controlled Transfer Gate"]
+    direction TB
+    XMETA["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Transfer Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>One-way media validation enclave · Port 443 ingress</span>"]:::net
+    EK["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Export Kiosk Pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Outbound transfer Pi · Receives bundles on 443</span>"]:::net
+    SCAN["<img src='/votechain/evidence/icons/scan.svg' width='24' height='24'/><b>Import Scan Pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Hash and malware validation Pi · Forwards to ingest on 443</span>"]:::net
+    EK --> SCAN
+  end
 
-            <rect x="610" y="20" width="300" height="720" rx="12" fill="#fff4df" stroke="#dbc290" />
-            <text x="634" y="52" font-size="16" fill="#6f5116" class="caps">Transfer Boundary</text>
+  subgraph AIR["Boundary: Airgap Core (VLAN20)"]
+    direction TB
+    AMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Airgap Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Isolated VLAN20 segment · Ports 443, 1514</span>"]:::net
+    ING["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Airgap Ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Ingress Pi service · Validates and writes events on 443</span>"]:::hw
+    REL["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Airgap Relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Airgap transport Pi · Relays to ledger replicas on 443</span>"]:::hw
+    OBS["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Observer Pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Monitoring Pi · Watches role drift and ACK anomalies on 1514</span>"]:::sec
+    AL["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Airgap Ledger Cluster</b><br/><span style='font-size:0.8em;opacity:0.65'>Replicas a1-a3 on Pi hosts · Append-only records on 443</span>"]:::db
+    ING --> AL
+    REL --> AL
+    OBS --> AL
+  end
 
-            <rect x="940" y="20" width="620" height="350" rx="12" fill="#ebf8ef" stroke="#a8d8b8" />
-            <text x="960" y="52" font-size="16" fill="#246843" class="caps">Airgap Core (VLAN20 | 10.20.0.0/24)</text>
+  subgraph CENT["Boundary: Central Verify (VLAN30)"]
+    direction TB
+    CMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Central Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Verification VLAN30 segment · Ports 443, 1514</span>"]:::net
+    CING["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Central Ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Central intake host · Receives airgap mirror on 443</span>"]:::net
+    CREL["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Central Relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Central forwarding host · Routes to central ledger on 443</span>"]:::net
+    CMON["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Oversight Monitor</b><br/><span style='font-size:0.8em;opacity:0.65'>Independent monitor host · Verification alerts on 1514</span>"]:::sec
+    CL["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Central Ledger Cluster</b><br/><span style='font-size:0.8em;opacity:0.65'>Replicas central-1-2-3 · Verification mirror and audit proof on 443</span>"]:::db
+    CING --> CL
+    CREL --> CL
+    CMON --> CL
+  end
 
-            <rect x="940" y="390" width="620" height="350" rx="12" fill="#eef0ff" stroke="#b4c0f5" />
-            <text x="960" y="422" font-size="16" fill="#31449e" class="caps">Central Verify (VLAN30 | 10.30.0.0/24)</text>
-
-            <g transform="translate(48,84)">
-              <g>
-                <rect x="0" y="0" width="170" height="86" rx="10" fill="#fff" stroke="#9fb7d4" />
-                <text x="12" y="24" font-size="14" fill="#0f243e" class="caps">Booth Pi 1</text>
-                <text x="12" y="45" font-size="12" fill="#496789">Raspberry Pi 5 + Touch + QR + Printer</text>
-                <text x="12" y="63" font-size="11" fill="#496789">10.10.10.11</text>
-              </g>
-              <g transform="translate(184,0)">
-                <rect x="0" y="0" width="170" height="86" rx="10" fill="#fff" stroke="#9fb7d4" />
-                <text x="12" y="24" font-size="14" fill="#0f243e" class="caps">Booth Pi 2</text>
-                <text x="12" y="45" font-size="12" fill="#496789">Raspberry Pi 5 + Touch + QR + Printer</text>
-                <text x="12" y="63" font-size="11" fill="#496789">10.10.10.12</text>
-              </g>
-              <g transform="translate(0,104)">
-                <rect x="0" y="0" width="170" height="86" rx="10" fill="#fff" stroke="#9fb7d4" />
-                <text x="12" y="24" font-size="14" fill="#0f243e" class="caps">Booth Pi 3</text>
-                <text x="12" y="45" font-size="12" fill="#496789">Raspberry Pi 5 + Touch + QR + Printer</text>
-                <text x="12" y="63" font-size="11" fill="#496789">10.10.10.13</text>
-              </g>
-              <g transform="translate(184,104)">
-                <rect x="0" y="0" width="170" height="86" rx="10" fill="#fff" stroke="#9fb7d4" />
-                <text x="12" y="24" font-size="14" fill="#0f243e" class="caps">Booth Pi 4</text>
-                <text x="12" y="45" font-size="12" fill="#496789">Raspberry Pi 5 + Touch + QR + Printer</text>
-                <text x="12" y="63" font-size="11" fill="#496789">10.10.10.14</text>
-              </g>
-              <g transform="translate(92,208)">
-                <rect x="0" y="0" width="170" height="86" rx="10" fill="#fff" stroke="#9fb7d4" />
-                <text x="12" y="24" font-size="14" fill="#0f243e" class="caps">Booth Pi 5</text>
-                <text x="12" y="45" font-size="12" fill="#496789">Raspberry Pi 5 + Touch + QR + Printer</text>
-                <text x="12" y="63" font-size="11" fill="#496789">10.10.10.15</text>
-              </g>
-
-              <rect x="0" y="332" width="354" height="66" rx="10" fill="#dff0ff" stroke="#84a9cf" />
-              <text x="12" y="357" font-size="14" fill="#1f446d" class="caps">Polling Switch (24-port, unmanaged in lab)</text>
-              <text x="12" y="378" font-size="12" fill="#2b5c8e">Eth links from all 5 booth Pis + local ops Pi (10.10.10.30)</text>
-
-              <line x1="84" y1="86" x2="84" y2="332" stroke="#2f6db3" stroke-width="2.4" />
-              <line x1="268" y1="86" x2="268" y2="332" stroke="#2f6db3" stroke-width="2.4" />
-              <line x1="84" y1="190" x2="84" y2="332" stroke="#2f6db3" stroke-width="2.4" />
-              <line x1="268" y1="190" x2="268" y2="332" stroke="#2f6db3" stroke-width="2.4" />
-              <line x1="176" y1="294" x2="176" y2="332" stroke="#2f6db3" stroke-width="2.4" />
-            </g>
-
-            <g transform="translate(640,94)">
-              <rect x="0" y="0" width="238" height="94" rx="10" fill="#fff" stroke="#d8ba78" />
-              <text x="14" y="30" font-size="14" fill="#6f5116" class="caps">Export Kiosk Pi</text>
-              <text x="14" y="50" font-size="12" fill="#8a6722">Receives signed bundles from booth LAN</text>
-              <text x="14" y="68" font-size="11" fill="#8a6722">No route back to booth Pis</text>
-
-              <rect x="0" y="144" width="238" height="94" rx="10" fill="#fff" stroke="#d8ba78" />
-              <text x="14" y="174" font-size="14" fill="#6f5116" class="caps">Import Scan Pi</text>
-              <text x="14" y="194" font-size="12" fill="#8a6722">Verifies media hash + malware scan</text>
-              <text x="14" y="212" font-size="11" fill="#8a6722">Forwards to airgap ingest only</text>
-
-              <text x="52" y="287" font-size="12" fill="#6f5116" class="caps">One-way operational policy</text>
-              <line x1="119" y1="95" x2="119" y2="141" stroke="#b9862c" stroke-width="4" marker-end="url(#arrowGold)" />
-            </g>
-
-            <g transform="translate(968,84)">
-              <rect x="0" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="12" y="27" font-size="13" fill="#246843" class="caps">Airgap Ingest Pi</text>
-              <text x="12" y="47" font-size="11" fill="#246843">10.20.0.10</text>
-
-              <rect x="198" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="210" y="27" font-size="13" fill="#246843" class="caps">Airgap Relay Pi</text>
-              <text x="210" y="47" font-size="11" fill="#246843">10.20.0.11</text>
-
-              <rect x="396" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="408" y="27" font-size="13" fill="#246843" class="caps">Observer Pi</text>
-              <text x="408" y="47" font-size="11" fill="#246843">10.20.0.21</text>
-
-              <rect x="0" y="110" width="580" height="70" rx="9" fill="#dcf5e5" stroke="#9fd1b2" />
-              <text x="14" y="134" font-size="13" fill="#246843" class="caps">Airgap Ledger Pis</text>
-              <text x="14" y="154" font-size="11" fill="#2f6f4d">pi-ledger-a1 (.31), pi-ledger-a2 (.32), pi-ledger-a3 (.33)</text>
-
-              <line x1="92" y1="74" x2="92" y2="110" stroke="#2f6db3" stroke-width="2.2" marker-end="url(#arrowBlue)" />
-              <line x1="290" y1="74" x2="290" y2="110" stroke="#2f6db3" stroke-width="2.2" marker-end="url(#arrowBlue)" />
-            </g>
-
-            <g transform="translate(968,456)">
-              <rect x="0" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="12" y="27" font-size="13" fill="#31449e" class="caps">Central Ingest</text>
-              <text x="12" y="47" font-size="11" fill="#31449e">10.30.0.10</text>
-
-              <rect x="198" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="210" y="27" font-size="13" fill="#31449e" class="caps">Central Relay</text>
-              <text x="210" y="47" font-size="11" fill="#31449e">10.30.0.11</text>
-
-              <rect x="396" y="0" width="184" height="74" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="408" y="27" font-size="13" fill="#31449e" class="caps">Oversight Monitor</text>
-              <text x="408" y="47" font-size="11" fill="#31449e">10.30.0.21</text>
-
-              <rect x="0" y="110" width="580" height="70" rx="9" fill="#e2e8ff" stroke="#a8b8f0" />
-              <text x="14" y="134" font-size="13" fill="#31449e" class="caps">Central Ledger</text>
-              <text x="14" y="154" font-size="11" fill="#485ab2">central-1 (.31), central-2 (.32), central-3 (.33)</text>
-
-              <line x1="92" y1="74" x2="92" y2="110" stroke="#2f6db3" stroke-width="2.2" marker-end="url(#arrowBlue)" />
-              <line x1="290" y1="74" x2="290" y2="110" stroke="#2f6db3" stroke-width="2.2" marker-end="url(#arrowBlue)" />
-            </g>
-
-            <line x1="402" y1="480" x2="640" y2="145" stroke="#2f6db3" stroke-width="4" marker-end="url(#arrowBlue)" />
-            <text x="432" y="410" font-size="12" fill="#2f6db3" class="caps">Signed bundle export (json + sig)</text>
-
-            <line x1="878" y1="238" x2="968" y2="122" stroke="#b9862c" stroke-width="4" marker-end="url(#arrowGold)" />
-            <text x="814" y="196" font-size="12" fill="#8a6722" class="caps">One-way ingest</text>
-
-            <line x1="1260" y1="268" x2="1068" y2="456" stroke="#2f6db3" stroke-width="3.2" marker-end="url(#arrowBlue)" stroke-dasharray="7 6" />
-            <text x="1134" y="348" font-size="12" fill="#2f6db3" class="caps">Mirror for central verification</text>
-          </svg>
+  PSW -->|HTTPS 443 signed bundle export| EK
+  SCAN -->|HTTPS 443 one-way ingest| ING
+  AL -.->|HTTPS 443 mirror for central verification| CING
+`}</pre>
           <div class="legend">
             <span><i class="dot" style="background:#2f6db3"></i>Network links</span>
             <span><i class="dot" style="background:#b9862c"></i>One-way transfer boundary</span>
@@ -201,62 +131,40 @@ import Icon from '../../../components/ui/Icon.astro';
           <p class="label">Booth Pi Wiring</p>
           <h2>Single Vote Machine Physical Harness</h2>
           <p>Exact attachment map for one polling booth Raspberry Pi.</p>
-          <svg viewBox="0 0 1100 760" role="img" aria-label="Single booth Raspberry Pi wiring diagram">
-            <defs>
-              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f6db3" />
-              </marker>
-            </defs>
-            <rect x="375" y="230" width="350" height="250" rx="18" fill="#eaf3ff" stroke="#88aad0" stroke-width="2" />
-            <text x="448" y="272" font-size="22" fill="#163f69" class="caps">Raspberry Pi 5 (8GB)</text>
-            <text x="442" y="304" font-size="14" fill="#2f6db3">Vote machine runtime + signed image</text>
-            <text x="442" y="328" font-size="13" fill="#2f6db3">hostname: booth-pi-01 | ip: 10.10.10.11</text>
+          <pre data-language="mermaid">{`%% diagram-id: pi-machine-wiring
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph PERI["Boundary: Booth Peripheral Harness"]
+    direction TB
+    PMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Peripheral Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Locally cabled device harness · HDMI, USB, GPIO, Ethernet</span>"]:::net
+    TD["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>Touch Display</b><br/><span style='font-size:0.8em;opacity:0.65'>Voter interaction display · Ballot UI over HDMI</span>"]:::net
+    QR["<img src='/votechain/evidence/icons/qrcode.svg' width='24' height='24'/><b>QR Scanner</b><br/><span style='font-size:0.8em;opacity:0.65'>Optical scanner peripheral · Reads QR over USB</span>"]:::net
+    PR["<img src='/votechain/evidence/icons/printer.svg' width='24' height='24'/><b>Receipt Printer</b><br/><span style='font-size:0.8em;opacity:0.65'>Thermal print peripheral · Receipts over USB</span>"]:::net
+    KEY["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Poll Worker Key</b><br/><span style='font-size:0.8em;opacity:0.65'>Admin credential token reader · Unlocks ops over USB</span>"]:::sec
+    UPS["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>UPS HAT</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi power continuity module · Battery and brownout over I2C</span>"]:::sec
+    TMP["<img src='/votechain/evidence/icons/shield-x.svg' width='24' height='24'/><b>Tamper Switch</b><br/><span style='font-size:0.8em;opacity:0.65'>Chassis intrusion sensor · Tamper alert over GPIO17</span>"]:::sec
+    LAN["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Booth LAN Switch</b><br/><span style='font-size:0.8em;opacity:0.65'>Local Ethernet access switch · Uplink on RJ45</span>"]:::net
+    SEAL["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Security Seal Sensor</b><br/><span style='font-size:0.8em;opacity:0.65'>Enclosure seal monitor · Seal state over GPIO27</span>"]:::sec
+  end
 
-            <rect x="62" y="72" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="78" y="105" font-size="15" fill="#0f243e" class="caps">10" Touch Display</text>
-            <text x="78" y="128" font-size="12" fill="#496789">HDMI-0 + USB touch backchannel</text>
+  subgraph HOST["Boundary: Booth Controller Runtime"]
+    direction TB
+    HMETA["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Host Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>booth-pi-01 Pi 5 runtime · Ports 443, 9100, SSH 22</span>"]:::hw
+    PI["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi Controller</b><br/><span style='font-size:0.8em;opacity:0.65'>Primary voting control Pi 5 · Session signing and print handoff</span>"]:::hw
+  end
 
-            <rect x="62" y="210" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="78" y="243" font-size="15" fill="#0f243e" class="caps">QR / Barcode Scanner</text>
-            <text x="78" y="266" font-size="12" fill="#496789">USB-A port 1</text>
-
-            <rect x="62" y="348" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="78" y="381" font-size="15" fill="#0f243e" class="caps">Thermal Receipt Printer</text>
-            <text x="78" y="404" font-size="12" fill="#496789">USB-A port 2</text>
-
-            <rect x="62" y="486" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="78" y="519" font-size="15" fill="#0f243e" class="caps">Poll Worker Key</text>
-            <text x="78" y="542" font-size="12" fill="#496789">USB-A port 3 (unlock / override)</text>
-
-            <rect x="812" y="112" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="826" y="145" font-size="15" fill="#0f243e" class="caps">UPS HAT</text>
-            <text x="826" y="168" font-size="12" fill="#496789">I2C + power fail interrupt</text>
-
-            <rect x="812" y="250" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="826" y="283" font-size="15" fill="#0f243e" class="caps">Tamper Switch</text>
-            <text x="826" y="306" font-size="12" fill="#496789">GPIO17 event -> sealed log</text>
-
-            <rect x="812" y="388" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="826" y="421" font-size="15" fill="#0f243e" class="caps">Booth LAN Switch</text>
-            <text x="826" y="444" font-size="12" fill="#496789">Eth0 -> VLAN10 isolated segment</text>
-
-            <rect x="812" y="526" width="230" height="88" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="826" y="559" font-size="15" fill="#0f243e" class="caps">Security Seal Sensor</text>
-            <text x="826" y="582" font-size="12" fill="#496789">GPIO27 cabinet open detection</text>
-
-            <line x1="292" y1="116" x2="375" y2="255" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="292" y1="254" x2="375" y2="298" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="292" y1="392" x2="375" y2="340" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="292" y1="530" x2="375" y2="384" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-
-            <line x1="812" y1="156" x2="725" y2="264" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="812" y1="294" x2="725" y2="314" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="812" y1="432" x2="725" y2="364" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-            <line x1="812" y1="570" x2="725" y2="414" stroke="#2f6db3" stroke-width="3" marker-end="url(#arr)" />
-
-            <text x="550" y="700" font-size="13" fill="#496789" class="caps" text-anchor="middle">All cables are fixed-length and sealed at setup.</text>
-            <text x="550" y="720" font-size="13" fill="#496789" class="caps" text-anchor="middle">Session close triggers secure wipe before next voter.</text>
-          </svg>
+  TD -->|HDMI0| PI
+  QR -->|USB-A| PI
+  PR -->|USB-A| PI
+  KEY -->|USB-A| PI
+  UPS -->|I2C| PI
+  TMP -->|GPIO17| PI
+  LAN -->|eth0 RJ45| PI
+  SEAL -->|GPIO27| PI
+`}</pre>
           <div class="legend">
             <span><i class="dot" style="background:#2f6db3"></i>Physical cable attachment</span>
             <span><i class="dot" style="background:#1b7a42"></i>Required for session control + evidence capture</span>
@@ -267,57 +175,56 @@ import Icon from '../../../components/ui/Icon.astro';
           <p class="label">Network Segmentation</p>
           <h2>VLAN, Firewall, And Allow Rules</h2>
           <p>Exact network boundaries that keep booth Pis isolated while preserving audit flow.</p>
-          <svg viewBox="0 0 1100 760" role="img" aria-label="VoteChain VLAN and firewall topology">
-            <defs>
-              <marker id="arrowNet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f6db3" />
-              </marker>
-            </defs>
+          <pre data-language="mermaid">{`%% diagram-id: pi-network-segmentation
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph V10["Boundary: VLAN10 Polling Segment"]
+    direction TB
+    V10META["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>VLAN10 Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Polling-place booth network · Ports 22, 443, 9100, 1514</span>"]:::net
+    BP["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth + Ops Cluster</b><br/><span style='font-size:0.8em;opacity:0.65'>Six Pi hosts on VLAN10 · Signed bundles and health events</span>"]:::hw
+    PSW["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Polling Switch</b><br/><span style='font-size:0.8em;opacity:0.65'>VLAN10 switch fabric · Local forwarding and uplink policy</span>"]:::net
+    BP --> PSW
+  end
 
-            <rect x="28" y="40" width="1042" height="144" rx="10" fill="#e9f3ff" stroke="#aac3df" />
-            <text x="48" y="73" font-size="15" fill="#1f446d" class="caps">VLAN10 Booth LAN | 10.10.10.0/24</text>
-            <text x="48" y="98" font-size="12" fill="#365b84">booth-pi-01..05 + ops-pi. outbound internet blocked at gateway.</text>
-            <rect x="48" y="112" width="185" height="54" rx="8" fill="#fff" stroke="#9fb7d4" />
-            <text x="62" y="143" font-size="12" fill="#0f243e">Switch-A (booth)</text>
-            <rect x="250" y="112" width="185" height="54" rx="8" fill="#fff" stroke="#9fb7d4" />
-            <text x="264" y="143" font-size="12" fill="#0f243e">Firewall A (deny any/any)</text>
+  subgraph XFER["Boundary: Transfer Gate Segment"]
+    direction TB
+    XMETA["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Transfer Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Quarantine handoff enclave · One-way ingest on 443</span>"]:::net
+    EK["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Export Kiosk</b><br/><span style='font-size:0.8em;opacity:0.65'>Outbound transfer service · Receives bundles from polling switch</span>"]:::net
+    SCAN["<img src='/votechain/evidence/icons/scan.svg' width='24' height='24'/><b>Import Scan</b><br/><span style='font-size:0.8em;opacity:0.65'>Inbound validation service · Hashes and forwards clean bundles</span>"]:::net
+    EK --> SCAN
+  end
 
-            <rect x="28" y="220" width="1042" height="144" rx="10" fill="#ecf8ef" stroke="#a7d6b7" />
-            <text x="48" y="253" font-size="15" fill="#246843" class="caps">VLAN20 Airgap Core | 10.20.0.0/24</text>
-            <text x="48" y="278" font-size="12" fill="#2f6f4d">ingest-pi, relay-pi, ledger-a1/a2/a3, observer-pi.</text>
-            <rect x="48" y="292" width="185" height="54" rx="8" fill="#fff" stroke="#9fd1b2" />
-            <text x="62" y="323" font-size="12" fill="#246843">Switch-B (airgap)</text>
-            <rect x="250" y="292" width="185" height="54" rx="8" fill="#fff" stroke="#9fd1b2" />
-            <text x="264" y="323" font-size="12" fill="#246843">ACL: allow only ingest:443</text>
+  subgraph V20["Boundary: VLAN20 Airgap Segment"]
+    direction TB
+    V20META["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>VLAN20 Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Isolated airgap subnet · Ports 443, 1514</span>"]:::net
+    ING["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Airgap Ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Intake Pi service · Validates signatures and writes entries</span>"]:::hw
+    REL["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Airgap Relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Transfer Pi service · Routes approved events to replicas</span>"]:::hw
+    OBS["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Observer Pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Watchdog Pi service · Monitors ACK keys and role health</span>"]:::sec
+    AL["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Airgap Ledger</b><br/><span style='font-size:0.8em;opacity:0.65'>Append-only replica set · Signed election events on 443</span>"]:::db
+    ING --> AL
+    REL --> AL
+    OBS --> AL
+  end
 
-            <rect x="28" y="400" width="1042" height="144" rx="10" fill="#eef0ff" stroke="#b4c0f5" />
-            <text x="48" y="433" font-size="15" fill="#31449e" class="caps">VLAN30 Central Verify | 10.30.0.0/24</text>
-            <text x="48" y="458" font-size="12" fill="#485ab2">central ingest, central relay, central-ledger-1..3, oversight monitor.</text>
-            <rect x="48" y="472" width="185" height="54" rx="8" fill="#fff" stroke="#a8b8f0" />
-            <text x="62" y="503" font-size="12" fill="#31449e">Switch-C (central)</text>
-            <rect x="250" y="472" width="185" height="54" rx="8" fill="#fff" stroke="#a8b8f0" />
-            <text x="264" y="503" font-size="12" fill="#31449e">mTLS + key pin enforcement</text>
+  subgraph V30["Boundary: VLAN30 Central Segment"]
+    direction TB
+    V30META["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>VLAN30 Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Independent central verify subnet · Ports 443, 1514</span>"]:::net
+    CING["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Central Ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Central intake host · Pulls mirrored records on 443</span>"]:::net
+    CREL["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Central Relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Central routing host · Forwards mirrored stream to ledger</span>"]:::net
+    CMON["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Oversight Monitor</b><br/><span style='font-size:0.8em;opacity:0.65'>Audit host service · Alerts from mirrored logs on 1514</span>"]:::sec
+    CL["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Central Ledger</b><br/><span style='font-size:0.8em;opacity:0.65'>Central replica set · Verification mirror on 443</span>"]:::db
+    CING --> CL
+    CREL --> CL
+    CMON --> CL
+  end
 
-            <rect x="28" y="580" width="1042" height="144" rx="10" fill="#fff4df" stroke="#dbc290" />
-            <text x="48" y="613" font-size="15" fill="#6f5116" class="caps">Transfer / DMZ Segment</text>
-            <text x="48" y="638" font-size="12" fill="#8a6722">Export kiosk Pi + import scan Pi. Operationally one-way with signed media transfer.</text>
-            <rect x="48" y="652" width="220" height="52" rx="8" fill="#fff" stroke="#d8ba78" />
-            <text x="62" y="682" font-size="12" fill="#6f5116">Export Pi (10.40.0.10)</text>
-            <rect x="286" y="652" width="220" height="52" rx="8" fill="#fff" stroke="#d8ba78" />
-            <text x="300" y="682" font-size="12" fill="#6f5116">Import Pi (10.40.0.11)</text>
-
-            <!-- Inter-zone connections (right-side vertical channel) -->
-            <line x1="660" y1="160" x2="660" y2="256" stroke="#2f6db3" stroke-width="3" marker-end="url(#arrowNet)" />
-            <text x="678" y="214" font-size="11" fill="#2f6db3" class="caps">allow tcp/443 to airgap-ingest</text>
-
-            <line x1="660" y1="340" x2="660" y2="436" stroke="#2f6db3" stroke-width="3" marker-end="url(#arrowNet)" stroke-dasharray="7 5" />
-            <text x="678" y="394" font-size="11" fill="#2f6db3" class="caps">relay mirror path (signed bundles)</text>
-
-            <line x1="530" y1="678" x2="868" y2="678" stroke="#b9862c" stroke-width="4" marker-end="url(#arrowNet)" />
-            <text x="586" y="666" font-size="11" fill="#8a6722" class="caps">one-way handling policy</text>
-
-            <text x="1060" y="73" font-size="13" fill="#b63a3a" class="caps" text-anchor="end">Internet: blocked from VLAN10/VLAN20</text>
-          </svg>
+  PSW -->|HTTPS 443 signed bundle| EK
+  SCAN -->|HTTPS 443 one-way ingest| ING
+  AL -.->|HTTPS 443 mirror channel| CING
+`}</pre>
           <div class="note">Attack simulation anchor: unauthorized relay node joining VLAN20 should fail role validation and emit observer degradation alert within one monitoring interval.</div>
         </article>
 
@@ -325,78 +232,45 @@ import Icon from '../../../components/ui/Icon.astro';
           <p class="label">Compose Placement</p>
           <h2>Container Services Mapped To Hosts</h2>
           <p>Which service runs on which Pi/host in the testing layout.</p>
-          <svg viewBox="0 0 1240 760" role="img" aria-label="Compose service placement on Raspberry Pi hosts">
-            <rect x="26" y="28" width="360" height="704" rx="11" fill="#e9f3ff" stroke="#aac3df" />
-            <text x="44" y="58" font-size="14" fill="#1f446d" class="caps">Polling Place Pis</text>
+          <pre data-language="mermaid">{`%% diagram-id: pi-compose-placement
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph POLL["Boundary: Polling Runtime Placement"]
+    direction TB
+    PMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Polling Runtime Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Booth subnet container placement · Ports 443, 9100, 1514</span>"]:::net
+    P1["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>booth-pi-[1..5]</b><br/><span style='font-size:0.8em;opacity:0.65'>Voting host group on Pi 5 · machine-api and session-store on 443, 9100</span>"]:::hw
+    P2["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>ops-pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Polling operations host · Health and log shipper on 443, 1514</span>"]:::hw
+  end
 
-            <rect x="420" y="28" width="394" height="704" rx="11" fill="#ecf8ef" stroke="#a7d6b7" />
-            <text x="440" y="58" font-size="14" fill="#246843" class="caps">Airgap Pi Cluster</text>
+  subgraph AIR["Boundary: Airgap Runtime Placement"]
+    direction TB
+    AMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Airgap Runtime Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>VLAN20 isolated deployment zone · Ports 443, 1514</span>"]:::net
+    A1["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>airgap-ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Ingest service host · Verifies boundary payloads on 443</span>"]:::hw
+    A2["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>airgap-relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Relay service host · Routes approved records to ledger on 443</span>"]:::hw
+    A3["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>airgap-ledger-a1-a2-a3</b><br/><span style='font-size:0.8em;opacity:0.65'>Ledger replica service group · Append-only records on 443</span>"]:::db
+    A4["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>observer-pi</b><br/><span style='font-size:0.8em;opacity:0.65'>Monitoring service host · Role and ACK integrity on 1514</span>"]:::sec
+  end
 
-            <rect x="848" y="28" width="366" height="704" rx="11" fill="#eef0ff" stroke="#b4c0f5" />
-            <text x="868" y="58" font-size="14" fill="#31449e" class="caps">Central Hosts</text>
-
-            <g transform="translate(44,86)">
-              <rect x="0" y="0" width="324" height="86" rx="9" fill="#fff" stroke="#9fb7d4" />
-              <text x="12" y="28" font-size="12" fill="#0f243e" class="caps">booth-pi-[1..5]</text>
-              <text x="12" y="48" font-size="12" fill="#496789">machine-api | session-store (postgres, local)</text>
-              <text x="12" y="67" font-size="11" fill="#496789">ports: 8080 internal only | host access blocked in strict mode</text>
-
-              <rect x="0" y="104" width="324" height="86" rx="9" fill="#fff" stroke="#9fb7d4" />
-              <text x="12" y="132" font-size="12" fill="#0f243e" class="caps">ops-pi</text>
-              <text x="12" y="152" font-size="12" fill="#496789">machine-health | log-shipper | reset-check monitor</text>
-              <text x="12" y="171" font-size="11" fill="#496789">collects sealed session-close events from all booth Pis</text>
-            </g>
-
-            <g transform="translate(440,86)">
-              <rect x="0" y="0" width="354" height="86" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="12" y="28" font-size="12" fill="#246843" class="caps">airgap-ingest-pi</text>
-              <text x="12" y="48" font-size="12" fill="#2f6f4d">ingest-api | bundle-validator</text>
-              <text x="12" y="67" font-size="11" fill="#2f6f4d">rejects unsigned / malformed bundles before ledger write</text>
-
-              <rect x="0" y="104" width="354" height="86" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="12" y="132" font-size="12" fill="#246843" class="caps">airgap-relay-pi</text>
-              <text x="12" y="152" font-size="12" fill="#2f6f4d">relay-airgap | outbox-writer</text>
-              <text x="12" y="171" font-size="11" fill="#2f6f4d">ACK key pinning + role allow-list enforcement</text>
-
-              <rect x="0" y="208" width="354" height="96" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="12" y="236" font-size="12" fill="#246843" class="caps">airgap-ledger-a1 / a2 / a3</text>
-              <text x="12" y="256" font-size="12" fill="#2f6f4d">ledger-node</text>
-              <text x="12" y="275" font-size="11" fill="#2f6f4d">append-only replicated log, head hash convergence required</text>
-
-              <rect x="0" y="322" width="354" height="86" rx="9" fill="#fff" stroke="#9fd1b2" />
-              <text x="12" y="350" font-size="12" fill="#246843" class="caps">observer-pi</text>
-              <text x="12" y="370" font-size="12" fill="#2f6f4d">monitor | non-equivocation checks</text>
-              <text x="12" y="389" font-size="11" fill="#2f6f4d">alerts on ACK mismatch, pending outbox, role violations</text>
-            </g>
-
-            <g transform="translate(868,86)">
-              <rect x="0" y="0" width="326" height="86" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="12" y="28" font-size="12" fill="#31449e" class="caps">central-ingest</text>
-              <text x="12" y="48" font-size="12" fill="#485ab2">ingest-api-central</text>
-              <text x="12" y="67" font-size="11" fill="#485ab2">independent acceptance path for cross-plane verification</text>
-
-              <rect x="0" y="104" width="326" height="86" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="12" y="132" font-size="12" fill="#31449e" class="caps">central-relay</text>
-              <text x="12" y="152" font-size="12" fill="#485ab2">relay-central | outbox-reconciler</text>
-              <text x="12" y="171" font-size="11" fill="#485ab2">mTLS + pinned keys + quorum ACK checks</text>
-
-              <rect x="0" y="208" width="326" height="96" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="12" y="236" font-size="12" fill="#31449e" class="caps">central-ledger-1 / 2 / 3</text>
-              <text x="12" y="256" font-size="12" fill="#485ab2">ledger-node-central</text>
-              <text x="12" y="275" font-size="11" fill="#485ab2">independent chain head compared against airgap run summary</text>
-
-              <rect x="0" y="322" width="326" height="86" rx="9" fill="#fff" stroke="#a8b8f0" />
-              <text x="12" y="350" font-size="12" fill="#31449e" class="caps">audit verifier</text>
-              <text x="12" y="370" font-size="12" fill="#485ab2">votechain-audit-verify</text>
-              <text x="12" y="389" font-size="11" fill="#485ab2">cast count == receipts + ledger convergence check</text>
-            </g>
-
-            <line x1="368" y1="148" x2="420" y2="128" stroke="#2f6db3" stroke-width="3" />
-            <line x1="794" y1="148" x2="848" y2="128" stroke="#2f6db3" stroke-width="3" stroke-dasharray="7 6" />
-            <text x="500" y="102" font-size="11" fill="#2f6db3" class="caps">signed bundle flow</text>
-
-            <text x="44" y="700" font-size="12" fill="#496789" class="caps">Strict profile: internal Docker networks only, no exposed app ports.</text>
-          </svg>
+  subgraph CENT["Boundary: Central Runtime Placement"]
+    direction TB
+    CMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Central Runtime Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>VLAN30 verification deployment zone · Ports 443, 1514</span>"]:::net
+    C1["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>central-ingest</b><br/><span style='font-size:0.8em;opacity:0.65'>Mirror intake host · Receives mirrored airgap stream on 443</span>"]:::net
+    C2["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>central-relay</b><br/><span style='font-size:0.8em;opacity:0.65'>Central routing host · Forwards mirrored records to ledger on 443</span>"]:::net
+    C3["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>central-ledger-1-2-3</b><br/><span style='font-size:0.8em;opacity:0.65'>Central ledger replica set · Persists mirrored records on 443</span>"]:::db
+    C4["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>audit-verifier</b><br/><span style='font-size:0.8em;opacity:0.65'>Independent audit host · Chain integrity and alerts on 1514</span>"]:::sec
+  end
+  P1 -->|HTTPS 443 signed bundle| A1
+  A1 -->|HTTPS 443 validated records| A2
+  A2 -->|HTTPS 443 append events| A3
+  A4 -->|log stream 1514| A3
+  A3 -.->|HTTPS 443 mirror| C1
+  C1 -->|HTTPS 443 route| C2
+  C2 -->|HTTPS 443 write| C3
+  C4 -->|integrity checks 1514| C3
+`}</pre>
           <div class="legend">
             <span><i class="dot" style="background:#1b7a42"></i>Airgap runtime on Raspberry Pi hosts</span>
             <span><i class="dot" style="background:#31449e"></i>Central independent verification lane</span>
@@ -407,59 +281,55 @@ import Icon from '../../../components/ui/Icon.astro';
           <p class="label">Execution Flow</p>
           <h2>Per-Voter Session + Reset Cycle</h2>
           <p>How one session moves through booth Pi, transfer, ingest, and verification.</p>
-          <svg viewBox="0 0 1000 760" role="img" aria-label="Session flow sequence diagram">
-            <rect x="24" y="24" width="952" height="712" rx="10" fill="#f7fbff" stroke="#cddbed" />
+          <pre data-language="mermaid">{`%% diagram-id: pi-test-cycle
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph CLIENT["Boundary: Voter Session"]
+    direction TB
+    VMETA["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>Session Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Supervised voter interaction boundary · No direct network ports</span>"]:::net
+    V["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>Voter Session</b><br/><span style='font-size:0.8em;opacity:0.65'>In-booth voter interaction · Credential, cast, or challenge</span>"]:::net
+  end
 
-            <text x="56" y="70" font-size="12" fill="#496789" class="caps">Voter</text>
-            <text x="224" y="70" font-size="12" fill="#496789" class="caps">Booth Pi</text>
-            <text x="396" y="70" font-size="12" fill="#496789" class="caps">Transfer Pi</text>
-            <text x="576" y="70" font-size="12" fill="#496789" class="caps">Airgap Ingest</text>
-            <text x="756" y="70" font-size="12" fill="#496789" class="caps">Central Verify</text>
+  subgraph BOOTH["Boundary: Booth Runtime"]
+    direction TB
+    BMETA["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Pi 5 voting runtime · Voting app and reset on 443, 9100</span>"]:::hw
+    B["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Booth Pi Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Booth controller service · Session signing and secure reset on 443, 9100</span>"]:::hw
+  end
 
-            <line x1="70" y1="90" x2="70" y2="708" stroke="#9fb7d4" stroke-width="2" stroke-dasharray="5 6" />
-            <line x1="250" y1="90" x2="250" y2="708" stroke="#9fb7d4" stroke-width="2" stroke-dasharray="5 6" />
-            <line x1="430" y1="90" x2="430" y2="708" stroke="#9fb7d4" stroke-width="2" stroke-dasharray="5 6" />
-            <line x1="610" y1="90" x2="610" y2="708" stroke="#9fb7d4" stroke-width="2" stroke-dasharray="5 6" />
-            <line x1="790" y1="90" x2="790" y2="708" stroke="#9fb7d4" stroke-width="2" stroke-dasharray="5 6" />
+  subgraph XFER["Boundary: Transfer Runtime"]
+    direction TB
+    TMETA["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Transfer Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Export and scan gateway pair · One-way movement on 443</span>"]:::net
+    T["<img src='/votechain/evidence/icons/scan.svg' width='24' height='24'/><b>Transfer Validation Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Hash and malware gate · Admits signed clean bundles on 443</span>"]:::net
+  end
 
-            <g fill="#fff" stroke="#b7c8dc">
-              <rect x="212" y="108" width="76" height="50" rx="8" />
-              <rect x="212" y="174" width="76" height="50" rx="8" />
-              <rect x="212" y="240" width="76" height="50" rx="8" />
-              <rect x="212" y="306" width="76" height="50" rx="8" />
-              <rect x="212" y="372" width="76" height="50" rx="8" />
-              <rect x="212" y="438" width="76" height="50" rx="8" />
-            </g>
+  subgraph AIR["Boundary: Airgap Runtime"]
+    direction TB
+    AMETA["<img src='/votechain/evidence/icons/raspberry-pi.svg' width='24' height='24'/><b>Airgap Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Isolated ingest service runtime · Validates and writes on 443</span>"]:::hw
+    A["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Airgap Ingest Ledger</b><br/><span style='font-size:0.8em;opacity:0.65'>Ingest plus ledger write path · Persists events and emits mirror</span>"]:::db
+  end
 
-            <g stroke="#2f6db3" stroke-width="2.4" fill="none" marker-end="url(#arrowSeq)">
-              <defs>
-                <marker id="arrowSeq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f6db3" />
-                </marker>
-              </defs>
-              <line x1="78" y1="128" x2="212" y2="128" />
-              <line x1="78" y1="194" x2="212" y2="194" />
-              <line x1="288" y1="260" x2="422" y2="260" />
-              <line x1="438" y1="326" x2="602" y2="326" />
-              <line x1="618" y1="392" x2="782" y2="392" stroke-dasharray="7 5" />
-              <line x1="782" y1="458" x2="288" y2="458" />
-              <line x1="288" y1="524" x2="78" y2="524" />
-            </g>
+  subgraph CENT["Boundary: Central Verify Runtime"]
+    direction TB
+    CMETA["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Central Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Independent verify host runtime · Reconciliation on 443, 1514</span>"]:::net
+    C["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Central Verify Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Central audit response · Mirror integrity ok or fail on 443</span>"]:::sec
+  end
 
-            <text x="88" y="120" font-size="11" fill="#2f6db3">1. Credential present</text>
-            <text x="88" y="186" font-size="11" fill="#2f6db3">2. Cast/Challenge + receipt</text>
-            <text x="292" y="252" font-size="11" fill="#2f6db3">3. Export signed bundle</text>
-            <text x="442" y="318" font-size="11" fill="#2f6db3">4. Ingest validates signature</text>
-            <text x="624" y="384" font-size="11" fill="#2f6db3">5. Mirror for central reconcile</text>
-            <text x="420" y="450" font-size="11" fill="#2f6db3">6. Audit response (ok/fail)</text>
-            <text x="96" y="516" font-size="11" fill="#2f6db3">7. Session close + secure reset</text>
+  V -->|1 present credential| B
+  V -->|2 cast or challenge and receipt| B
+  B -->|3 export signed bundle HTTPS 443| T
+  T -->|4 one-way ingest HTTPS 443| A
+  A -.->|5 mirror for reconcile HTTPS 443| C
+  C -->|6 audit response HTTPS 443| B
+  B -->|7 session close and secure reset| V
 
-            <rect x="38" y="576" width="924" height="132" rx="8" fill="#eef7ff" stroke="#b7c8dc" />
-            <text x="56" y="606" font-size="12" fill="#1f446d" class="caps">Automated loop used in tests</text>
-            <text x="56" y="630" font-size="12" fill="#365b84">run-mock-election-cycle --machines 5 --sessions-per-machine 100 --spoil-rate 0.12</text>
-            <text x="56" y="652" font-size="12" fill="#365b84">After each session: verify residual_ballot_cache=0, residual_credentials=0, residual_receipt_cache=0</text>
-            <text x="56" y="674" font-size="12" fill="#365b84">Adversarial inserts: duplicate vote attempts, rogue ACK key, unauthorized node role injection</text>
-          </svg>
+  H1["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Harness Controller</b><br/><span style='font-size:0.8em;opacity:0.65'>Mock election runner · 5x100 sessions, residual cache zero</span>"]:::sec
+  H2["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Integrity Monitor</b><br/><span style='font-size:0.8em;opacity:0.65'>Post-run verification · Detects duplicate vote, rogue ACK, unauthorized role</span>"]:::sec
+  H1 -.-> B
+  H2 -.-> C
+`}</pre>
           <div class="legend">
             <span><i class="dot" style="background:#2f6db3"></i>Normal session path</span>
             <span><i class="dot" style="background:#b9862c"></i>Policy-controlled transfer boundary</span>
@@ -633,6 +503,11 @@ import Icon from '../../../components/ui/Icon.astro';
         background: #f9fcff;
       }
 
+      .panel-topology .topology-svg {
+        width: max(1240px, 100%);
+        max-width: none;
+      }
+
       .legend {
         margin-top: 7px;
         display: flex;
@@ -674,4 +549,5 @@ import Icon from '../../../components/ui/Icon.astro';
       }
     
   </style>
+  <MermaidClient />
 </BaseLayout>

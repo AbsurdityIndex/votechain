@@ -43,6 +43,10 @@ export type {
   PocFraudCaseActionRecord,
   PocFraudCase,
   PocTally,
+  PocElectionScope,
+  PocElectionSetupContestInput,
+  PocElectionSetupInput,
+  PocElectionSetupMeta,
 } from './types.js';
 
 // ── Bulletin Board types ────────────────────────────────────────────────────
@@ -50,7 +54,18 @@ export type { PocInclusionProof } from './bulletin-board.js';
 export { verifyInclusionProof } from './bulletin-board.js';
 
 // ── State management ────────────────────────────────────────────────────────
-export { resetPocState, invalidateCredential, getPocState, getManifest, getTrusteeShares, getCredential } from './state.js';
+export {
+  resetPocState,
+  invalidateCredential,
+  getPocState,
+  getManifest,
+  getTrusteeShares,
+  getCredential,
+  setupPocElection,
+  getDefaultContestsForScopes,
+  buildScopeBundleSetupConfig,
+  buildMultiLevelSetupConfig,
+} from './state.js';
 
 // ── Credential & challenge ──────────────────────────────────────────────────
 export { ensureCredential, computeNullifier, issueChallenge } from './credential.js';

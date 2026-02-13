@@ -6,6 +6,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 
 const ALL_VCL_EVENT_TYPES: VclEventType[] = [
   'election_manifest_published',
+  'form_definition_published',
   'credential_issued',
   'ewp_ballot_cast',
   'bb_sth_published',
@@ -15,7 +16,7 @@ const ALL_VCL_EVENT_TYPES: VclEventType[] = [
 ];
 
 const ORIGINATING_TYPES_BY_ROLE: Record<NodeRole, VclEventType[]> = {
-  federal: ['election_manifest_published', 'tally_published'],
+  federal: ['election_manifest_published', 'form_definition_published', 'tally_published'],
   state: ['credential_issued', 'ewp_ballot_cast', 'bb_sth_published'],
   oversight: ['fraud_flag', 'fraud_flag_action'],
 };

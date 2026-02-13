@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MermaidClient from '../../../components/votechain/MermaidClient.astro';
 
 ---
 
@@ -67,132 +68,63 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
             <h2>Module Dependency Graph</h2>
             <p>22 TypeScript modules organized in three layers: crypto primitives, core engine, and UI controllers.</p>
           </header>
-          <svg viewBox="0 0 1420 580" role="img" aria-label="POC module dependency graph showing three layers">
-            <defs>
-              <marker id="modArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
-              </marker>
-            </defs>
+          <pre data-language="mermaid">{`%% diagram-id: poc-module-graph
+flowchart TB
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
 
-            <!-- Layer labels -->
-            <rect x="20" y="20" width="1380" height="140" rx="10" fill="#eef4fb" stroke="#aac3df" />
-            <text x="40" y="48" font-size="13" fill="#1f446d" class="caps">UI Controller Layer (page-specific orchestration)</text>
+  subgraph BROWSER["Boundary: Browser Runtime Layer"]
+    direction TB
+    BMETA["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>Browser Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Local voter browser runtime · Outbound HTTPS 443</span>"]:::net
+    UI["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>UI Controller Group</b><br/><span style='font-size:0.8em;opacity:0.65'>Dashboard, verify, lookup, trust, fraud, tally, manifest views · Drives operator and voter workflows</span>"]:::net
+    JOURNEY["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Voter Journey Orchestrator</b><br/><span style='font-size:0.8em;opacity:0.65'>Session flow coordinator · Sequences credential, cast, challenge, and tally actions</span>"]:::net
+    STATE["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>State Store</b><br/><span style='font-size:0.8em;opacity:0.65'>PocStateV2 persistence adapter · Reads and writes election state to localStorage</span>"]:::db
+    AUDIT["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Audit Surface</b><br/><span style='font-size:0.8em;opacity:0.65'>Browser audit and verification views · Renders proofs, logs, and reconciliation outcomes</span>"]:::sec
+  end
 
-            <rect x="20" y="180" width="1380" height="200" rx="10" fill="#f0faf4" stroke="#a8d8b8" />
-            <text x="40" y="208" font-size="13" fill="#246843" class="caps">Core Engine Layer (state, VCL, bulletin board, casting, credentials)</text>
+  subgraph CORE["Boundary: Core Engine Layer"]
+    direction TB
+    CMETA["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Core Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>In-browser domain service layer · Runs election logic in-process with no listening ports</span>"]:::net
+    ENGINE["<img src='/votechain/evidence/icons/server.svg' width='24' height='24'/><b>Engine Core</b><br/><span style='font-size:0.8em;opacity:0.65'>State types, encoding, and orchestration modules · Applies deterministic election state transitions</span>"]:::net
+    CRED["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Credential Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Credential issuance and verification · Validates blind signatures and enrollment records</span>"]:::sec
+    CAST["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Ballot Cast Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Cast and ballot envelope modules · Builds encrypted ballots and cast events</span>"]:::net
+    BB["<img src='/votechain/evidence/icons/database.svg' width='24' height='24'/><b>Bulletin Board Service</b><br/><span style='font-size:0.8em;opacity:0.65'>Merkle and proof handling modules · Appends leaves and verifies inclusion proofs</span>"]:::db
+    VCL["<img src='/votechain/evidence/icons/transfer.svg' width='24' height='24'/><b>Replication Client</b><br/><span style='font-size:0.8em;opacity:0.65'>VCL client and transport modules · Posts signed events to edge on HTTPS 443</span>"]:::net
+  end
 
-            <rect x="20" y="400" width="1380" height="160" rx="10" fill="#fff5e6" stroke="#f0d9a8" />
-            <text x="40" y="428" font-size="13" fill="#8e5b10" class="caps">Crypto Primitive Layer (secp256k1 / @noble/curves)</text>
+  subgraph CRYPTO["Boundary: Cryptography Primitive Layer"]
+    direction TB
+    XMETA["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Crypto Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Deterministic primitive function layer · Executes cryptographic math in-process</span>"]:::sec
+    P1["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Blind Schnorr Primitive</b><br/><span style='font-size:0.8em;opacity:0.65'>Credential blinding and signing · Generates unlinkable credential signatures</span>"]:::sec
+    P2["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>ECIES Primitive</b><br/><span style='font-size:0.8em;opacity:0.65'>Ballot key wrapping · Encrypts ballot keys using ECDH and AES-GCM</span>"]:::sec
+    P3["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Shamir Primitive</b><br/><span style='font-size:0.8em;opacity:0.65'>Threshold share primitive · Splits and recombines election secrets</span>"]:::sec
+    P4["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>ECDSA Primitive</b><br/><span style='font-size:0.8em;opacity:0.65'>Signing and verification · Signs manifests, STH, and VCL acknowledgements</span>"]:::sec
+    P5["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>BigInt Arithmetic Primitive</b><br/><span style='font-size:0.8em;opacity:0.65'>secp256k1 scalar math helper · Performs modular arithmetic for all primitives</span>"]:::sec
+  end
 
-            <!-- UI modules -->
-            <g transform="translate(60,70)">
-              <rect x="0" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="12" y="24" font-size="12" fill="#0f243e" font-weight="600">dashboard</text>
-              <text x="12" y="42" font-size="10" fill="#496789">.ts</text>
+  subgraph EDGE["Boundary: Edge Replication Layer"]
+    direction TB
+    EMETA["<img src='/votechain/evidence/icons/cloudflare.svg' width='24' height='24'/><b>Edge Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Cloudflare Pages and Worker ingress · Accepts browser replication on HTTPS 443</span>"]:::net
+    EDGEAPI["<img src='/votechain/evidence/icons/cloudflare.svg' width='24' height='24'/><b>Replication Endpoint</b><br/><span style='font-size:0.8em;opacity:0.65'>/api/votechain/poc/replicate route · Validates request and routes by event type</span>"]:::net
+  end
 
-              <rect x="140" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="152" y="24" font-size="12" fill="#0f243e" font-weight="600">verify</text>
-              <text x="152" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="280" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="292" y="24" font-size="12" fill="#0f243e" font-weight="600">lookup</text>
-              <text x="292" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="420" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="432" y="24" font-size="12" fill="#0f243e" font-weight="600">trust-portal</text>
-              <text x="432" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="580" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="592" y="24" font-size="12" fill="#0f243e" font-weight="600">fraud</text>
-              <text x="592" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="720" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="732" y="24" font-size="12" fill="#0f243e" font-weight="600">tally</text>
-              <text x="732" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="860" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="872" y="24" font-size="12" fill="#0f243e" font-weight="600">manifest</text>
-              <text x="872" y="42" font-size="10" fill="#496789">.ts</text>
-
-              <rect x="1000" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fb7d4" />
-              <text x="1012" y="24" font-size="12" fill="#0f243e" font-weight="600">index</text>
-              <text x="1012" y="42" font-size="10" fill="#496789">.ts (barrel)</text>
-            </g>
-
-            <!-- Core modules -->
-            <g transform="translate(60,230)">
-              <rect x="0" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fd1b2" stroke-width="2" />
-              <text x="12" y="24" font-size="13" fill="#246843" font-weight="700">state</text>
-              <text x="12" y="42" font-size="10" fill="#2f6f4d">PocStateV2</text>
-
-              <rect x="160" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="172" y="24" font-size="12" fill="#246843" font-weight="600">types</text>
-              <text x="172" y="42" font-size="10" fill="#2f6f4d">interfaces</text>
-
-              <rect x="300" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="312" y="24" font-size="12" fill="#246843" font-weight="600">vcl</text>
-              <text x="312" y="42" font-size="10" fill="#2f6f4d">event log</text>
-
-              <rect x="440" y="0" width="160" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="452" y="24" font-size="12" fill="#246843" font-weight="600">bulletin-board</text>
-              <text x="452" y="42" font-size="10" fill="#2f6f4d">Merkle + STH</text>
-
-              <rect x="620" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="632" y="24" font-size="12" fill="#246843" font-weight="600">cast</text>
-              <text x="632" y="42" font-size="10" fill="#2f6f4d">ballot cast</text>
-
-              <rect x="760" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="772" y="24" font-size="12" fill="#246843" font-weight="600">credential</text>
-              <text x="772" y="42" font-size="10" fill="#2f6f4d">blind Schnorr</text>
-
-              <rect x="920" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="932" y="24" font-size="12" fill="#246843" font-weight="600">ballot</text>
-              <text x="932" y="42" font-size="10" fill="#2f6f4d">encrypt</text>
-
-              <rect x="300" y="80" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="312" y="104" font-size="12" fill="#246843" font-weight="600">vcl-client</text>
-              <text x="312" y="122" font-size="10" fill="#2f6f4d">replication</text>
-
-              <rect x="1060" y="0" width="120" height="56" rx="8" fill="#fff" stroke="#9fd1b2" />
-              <text x="1072" y="24" font-size="12" fill="#246843" font-weight="600">encoding</text>
-              <text x="1072" y="42" font-size="10" fill="#2f6f4d">sha256, b64u</text>
-            </g>
-
-            <!-- Crypto modules -->
-            <g transform="translate(200,450)">
-              <rect x="0" y="0" width="180" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
-              <text x="12" y="24" font-size="12" fill="#8e5b10" font-weight="600">blind-schnorr</text>
-              <text x="12" y="42" font-size="10" fill="#8e5b10">issuance + verify</text>
-
-              <rect x="200" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
-              <text x="212" y="24" font-size="12" fill="#8e5b10" font-weight="600">ecies</text>
-              <text x="212" y="42" font-size="10" fill="#8e5b10">ballot wrap</text>
-
-              <rect x="360" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
-              <text x="372" y="24" font-size="12" fill="#8e5b10" font-weight="600">shamir</text>
-              <text x="372" y="42" font-size="10" fill="#8e5b10">split + combine</text>
-
-              <rect x="520" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
-              <text x="532" y="24" font-size="12" fill="#8e5b10" font-weight="600">ecdsa</text>
-              <text x="532" y="42" font-size="10" fill="#8e5b10">sign + verify</text>
-
-              <rect x="680" y="0" width="140" height="56" rx="8" fill="#fff" stroke="#f0d9a8" />
-              <text x="692" y="24" font-size="12" fill="#8e5b10" font-weight="600">bigint</text>
-              <text x="692" y="42" font-size="10" fill="#8e5b10">mod, modInv</text>
-            </g>
-
-            <!-- Key dependency arrows -->
-            <line x1="130" y1="160" x2="130" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
-            <line x1="270" y1="160" x2="200" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
-            <line x1="540" y1="160" x2="520" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
-            <line x1="700" y1="160" x2="680" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
-            <line x1="480" y1="160" x2="380" y2="225" stroke="#3a6fa0" stroke-width="2" marker-end="url(#modArr)" />
-
-            <!-- Core to crypto arrows -->
-            <line x1="890" y1="290" x2="490" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
-            <line x1="760" y1="290" x2="310" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
-            <line x1="680" y1="290" x2="700" y2="445" stroke="#b8892e" stroke-width="2" marker-end="url(#modArr)" stroke-dasharray="6 4" />
-          </svg>
+  UI --> JOURNEY
+  JOURNEY --> ENGINE
+  UI --> AUDIT
+  UI --> STATE
+  ENGINE --> CRED
+  ENGINE --> CAST
+  ENGINE --> BB
+  ENGINE --> VCL
+  CRED --> P1
+  CAST --> P2
+  CAST --> P3
+  BB --> P4
+  ENGINE --> P5
+  VCL -->|HTTPS 443 signed replicate| EDGEAPI
+`}</pre>
         </article>
 
         <!-- Panel 2: PocStateV2 Schema (span 7) -->
@@ -646,4 +578,5 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
       .panel-grid { gap: 12px; }
     }
   </style>
+  <MermaidClient />
 </BaseLayout>

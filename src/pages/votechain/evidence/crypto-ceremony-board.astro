@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MermaidClient from '../../../components/votechain/MermaidClient.astro';
 
 ---
 
@@ -67,75 +68,40 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
             <h2>Blind Schnorr Signature Protocol</h2>
             <p>Four-step interactive protocol producing an unlinkable credential. The issuer never learns which voter received which signature.</p>
           </header>
-          <svg viewBox="0 0 1420 520" role="img" aria-label="Blind Schnorr four-step sequence diagram">
-            <defs>
-              <marker id="arrRight" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
-              </marker>
-              <marker id="arrLeft" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                <path d="M 10 0 L 0 5 L 10 10 z" fill="#b8892e" />
-              </marker>
-            </defs>
+          <pre data-language="mermaid">{`%% diagram-id: blind-schnorr-protocol
+flowchart LR
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph ISS["Boundary: Issuer Service Lane"]
+    direction TB
+    IMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Issuer Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Issuer signing service · HTTPS 443</span>"]:::net
+    I1["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Nonce Generator</b><br/><span style='font-size:0.8em;opacity:0.65'>Random nonce service · generates R for blinded challenge</span>"]:::sec
+    I2["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Challenge Signer</b><br/><span style='font-size:0.8em;opacity:0.65'>Blind-sign endpoint · signs challenge c, returns scalar s</span>"]:::sec
+  end
 
-            <!-- Column headers -->
-            <rect x="40" y="20" width="320" height="480" rx="12" fill="#e9f3ff" stroke="#aac3df" />
-            <text x="60" y="52" font-size="14" fill="#1f446d" class="caps">Issuer (sk_I, PK_I = sk_I·G)</text>
+  subgraph VOT["Boundary: Voter Client Lane"]
+    direction TB
+    VMETA["<img src='/votechain/evidence/icons/device-desktop.svg' width='24' height='24'/><b>Voter Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Booth browser credential client · no open ports</span>"]:::net
+    V1["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Blinding Step</b><br/><span style='font-size:0.8em;opacity:0.65'>Voter-side nonce blinding · computes challenge via alpha and beta</span>"]:::sec
+    V2["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Unblinding Step</b><br/><span style='font-size:0.8em;opacity:0.65'>Voter-side unblinding · recovers unlinkable signature R' and s'</span>"]:::sec
+  end
 
-            <rect x="540" y="20" width="840" height="480" rx="12" fill="#f0faf4" stroke="#a8d8b8" />
-            <text x="560" y="52" font-size="14" fill="#246843" class="caps">Voter (blinds + unblinds)</text>
+  subgraph VERI["Boundary: Verification Lane"]
+    direction TB
+    XMETA["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Verification Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Verifier and audit functions · local equation checks</span>"]:::net
+    VER["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>Equation Verifier</b><br/><span style='font-size:0.8em;opacity:0.65'>Blind Schnorr verification · checks s'G + c'PK = R'</span>"]:::sec
+    DOM["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Domain Separator Policy</b><br/><span style='font-size:0.8em;opacity:0.65'>Protocol context constants · binds hash to votechain namespace</span>"]:::sec
+  end
 
-            <!-- Step 1 -->
-            <rect x="60" y="76" width="280" height="90" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="80" y="100" font-size="15" fill="#0f243e" font-weight="bold">Step 1: Generate Nonce</text>
-            <text x="80" y="122" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">k ← random ∈ Z_q</text>
-            <text x="80" y="142" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">R = k·G</text>
-            <text x="80" y="158" font-size="11" fill="#496789">Send R (33 bytes compressed) to voter</text>
-
-            <line x1="340" y1="120" x2="558" y2="120" stroke="#3a6fa0" stroke-width="3" marker-end="url(#arrRight)" />
-            <text x="400" y="110" font-size="11" fill="#3a6fa0" class="caps">R (commitment)</text>
-
-            <!-- Step 2 -->
-            <rect x="560" y="76" width="410" height="130" rx="10" fill="#fff" stroke="#9fd1b2" />
-            <text x="580" y="100" font-size="15" fill="#0f243e" font-weight="bold">Step 2: Blind the Nonce</text>
-            <text x="580" y="122" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">α, β ← random ∈ Z_q</text>
-            <text x="580" y="142" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">R' = R + α·G + β·PK_I</text>
-            <text x="580" y="162" font-size="12" fill="#496789" font-family="JetBrains Mono, monospace">c' = SHA256("votechain:blind_schnorr:v1:"</text>
-            <text x="610" y="178" font-size="12" fill="#496789" font-family="JetBrains Mono, monospace">‖ R' ‖ PK_I ‖ voter_pk_xonly)</text>
-            <text x="580" y="198" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">c = c' − β mod q</text>
-
-            <line x1="560" y1="230" x2="342" y2="230" stroke="#b8892e" stroke-width="3" marker-end="url(#arrLeft)" />
-            <text x="400" y="222" font-size="11" fill="#8e5b10" class="caps">c (blinded challenge)</text>
-
-            <!-- Step 3 -->
-            <rect x="60" y="250" width="280" height="80" rx="10" fill="#fff" stroke="#9fb7d4" />
-            <text x="80" y="274" font-size="15" fill="#0f243e" font-weight="bold">Step 3: Sign Challenge</text>
-            <text x="80" y="296" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">s = k − c·sk_I mod q</text>
-            <text x="80" y="318" font-size="11" fill="#496789">Return scalar s to voter</text>
-
-            <line x1="340" y1="290" x2="558" y2="290" stroke="#3a6fa0" stroke-width="3" marker-end="url(#arrRight)" />
-            <text x="400" y="282" font-size="11" fill="#3a6fa0" class="caps">s (partial signature)</text>
-
-            <!-- Step 4 -->
-            <rect x="560" y="250" width="410" height="80" rx="10" fill="#fff" stroke="#9fd1b2" />
-            <text x="580" y="274" font-size="15" fill="#0f243e" font-weight="bold">Step 4: Unblind Signature</text>
-            <text x="580" y="296" font-size="13" fill="#496789" font-family="JetBrains Mono, monospace">s' = s + α mod q</text>
-            <text x="580" y="318" font-size="11" fill="#496789">Final credential signature: (R', s')</text>
-
-            <!-- Verification -->
-            <rect x="1000" y="76" width="360" height="130" rx="10" fill="#e6f7ee" stroke="#b5e2c6" />
-            <text x="1020" y="100" font-size="14" fill="#1a6b3a" font-weight="bold">Verification Equation</text>
-            <text x="1020" y="126" font-size="14" fill="#1a6b3a" font-family="JetBrains Mono, monospace">s'·G + c'·PK_I == R'</text>
-            <text x="1020" y="152" font-size="12" fill="#1a6b3a">Anyone can verify the credential</text>
-            <text x="1020" y="172" font-size="12" fill="#1a6b3a">without learning which voter holds it</text>
-            <text x="1020" y="192" font-size="11" fill="#1a6b3a">Message m = voter's x-only public key (32 bytes)</text>
-
-            <!-- Domain separator callout -->
-            <rect x="560" y="370" width="800" height="110" rx="10" fill="#fff5e6" stroke="#f0d9a8" />
-            <text x="580" y="398" font-size="13" fill="#8e5b10" font-weight="bold">Domain Separator</text>
-            <text x="580" y="422" font-size="13" fill="#8e5b10" font-family="JetBrains Mono, monospace">"votechain:blind_schnorr:v1:" ‖ R' ‖ PK_I ‖ m</text>
-            <text x="580" y="448" font-size="12" fill="#8e5b10">Prevents cross-protocol hash collisions. The challenge hash binds</text>
-            <text x="580" y="466" font-size="12" fill="#8e5b10">to the blinded nonce R', issuer identity PK_I, and voter identity m.</text>
-          </svg>
+  I1 -->|R over HTTPS 443| V1
+  V1 -->|c over HTTPS 443| I2
+  I2 -->|s over HTTPS 443| V2
+  V2 -->|unblinded signature tuple| VER
+  DOM -.-> V1
+  DOM -.-> I2
+`}</pre>
         </article>
 
         <!-- Panel 2: Threshold Issuance (span 7) -->
@@ -912,4 +878,5 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
       .shamir-shares { grid-template-columns: 1fr; }
     }
   </style>
+  <MermaidClient />
 </BaseLayout>

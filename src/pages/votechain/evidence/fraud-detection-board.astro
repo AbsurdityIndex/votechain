@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import MermaidClient from '../../../components/votechain/MermaidClient.astro';
 
 ---
 
@@ -67,75 +68,38 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
             <h2>Fraud Case State Machine</h2>
             <p>Each fraud case follows a structured path from detection through investigation to resolution. Actions transition between statuses.</p>
           </header>
-          <svg viewBox="0 0 820 560" role="img" aria-label="Fraud case state machine flowchart">
-            <defs>
-              <marker id="fraudArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3a6fa0" />
-              </marker>
-              <marker id="fraudArrGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a6b3a" />
-              </marker>
-            </defs>
+          <pre data-language="mermaid">{`%% diagram-id: fraud-state-machine
+flowchart TB
+  classDef hw fill:#e8d5b0,stroke:#a88b4a,stroke-width:1.5px
+  classDef net fill:#dce7f5,stroke:#3a6fa0,stroke-width:1.5px
+  classDef db fill:#f0ebe0,stroke:#8a6e36,stroke-width:1.5px
+  classDef sec fill:#d9eee2,stroke:#2d8a5e,stroke-width:1.5px
+  subgraph OVS["Boundary: Oversight Fraud Runtime"]
+    direction TB
+    OMETA["<img src='/votechain/evidence/icons/router.svg' width='24' height='24'/><b>Oversight Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>Oversight worker + DO · Ports 443, 1514</span>"]:::net
+    PR["<img src='/votechain/evidence/icons/shield-x.svg' width='24' height='24'/><b>pending_review</b><br/><span style='font-size:0.8em;opacity:0.65'>Newly detected fraud case · Awaits reviewer assignment</span>"]:::sec
+    TR["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>triaged</b><br/><span style='font-size:0.8em;opacity:0.65'>Reviewer-owned case · Priority and scope confirmed</span>"]:::sec
+    IN["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>investigating</b><br/><span style='font-size:0.8em;opacity:0.65'>Active investigation · Collecting evidence and testing hypotheses</span>"]:::sec
+    ES["<img src='/votechain/evidence/icons/shield-x.svg' width='24' height='24'/><b>escalated</b><br/><span style='font-size:0.8em;opacity:0.65'>High-risk escalation · Routed to elevated oversight</span>"]:::sec
+    RC["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>resolved_cleared</b><br/><span style='font-size:0.8em;opacity:0.65'>Cleared resolution · Closed as non-fraud</span>"]:::sec
+    RF["<img src='/votechain/evidence/icons/shield-x.svg' width='24' height='24'/><b>resolved_confirmed_fraud</b><br/><span style='font-size:0.8em;opacity:0.65'>Confirmed fraud · Closed with fraud evidence</span>"]:::sec
+    RE["<img src='/votechain/evidence/icons/shield-check.svg' width='24' height='24'/><b>resolved_system_error</b><br/><span style='font-size:0.8em;opacity:0.65'>System issue · Closed as platform or harness defect</span>"]:::sec
+  end
 
-            <!-- pending_review -->
-            <rect x="280" y="30" width="240" height="60" rx="12" fill="#fff5e6" stroke="#f0d9a8" stroke-width="2" />
-            <text x="330" y="58" font-size="14" fill="#8e5b10" font-weight="700" font-family="JetBrains Mono, monospace">pending_review</text>
-            <text x="330" y="76" font-size="10" fill="#8e5b10">Initial state on detection</text>
+  subgraph ACT["Boundary: Action Policy Layer"]
+    direction TB
+    AMETA["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>Action Boundary</b><br/><span style='font-size:0.8em;opacity:0.65'>nextStatusByAction policy map · Constrains transitions · Port 443</span>"]:::net
+    NOTE["<img src='/votechain/evidence/icons/key.svg' width='24' height='24'/><b>note action</b><br/><span style='font-size:0.8em;opacity:0.65'>Informational audit · Appends note without status change</span>"]:::sec
+  end
 
-            <!-- triaged -->
-            <rect x="280" y="140" width="240" height="60" rx="12" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
-            <text x="350" y="168" font-size="14" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">triaged</text>
-            <text x="335" y="186" font-size="10" fill="#496789">Case claimed by reviewer</text>
-
-            <!-- investigating -->
-            <rect x="280" y="250" width="240" height="60" rx="12" fill="#eef4fb" stroke="#aac3df" stroke-width="2" />
-            <text x="325" y="278" font-size="14" fill="#1f446d" font-weight="700" font-family="JetBrains Mono, monospace">investigating</text>
-            <text x="325" y="296" font-size="10" fill="#496789">Active investigation</text>
-
-            <!-- escalated -->
-            <rect x="280" y="360" width="240" height="60" rx="12" fill="#fff5e6" stroke="#f0d9a8" stroke-width="2" />
-            <text x="345" y="388" font-size="14" fill="#8e5b10" font-weight="700" font-family="JetBrains Mono, monospace">escalated</text>
-            <text x="325" y="406" font-size="10" fill="#8e5b10">Elevated for senior review</text>
-
-            <!-- Resolution states -->
-            <rect x="30" y="470" width="220" height="60" rx="12" fill="#e6f7ee" stroke="#b5e2c6" stroke-width="2" />
-            <text x="55" y="498" font-size="13" fill="#1a6b3a" font-weight="700" font-family="JetBrains Mono, monospace">resolved_cleared</text>
-            <text x="75" y="516" font-size="10" fill="#1a6b3a">No fraud found</text>
-
-            <rect x="290" y="470" width="260" height="60" rx="12" fill="#ffeef0" stroke="#f0b5b5" stroke-width="2" />
-            <text x="302" y="498" font-size="13" fill="#b33a3a" font-weight="700" font-family="JetBrains Mono, monospace">resolved_confirmed_fraud</text>
-            <text x="350" y="516" font-size="10" fill="#b33a3a">Fraud confirmed</text>
-
-            <rect x="590" y="470" width="220" height="60" rx="12" fill="#f3eef9" stroke="#c8b5e6" stroke-width="2" />
-            <text x="603" y="498" font-size="13" fill="#6b4fa0" font-weight="700" font-family="JetBrains Mono, monospace">resolved_system_error</text>
-            <text x="636" y="516" font-size="10" fill="#6b4fa0">System error</text>
-
-            <!-- Transition arrows -->
-            <line x1="400" y1="90" x2="400" y2="136" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
-            <text x="415" y="118" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">take_case</text>
-
-            <line x1="400" y1="200" x2="400" y2="246" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
-            <text x="415" y="228" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">start_investigation</text>
-
-            <line x1="400" y1="310" x2="400" y2="356" stroke="#3a6fa0" stroke-width="2.5" marker-end="url(#fraudArr)" />
-            <text x="415" y="338" font-size="10" fill="#3a6fa0" font-family="JetBrains Mono, monospace">escalate</text>
-
-            <!-- Resolution exits -->
-            <line x1="280" y1="310" x2="140" y2="466" stroke="#1a6b3a" stroke-width="2" marker-end="url(#fraudArrGreen)" />
-            <text x="140" y="380" font-size="10" fill="#1a6b3a" font-family="JetBrains Mono, monospace">resolve_cleared</text>
-
-            <line x1="400" y1="420" x2="420" y2="466" stroke="#b33a3a" stroke-width="2" marker-end="url(#fraudArr)" />
-            <text x="430" y="448" font-size="10" fill="#b33a3a" font-family="JetBrains Mono, monospace">resolve_confirmed_fraud</text>
-
-            <line x1="520" y1="310" x2="700" y2="466" stroke="#6b4fa0" stroke-width="2" marker-end="url(#fraudArr)" />
-            <text x="600" y="380" font-size="10" fill="#6b4fa0" font-family="JetBrains Mono, monospace">resolve_system_error</text>
-
-            <!-- Note action (self-loop indicator) -->
-            <rect x="600" y="250" width="190" height="50" rx="8" fill="#f8fbff" stroke="#c5d1de" />
-            <text x="620" y="272" font-size="11" fill="#35506f" font-family="JetBrains Mono, monospace">note</text>
-            <text x="620" y="290" font-size="10" fill="#35506f">Any status → same status</text>
-            <line x1="520" y1="280" x2="596" y2="275" stroke="#35506f" stroke-width="1.5" marker-end="url(#fraudArr)" stroke-dasharray="4 3" />
-          </svg>
+  PR -->|take_case| TR
+  TR -->|start_investigation| IN
+  IN -->|escalate| ES
+  IN -->|resolve_cleared| RC
+  ES -->|resolve_confirmed_fraud| RF
+  IN -->|resolve_system_error| RE
+  NOTE -.->|status unchanged| IN
+`}</pre>
         </article>
 
         <!-- Panel 2: Action → Status Mapping (span 5) -->
@@ -542,4 +506,5 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
       .panel-grid { gap: 12px; }
     }
   </style>
+  <MermaidClient />
 </BaseLayout>

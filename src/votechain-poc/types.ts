@@ -16,6 +16,9 @@ export const POC_EWP_MEDIA_TYPE = 'application/votechain.ewp.v1+json';
 /** 0x-prefixed hexadecimal string */
 export type Hex0x = `0x${string}`;
 
+/** Arbitrary election scope label (e.g. local, federal, college, apartment, mock). */
+export type PocElectionScope = string;
+
 // ── EWP Protocol Types ──────────────────────────────────────────────────────
 
 export type EwpErrorCode =
@@ -225,6 +228,7 @@ export interface PocBallotPlaintext {
 export interface PocContest {
   contest_id: string;
   title: string;
+  scope?: PocElectionScope;
   type: 'candidate' | 'referendum';
   options: Array<{ id: string; label: string }>;
 }
@@ -281,6 +285,7 @@ export interface PocVclEvent {
   tx_id: Hex0x;
   type:
     | 'election_manifest_published'
+    | 'form_definition_published'
     | 'credential_issued' // Logged each time a credential is issued (privacy-preserving: contains only sequence number)
     | 'ewp_ballot_cast'
     | 'bb_sth_published'
@@ -367,6 +372,33 @@ export interface PocChallengeRecord {
   server_sig: string;
 }
 
+// ── Setup Input Types ──────────────────────────────────────────────────────
+
+export interface PocElectionSetupContestInput {
+  scope: PocElectionScope;
+  title: string;
+  type: 'candidate' | 'referendum';
+  options: Array<{ id?: string; label: string }>;
+  contest_id?: string;
+}
+
+export interface PocElectionSetupInput {
+  election_id: string;
+  jurisdiction_id: string;
+  scopes: PocElectionScope[];
+  contests?: PocElectionSetupContestInput[];
+  voter_roll_size?: number;
+  duration_days?: number;
+}
+
+export interface PocElectionSetupMeta {
+  created_at: string;
+  scopes: PocElectionScope[];
+  label: string;
+  form_definition_hash?: string;
+  form_definition_tx_id?: Hex0x;
+}
+
 export interface PocIdempotencyRecord {
   request_hash: string;
   response: PocCastResponse | PocEwpErrorResponse;
@@ -394,6 +426,7 @@ export interface PocTrusteeShareRecord {
 
 export interface PocStateV2 {
   version: 2;
+  setup?: PocElectionSetupMeta;
   election: {
     election_id: string;
     jurisdiction_id: string;

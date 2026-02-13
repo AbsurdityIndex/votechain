@@ -660,6 +660,9 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         const manifestAnchored = snapshot.events.some(
           (e) => e.type === 'election_manifest_published' && (e.payload as any).manifest_id === snapshot.manifest.manifest_id,
         );
+        const formDefinitionAnchored = snapshot.events.some(
+          (e) => e.type === 'form_definition_published' && (e.payload as any).manifest_id === snapshot.manifest.manifest_id,
+        );
 
         // Check tally verified (if published)
         let tallyVerified = false;
@@ -700,6 +703,14 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
             label: 'Manifest anchored on VoteChain ledger',
             ok: manifestAnchored,
             detail: manifestAnchored ? 'election_manifest_published event found' : 'No anchor event found',
+          },
+          {
+            id: 'form_definition_anchored',
+            label: 'Form definition anchored on VoteChain ledger',
+            ok: formDefinitionAnchored,
+            detail: formDefinitionAnchored
+              ? 'form_definition_published event found'
+              : 'No form-definition anchor event found',
           },
           {
             id: 'credential_issuance_integrity',

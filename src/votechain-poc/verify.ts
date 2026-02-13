@@ -46,6 +46,18 @@ export async function verifyReceipt(receipt: PocCastReceipt): Promise<ReceiptVer
       : 'No election_manifest_published event found.',
   });
 
+  const formDefinitionEvent = state.vcl.events.find(
+    (e) =>
+      e.type === 'form_definition_published' && e.payload.manifest_id === receipt.manifest_id,
+  );
+  checks.push({
+    name: 'form_definition_anchored',
+    status: formDefinitionEvent ? 'ok' : 'fail',
+    details: formDefinitionEvent
+      ? `tx_id=${formDefinitionEvent.tx_id}`
+      : 'No form_definition_published event found.',
+  });
+
   // Receipt signature
   const receiptSigOk = await verifyReceiptSig(receipt, state.keys.ewg);
   checks.push({

@@ -175,27 +175,31 @@ the voter, you don't need to check a plastic card.
 
 ```mermaid
 flowchart LR
-  A["Enrollment (One-Time)"] --> B["Election Day Verification"] --> C["Oversight & Audit"]
-  A --> A1["Multi-Source Identity Verification"]
-  B --> B1["Five-Pillar Verification Protocol"]
-  C --> C1["Real-Time Fraud Dashboard"]
+  classDef ea fill:#cce5ff,stroke:#0d6efd,color:#004085
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
+  classDef fraud fill:#fce4ec,stroke:#e53935,color:#b71c1c
 
-  A1 --> D["Permissioned Blockchain Layer"]
+  A(["<img src='/votechain/evidence/icons/building.svg' width='14' height='14'/> Enrollment (One-Time)"]):::ea --> B(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Election Day Verification"]):::ea --> C(["<img src='/votechain/evidence/icons/scale.svg' width='14' height='14'/> Oversight & Audit"]):::ea
+  A --> A1["<img src='/votechain/evidence/icons/id-card.svg' width='14' height='14'/> Multi-Source Identity Verification"]:::ea
+  B --> B1["<img src='/votechain/evidence/icons/lock.svg' width='14' height='14'/> Five-Pillar Verification Protocol"]:::ea
+  C --> C1["<img src='/votechain/evidence/icons/shield-check.svg' width='14' height='14'/> Real-Time Fraud Dashboard"]:::fraud
+
+  A1 --> D[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> Permissioned Blockchain Layer")]:::vchain
   B1 --> D
   C1 --> D
 
-  D --> N1["Federal Nodes"]
-  D --> N2["State Nodes"]
-  D --> N3["Auditor Nodes"]
-  D --> N4["Oversight Nodes"]
+  D --> N1[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Federal Nodes"]]:::vchain
+  D --> N2[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> State Nodes"]]:::vchain
+  D --> N3[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Auditor Nodes"]]:::vchain
+  D --> N4[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Oversight Nodes"]]:::vchain
 
-  D --> E["Fraud Detection Engine"]
-  E --> E1["Deceased Check"]
-  E --> E2["Duplicate Check"]
-  E --> E3["Anomaly Detection"]
-  E --> E4["Geographic Check"]
-  E --> E5["Pattern Analysis"]
-  E --> E6["Rate Limiting"]
+  D --> E{{"<img src='/votechain/evidence/icons/shield-check.svg' width='14' height='14'/> Fraud Detection Engine"}}:::fraud
+  E --> E1["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Deceased Check"]:::fraud
+  E --> E2["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Duplicate Check"]:::fraud
+  E --> E3["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Anomaly Detection"]:::fraud
+  E --> E4["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Geographic Check"]:::fraud
+  E --> E5["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Pattern Analysis"]:::fraud
+  E --> E6["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> Rate Limiting"]:::fraud
 ```
 
 ---
@@ -440,18 +444,20 @@ This pillar verifies the *verifiers*.
 
 ```mermaid
 flowchart TB
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
+
   subgraph Operators["Node Operators (74 total)"]
-    F["Federal (6)"]
-    S["State (50)"]
-    A["Auditor (12)"]
-    O["Oversight (6)"]
+    F[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Federal (6)"]]:::vchain
+    S[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> State (50)"]]:::vchain
+    A[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Auditor (12)"]]:::vchain
+    O[["<img src='/votechain/evidence/icons/server.svg' width='14' height='14'/> Oversight (6)"]]:::vchain
   end
 
-  F --> CQ["Category-Quorum Consensus"]
+  F --> CQ{{"<img src='/votechain/evidence/icons/handshake.svg' width='14' height='14'/> Category-Quorum Consensus"}}:::vchain
   S --> CQ
   A --> CQ
   O --> CQ
-  CQ --> BF["Block Finalization"]
+  CQ --> BF[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> Block Finalization")]:::vchain
 ```
 
 Consensus policy requirements:
@@ -660,14 +666,19 @@ This is what voters experience. The design goal: **< 60 seconds, no paper, no ha
 
 ```mermaid
 flowchart TD
-  A["Voter Arrives at Polls"]
-  B["Step 1: Present Credential (<5s)<br/>NFC tap, QR scan, or DID+PIN"]
-  C["Step 2: Liveness Check (<10s)<br/>Biometric or non-biometric path"]
-  D["Step 3: Five-Pillar Verification (<30s)<br/>zk proof + chain verification"]
+  classDef voter fill:#d4edda,stroke:#28a745,color:#155724
+  classDef ea fill:#cce5ff,stroke:#0d6efd,color:#004085
+  classDef warn fill:#fff3cd,stroke:#fd7e14,color:#856404
+  classDef danger fill:#fce4ec,stroke:#e53935,color:#b71c1c
+
+  A(["<img src='/votechain/evidence/icons/vote.svg' width='14' height='14'/> Voter Arrives at Polls"]):::voter
+  B["<img src='/votechain/evidence/icons/id-card.svg' width='14' height='14'/> Step 1: Present Credential (<5s)<br/>NFC tap, QR scan, or DID+PIN"]:::ea
+  C["<img src='/votechain/evidence/icons/lock.svg' width='14' height='14'/> Step 2: Liveness Check (<10s)<br/>Biometric or non-biometric path"]:::ea
+  D["<img src='/votechain/evidence/icons/lock.svg' width='14' height='14'/> Step 3: Five-Pillar Verification (<30s)<br/>zk proof + chain verification"]:::ea
   E{"Result"}
-  V["VERIFIED<br/>Regular ballot issued<br/>ballot_issued record"]
-  F["FLAGGED<br/>Provisional ballot<br/>fraud_flag (low/medium)"]
-  X["CRYPTO-CONFLICT<br/>Provisional ballot<br/>fraud_flag (high)"]
+  V(["<img src='/votechain/evidence/icons/circle-check.svg' width='14' height='14'/> VERIFIED<br/>Regular ballot issued<br/>ballot_issued record"]):::voter
+  F["<img src='/votechain/evidence/icons/alert-triangle.svg' width='14' height='14'/> FLAGGED<br/>Provisional ballot<br/>fraud_flag (low/medium)"]:::warn
+  X[["<img src='/votechain/evidence/icons/alert-octagon.svg' width='14' height='14'/> CRYPTO-CONFLICT<br/>Provisional ballot<br/>fraud_flag (high)"]]:::danger
 
   A --> B --> C --> D --> E
   E --> V
@@ -835,12 +846,15 @@ Every fraud flag follows a strict, auditable lifecycle:
 
 ```mermaid
 flowchart LR
-  A["Detected"] --> B["Triaged"] --> C["Investigated"] --> D["Resolved"]
+  classDef fraud fill:#fce4ec,stroke:#e53935,color:#b71c1c
+  classDef vchain fill:#e8daef,stroke:#6f42c1,color:#4a148c
 
-  A1["On-chain record created"] --> A
-  B1["On-chain assignment to review team"] --> B
-  C1["On-chain evidence linkage"] --> C
-  D1["On-chain resolution + outcome"] --> D
+  A(["<img src='/votechain/evidence/icons/alert-octagon.svg' width='14' height='14'/> Detected"]):::fraud --> B(["<img src='/votechain/evidence/icons/shield-check.svg' width='14' height='14'/> Triaged"]):::fraud --> C(["<img src='/votechain/evidence/icons/search.svg' width='14' height='14'/> Investigated"]):::fraud --> D(["<img src='/votechain/evidence/icons/circle-check.svg' width='14' height='14'/> Resolved"]):::fraud
+
+  A1[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> On-chain record created")]:::vchain --> A
+  B1[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> On-chain assignment to review team")]:::vchain --> B
+  C1[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> On-chain evidence linkage")]:::vchain --> C
+  D1[("<img src='/votechain/evidence/icons/database.svg' width='14' height='14'/> On-chain resolution + outcome")]:::vchain --> D
 ```
 
 Resolution outcomes:
@@ -1485,7 +1499,7 @@ No. Enrollment, secure cards, and required replacement support are free to voter
 
 ```mermaid
 sequenceDiagram
-  participant V as Voter
+  actor V as Voter
   participant P as Poll Device
   participant B as Blockchain
   participant F as Fraud Engine

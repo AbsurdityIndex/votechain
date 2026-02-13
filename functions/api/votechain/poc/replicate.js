@@ -16,6 +16,7 @@ const COOKIE_NAME = 'vc_poc_access';
 
 const ORIGINATING_TYPES_MAP = {
   election_manifest_published: 'federal',
+  form_definition_published: 'federal',
   tally_published: 'federal',
   credential_issued: 'state',
   ewp_ballot_cast: 'state',

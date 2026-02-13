@@ -123,12 +123,15 @@ If you deploy on Cloudflare Pages and want the browser POC to replicate events i
 
 The POC runs entirely in the browser (localStorage state, no server required). It implements simplified versions of the protocols:
 
+- **Setup** — Configure a new election bundle with a guided form builder (option pools -> bound questions) and anchor both manifest + form definition to the ledger
 - **Vote** — Generate credentials, encrypt a ballot, cast it
 - **Verify** — Check your receipt (signature + Merkle inclusion + anchor)
 - **Dashboard** — Inspect the bulletin board, VCL events, fraud flags, and tally
 - **Trust Portal** — Independently verify all public keys and proofs
 - **Lookup** — Find a ballot by its hash
 - **Monitor** — Watch the bulletin board for equivocation
+
+POC setup flow and ledger anchoring notes are documented in `docs/votechain-poc-setup-ledger-flow.md`.
 
 ### Screenshots
 
