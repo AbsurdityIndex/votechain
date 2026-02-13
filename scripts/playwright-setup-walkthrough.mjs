@@ -53,6 +53,21 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizePathname(pathname) {
+  if (!pathname || pathname === '/') return '/';
+  return pathname.replace(/\/+$/g, '');
+}
+
+function normalizeNextPath(nextParam) {
+  if (!nextParam) return '';
+  try {
+    const parsed = new URL(nextParam, 'https://example.local');
+    return normalizePathname(parsed.pathname);
+  } catch {
+    return normalizePathname(nextParam);
+  }
+}
+
 async function waitForServer(url, timeoutMs) {
   const startedAt = Date.now();
   while (Date.now() - startedAt < timeoutMs) {
@@ -163,6 +178,19 @@ async function run() {
 
   try {
     await page.goto(setupUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    const current = new URL(page.url());
+    const currentPath = normalizePathname(current.pathname);
+    const expectedSetupPath = normalizePathname(new URL(setupUrl).pathname);
+    const expectedPocPath = normalizePathname(new URL(readinessUrl).pathname);
+    if (currentPath !== expectedSetupPath) {
+      const nextPath = normalizeNextPath(current.searchParams.get('next'));
+      if (currentPath === expectedPocPath && nextPath === expectedSetupPath) {
+        throw new Error(
+          `Setup route is gated by Turnstile/session on ${current.origin}. Unlock ${buildPocUrl(baseUrl)} in a browser, then rerun.`,
+        );
+      }
+      throw new Error(`Expected setup route ${expectedSetupPath}, but landed on ${current.pathname}.`);
+    }
     await page.waitForSelector('#setup-form', { timeout: 15000 });
 
     await page.fill('#election-id', 'poc-2026-local-walkthrough');
