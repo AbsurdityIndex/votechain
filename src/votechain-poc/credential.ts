@@ -5,7 +5,7 @@
  * derivation, and BIP340 eligibility proof construction / verification.
  */
 
-import { schnorr } from '@noble/curves/secp256k1';
+import { schnorr } from '@noble/curves/secp256k1.js';
 
 import type {
   Hex0x,

@@ -5,7 +5,7 @@
  * ballots, aggregate counts, sign the tally, and anchor it on the VCL.
  */
 
-import { secp256k1 } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 
 import type {
   PocTally,

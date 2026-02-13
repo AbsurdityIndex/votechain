@@ -19,7 +19,7 @@
  * Message `m` = voter's x-only public key (32 bytes).
  */
 
-import { secp256k1 } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 
 import { sha256, concatBytes, utf8 } from '../encoding.js';
 import { SECP256K1_ORDER, bytesToBigIntBE, bigIntToBytesBE, mod } from './bigint.js';

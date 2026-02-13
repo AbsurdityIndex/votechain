@@ -11,7 +11,7 @@ import type {
   PocElectionManifest,
   PocStateV2,
 } from '../../src/votechain-poc/types.js';
-import { secp256k1 } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 
 describe('ballot', () => {
   function makePlaintext(overrides?: Partial<PocBallotPlaintext>): PocBallotPlaintext {

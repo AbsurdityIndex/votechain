@@ -5,7 +5,7 @@
  * election (keys, manifest, trustees, contests), and state accessors.
  */
 
-import { secp256k1 } from '@noble/curves/secp256k1';
+import { secp256k1 } from '@noble/curves/secp256k1.js';
 
 import type {
   PocStateV2,
