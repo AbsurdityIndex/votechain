@@ -120,22 +120,17 @@ function createMmdcPath() {
   return path.join(repoRoot, 'node_modules', '.bin', bin);
 }
 
-function runMermaidCli(inputPath, outputPath, route) {
+function runMermaidCli(inputPath, outputPath, route, puppeteerConfigPath) {
   const mmdcPath = createMmdcPath();
-  const puppeteerArgs = [ '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage' ];
-  const existingPuppeteerArgs = process.env.PUPPETEER_ARGS ? String(process.env.PUPPETEER_ARGS).trim() : '';
-  const normalizedExistingArgs = existingPuppeteerArgs ? existingPuppeteerArgs.split(/\s+/) : [];
-  const mergedArgs = [...puppeteerArgs, ...normalizedExistingArgs];
-  const uniquePuppeteerArgs = Array.from(new Set(mergedArgs));
+  const args = ['-i', inputPath, '-o', outputPath, '--quiet'];
+  if (puppeteerConfigPath) {
+    args.push('--puppeteerConfigFile', puppeteerConfigPath);
+  }
 
   return new Promise((resolve, reject) => {
-    const proc = spawn(mmdcPath, ['-i', inputPath, '-o', outputPath, '--quiet'], {
+    const proc = spawn(mmdcPath, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       cwd: repoRoot,
-      env: {
-        ...process.env,
-        PUPPETEER_ARGS: uniquePuppeteerArgs.join(' '),
-      },
     });
 
     let stderr = '';
@@ -166,7 +161,7 @@ function runMermaidCli(inputPath, outputPath, route) {
   });
 }
 
-async function renderMermaidSource(sourceText, sourceIndex, route, tmpDir) {
+async function renderMermaidSource(sourceText, sourceIndex, route, tmpDir, puppeteerConfigPath) {
   const normalizedSource = normalizeMermaidSourceIcons(
     stripPrismCodeMarkup(decodeHtmlEntities(sourceText)).trim(),
   );
@@ -177,7 +172,7 @@ async function renderMermaidSource(sourceText, sourceIndex, route, tmpDir) {
   const inputPath = path.join(tmpDir, `diagram-${sourceIndex}.mmd`);
   const outputPath = path.join(tmpDir, `diagram-${sourceIndex}.svg`);
   await writeFile(inputPath, normalizedSource, 'utf8');
-  await runMermaidCli(inputPath, outputPath, route);
+  await runMermaidCli(inputPath, outputPath, route, puppeteerConfigPath);
 
   const rawSvg = await readFile(outputPath, 'utf8');
   const svg = normalizeRenderedSvg(rawSvg);
@@ -204,7 +199,7 @@ async function collectHtmlFiles(rootDir) {
   return out;
 }
 
-async function transformPageHtml(filePath, route, nextDiagramIndexRef, tmpDir) {
+async function transformPageHtml(filePath, route, nextDiagramIndexRef, tmpDir, puppeteerConfigPath) {
   const source = await readFile(filePath, 'utf8');
   if (!hasMermaidSourceBlocks(source)) return 0;
 
@@ -222,6 +217,7 @@ async function transformPageHtml(filePath, route, nextDiagramIndexRef, tmpDir) {
       nextDiagramIndexRef.value,
       route,
       tmpDir,
+      puppeteerConfigPath,
     );
     nextDiagramIndexRef.value += 1;
     output += diagramHtml;
@@ -279,6 +275,11 @@ async function compileMermaidDiagrams() {
   }
 
   const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'votechain-mermaid-cli-'));
+  const puppeteerConfigPath = path.join(tmpDir, 'mmdc-puppeteer-config.json');
+  const puppeteerConfig = {
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  };
+  await writeFile(puppeteerConfigPath, JSON.stringify(puppeteerConfig), 'utf8');
   let totalRenderedDiagrams = 0;
   let totalRenderedPages = 0;
   const nextDiagramIndexRef = { value: 1 };
@@ -286,7 +287,13 @@ async function compileMermaidDiagrams() {
   try {
     for (const file of candidateFiles) {
       const route = toRoute(file);
-      const renderedCount = await transformPageHtml(file, route, nextDiagramIndexRef, tmpDir);
+      const renderedCount = await transformPageHtml(
+        file,
+        route,
+        nextDiagramIndexRef,
+        tmpDir,
+        puppeteerConfigPath,
+      );
       if (renderedCount > 0) {
         totalRenderedPages += 1;
         totalRenderedDiagrams += renderedCount;
