@@ -36,6 +36,7 @@ Everything is published for transparency and critique.
 | `functions/` | Cloudflare Pages Functions (Turnstile gate, session, replication proxy) |
 | `tests/` | Vitest test suite (13 files; run with `npm test`) |
 | `docs/` | Internal assurance playbooks |
+| `docs/poc-physical-demo-hardware.md` | Physical-only demo topology, node layout, and budget planning |
 | `PRD-VOTER-VERIFICATION-CHAIN.md` | Full VoteChain PRD (voter verification specification) |
 | `PRD-VOTECHAIN-ELECTION-WEB-PROTOCOL.md` | Full EWP specification (ballot integrity) |
 | `PLAN-VOTECHAIN-ASSURANCE.md` | Assurance planning document |
@@ -155,6 +156,18 @@ The POC runs entirely in the browser (localStorage state, no server required). I
 - **Trust Portal** — Independently verify all public keys and proofs
 - **Lookup** — Find a ballot by its hash
 - **Monitor** — Watch the bulletin board for equivocation
+
+### Physical demo planning
+
+For fully physical demos where every role is on a separate device, use:
+
+- [`docs/poc-physical-demo-hardware.md`](docs/poc-physical-demo-hardware.md)
+
+It includes:
+
+- Required node roles for compact (15-node) and full-fidelity (20-node) physical layouts.
+- Exact board layout narrative with VLAN boundaries.
+- USD estimate ranges by hardware option (refurb/new Raspberry Pi vs x86 mini-PC).
 
 POC setup flow and ledger anchoring notes are documented in `docs/votechain-poc-setup-ledger-flow.md`.
 
