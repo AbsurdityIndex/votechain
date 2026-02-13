@@ -30,6 +30,7 @@
     "e2e:setup:prod": "BASE_URL=https://absurdityindex.org/votechain/poc node scripts/playwright-setup-walkthrough.mjs",
     "typecheck": "astro check --minimumFailingSeverity hint",
     "deploy": "npm run deploy:prod",
+    "verify:mermaid": "npm run build && node scripts/verify-mermaid-diagrams.mjs",
     "deploy:test": "npm run build && npx wrangler pages deploy dist --project-name votechain-test --branch main --commit-hash ${CI_COMMIT_SHA:-$(git rev-parse HEAD)}",
     "deploy:prod": "npm run build && npx wrangler pages deploy dist --project-name votechain --branch main --commit-hash ${CI_COMMIT_SHA:-$(git rev-parse HEAD)}",
     "deploy:workers": "npm run deploy:federal && npm run deploy:state && npm run deploy:oversight",
