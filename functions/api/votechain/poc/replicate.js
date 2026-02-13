@@ -12,6 +12,14 @@
 
 const COOKIE_NAME = 'vc_poc_access';
 
+function shouldBypassTurnstile(request, env) {
+  const envFlag = String(env?.POC_BYPASS_TURNSTILE ?? '').toLowerCase();
+  if (envFlag === '1' || envFlag === 'true') return true;
+
+  const host = new URL(request.url).hostname.toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
 // ── Event-to-node routing ──────────────────────────────────────────────────
 
 const ORIGINATING_TYPES_MAP = {
@@ -135,7 +143,7 @@ function getNodeUrl(env, role) {
 export async function onRequestPost(context) {
   // 1. Validate Turnstile session cookie (if configured)
   const cookieSecret = context.env?.POC_ACCESS_COOKIE_SECRET;
-  const turnstileEnabled = Boolean(
+  const turnstileEnabled = !shouldBypassTurnstile(context.request, context.env) && Boolean(
     context.env?.PUBLIC_TURNSTILE_SITE_KEY &&
     context.env?.TURNSTILE_SECRET_KEY &&
     cookieSecret,

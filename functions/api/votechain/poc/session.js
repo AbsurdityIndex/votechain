@@ -1,5 +1,13 @@
 const COOKIE_NAME = 'vc_poc_access';
 
+function shouldBypassTurnstile(request, env) {
+  const envFlag = String(env?.POC_BYPASS_TURNSTILE ?? '').toLowerCase();
+  if (envFlag === '1' || envFlag === 'true') return true;
+
+  const host = new URL(request.url).hostname.toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
@@ -88,6 +96,10 @@ async function verifyCookie(cookieValue, cookieSecret) {
 }
 
 export async function onRequestGet(context) {
+  if (shouldBypassTurnstile(context.request, context.env)) {
+    return jsonResponse({ enabled: false, unlocked: true }, 200);
+  }
+
   const cookieSecret = context.env?.POC_ACCESS_COOKIE_SECRET;
   const enabled = Boolean(
     context.env?.PUBLIC_TURNSTILE_SITE_KEY && context.env?.TURNSTILE_SECRET_KEY && cookieSecret,

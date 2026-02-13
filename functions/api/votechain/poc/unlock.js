@@ -2,6 +2,14 @@ const COOKIE_NAME = 'vc_poc_access';
 const COOKIE_PATH = '/votechain/poc';
 const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 
+function shouldBypassTurnstile(request, env) {
+  const envFlag = String(env?.POC_BYPASS_TURNSTILE ?? '').toLowerCase();
+  if (envFlag === '1' || envFlag === 'true') return true;
+
+  const host = new URL(request.url).hostname.toLowerCase();
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
 function jsonResponse(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
@@ -76,6 +84,14 @@ async function verifyTurnstile({ secret, token, remoteip }) {
 }
 
 export async function onRequestPost(context) {
+  if (shouldBypassTurnstile(context.request, context.env)) {
+    return jsonResponse({
+      ok: true,
+      bypassed: true,
+      expires_at: new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString(),
+    });
+  }
+
   const turnstileSecret = context.env?.TURNSTILE_SECRET_KEY;
   const cookieSecret = context.env?.POC_ACCESS_COOKIE_SECRET;
 
@@ -125,4 +141,3 @@ export async function onRequestPost(context) {
     },
   );
 }
-
