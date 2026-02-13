@@ -1936,6 +1936,21 @@
       }
     }
 
+    // If build-time rendering has already emitted .mermaid-diagram blocks, only bind controls.
+    var renderedDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
+    if (renderedDiagrams.length > 0 && preBlocks.length === 0) {
+      setTimeout(function () {
+        normalizeRenderedMermaidSvgSizing();
+        enhanceMermaidDiagrams();
+      }, 0);
+      return;
+    }
+
+    // No rendered diagrams and no source blocks means this page has nothing to enhance.
+    if (preBlocks.length === 0) {
+      return;
+    }
+
     // Load Mermaid only on pages that include mermaid code blocks.
     var existing = document.querySelector('script[data-mermaid-client]');
     if (existing && window.mermaid) {

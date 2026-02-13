@@ -19,8 +19,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm run mermaid:build",
     "preview": "astro preview",
+    "mermaid:build": "node scripts/build-mermaid-diagrams.mjs",
     "export:diagrams": "npm run build && node scripts/export-diagram-images.mjs",
     "export:diagrams:pi": "npm run build && node scripts/export-diagram-images.mjs pi",
     "export:diagrams:all": "npm run build && node scripts/export-diagram-images.mjs all",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
+    "@mermaid-js/mermaid-cli": "^11.12.0",
     "playwright": "^1.56.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
