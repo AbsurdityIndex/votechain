@@ -5,6 +5,13 @@ import FaqSearch from '../../components/votechain/FaqSearch.astro';
 import FaqCategory from '../../components/votechain/FaqCategory.astro';
 import { VOTECHAIN_FAQ } from '../../data/votechain-faq';
 
+const faqSchema = VOTECHAIN_FAQ.flatMap((category) =>
+  category.items.map((item) => ({
+    question: item.question,
+    answer: item.answer,
+  })),
+);
+
 const totalCount = VOTECHAIN_FAQ.reduce((acc, c) => acc + c.items.length, 0);
 const openCount = VOTECHAIN_FAQ.reduce(
   (acc, c) => acc + c.items.filter((i) => i.status === 'open').length,
@@ -17,6 +24,8 @@ const answeredCount = totalCount - openCount;
   title="VoteChain FAQ — 150 Questions, Answered Honestly"
   description="150 frequently asked questions about VoteChain voter verification — privacy, security, cost, coercion, accessibility, and 32 open questions we cannot yet answer."
   ogType="article"
+  pageType="FAQPage"
+  faqSchema={faqSchema}
   article={{
     publishedTime: '2026-02-08',
     author: 'Absurdity Index',
