@@ -3,7 +3,7 @@
     var preBlocks = document.querySelectorAll('pre[data-language="mermaid"]');
     if (preBlocks.length === 0) return;
 
-    var MERMAID_CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+    var MERMAID_CDN = '/votechain/mermaid.min.js';
 
     function isThenable(x) {
       return !!x && (typeof x === 'object' || typeof x === 'function') && typeof x.then === 'function';
