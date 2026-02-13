@@ -21,7 +21,7 @@
 
 import { secp256k1 } from '@noble/curves/secp256k1.js';
 
-import { sha256, concatBytes, utf8 } from '../encoding.js';
+import { sha256, concatBytes, utf8, bytesToHex } from '../encoding.js';
 import { SECP256K1_ORDER, bytesToBigIntBE, bigIntToBytesBE, mod } from './bigint.js';
 
 async function blindSchnorrChallenge(
@@ -53,8 +53,8 @@ export function verifyBlindSchnorr(
       const cPrime = await blindSchnorrChallenge(RBytes, pkIssuerBytes, message);
       const sPrime = bytesToBigIntBE(sBytes);
 
-      const pkIssuerPoint = secp256k1.Point.fromHex(pkIssuerBytes);
-      const RPrimePoint = secp256k1.Point.fromHex(RBytes);
+      const pkIssuerPoint = secp256k1.Point.fromHex(bytesToHex(pkIssuerBytes));
+      const RPrimePoint = secp256k1.Point.fromHex(bytesToHex(RBytes));
 
       // s'·G + c'·PK_I
       const sG = secp256k1.Point.BASE.multiply(mod(sPrime, SECP256K1_ORDER));
@@ -87,7 +87,7 @@ export async function blindSchnorrIssuance(params: {
   const betaBytes = secp256k1.utils.randomSecretKey();
   const beta = bytesToBigIntBE(betaBytes);
 
-  const pkIssuerPoint = secp256k1.Point.fromHex(issuer_pk);
+  const pkIssuerPoint = secp256k1.Point.fromHex(bytesToHex(issuer_pk));
 
   // R' = R + α·G + β·PK_I
   const RPrime = R.add(

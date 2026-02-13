@@ -13,6 +13,7 @@ import {
   concatBytes,
   canonicalJson,
   bytesToB64u,
+  bytesToHex,
   b64uToBytes,
   randomBytes,
   toArrayBuffer,
@@ -42,7 +43,7 @@ export async function wrapBallotKeyToElectionPk(params: {
   ballot_key: Uint8Array; // 32 bytes
 }): Promise<{ wrapped_ballot_key: string; wrapped_ballot_key_epk: string }> {
   const pkElectionBytes = b64uToBytes(params.pk_election);
-  const pkPoint = secp256k1.Point.fromHex(pkElectionBytes);
+  const pkPoint = secp256k1.Point.fromHex(bytesToHex(pkElectionBytes));
 
   const ephSkBytes = secp256k1.utils.randomSecretKey();
   const ephSk = bytesToBigIntBE(ephSkBytes);
@@ -94,7 +95,7 @@ export async function unwrapBallotKeyWithElectionSecret(params: {
 }): Promise<Uint8Array | null> {
   try {
     const ephPkBytes = b64uToBytes(params.wrapped_ballot_key_epk);
-    const ephPoint = secp256k1.Point.fromHex(ephPkBytes);
+    const ephPoint = secp256k1.Point.fromHex(bytesToHex(ephPkBytes));
     const sharedPoint = ephPoint
       .multiply(mod(params.election_secret, SECP256K1_ORDER))
       .toBytes(true);
