@@ -21,6 +21,8 @@ const ORIGINATING_TYPES_BY_ROLE: Record<NodeRole, VclEventType[]> = {
   oversight: ['fraud_flag', 'fraud_flag_action'],
 };
 
+const ALLOWED_COUNTRY = 'US';
+
 export interface NodeEnv {
   LEDGER: DurableObjectNamespace;
   NODE_ID?: string;
@@ -65,6 +67,20 @@ function corsOrigin(req: Request, env: NodeEnv): string {
   return 'null';
 }
 
+function requireUsOnly(req: Request, origin: string): Response | null {
+  const country = req.cf?.country?.toUpperCase();
+  if (!country) return null;
+  if (country === ALLOWED_COUNTRY) return null;
+
+  return withCors(
+    jsonError(403, 'GEO_BLOCKED', 'Access is restricted to US-based traffic only.', {
+      country,
+      allowed_country: ALLOWED_COUNTRY,
+    }),
+    origin,
+  );
+}
+
 function requireWriteAuth(req: Request, env: NodeEnv): Response | null {
   const allowInsecure = env.ALLOW_INSECURE_WRITES?.trim().toLowerCase() === 'true';
   const required = env.WRITE_TOKEN?.trim();
@@ -80,9 +96,14 @@ function requireWriteAuth(req: Request, env: NodeEnv): Response | null {
 export function createNodeWorker(role: NodeRole) {
   const allowed = allowedOriginatingTypes(role);
 
-  return {
+    return {
     async fetch(req: Request, env: NodeEnv, _ctx: ExecutionContext): Promise<Response> {
       const origin = corsOrigin(req, env);
+      const geoCheck = requireUsOnly(req, origin);
+      if (geoCheck) {
+        return geoCheck;
+      }
+
       const url = new URL(req.url);
       const method = req.method.toUpperCase();
       const path = url.pathname;
