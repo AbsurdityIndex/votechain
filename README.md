@@ -63,6 +63,25 @@ npm test             # Run once
 npm run test:watch   # Watch mode
 ```
 
+### Playwright setup walkthrough
+
+```bash
+npm run e2e:setup
+```
+
+The walkthrough now auto-starts a local Astro dev server (if needed), creates a local-scope election with multiple positions plus a referendum, and writes screenshots/logs under `playwright-artifacts/`.
+
+To target a remote deployment instead of local:
+
+```bash
+BASE_URL=https://absurdityindex.org/votechain/poc npm run e2e:setup
+```
+
+Notes:
+
+- Production may require Turnstile/session unlock before `/setup` can be used.
+- Set `AUTO_START_DEV_SERVER=0` if you want the script to fail instead of auto-starting local dev.
+
 ### Build
 
 ```bash

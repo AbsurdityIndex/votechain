@@ -26,6 +26,8 @@
     "export:diagrams:all": "npm run build && node scripts/export-diagram-images.mjs all",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e:setup": "node scripts/playwright-setup-walkthrough.mjs",
+    "e2e:setup:prod": "BASE_URL=https://absurdityindex.org/votechain/poc node scripts/playwright-setup-walkthrough.mjs",
     "typecheck": "astro check --minimumFailingSeverity hint",
     "deploy": "npm run deploy:prod",
     "deploy:test": "npm run build && npx wrangler pages deploy dist --project-name votechain-test --branch main --commit-hash ${CI_COMMIT_SHA:-$(git rev-parse HEAD)}",
