@@ -1,6 +1,12 @@
 <script is:inline>
   document.addEventListener('DOMContentLoaded', function () {
     var preBlocks = document.querySelectorAll('pre[data-language="mermaid"]');
+    function showMermaidSourceFallback() {
+      if (!preBlocks || !preBlocks.length) return;
+      preBlocks.forEach(function (pre) {
+        pre.style.display = '';
+      });
+    }
     if (preBlocks.length === 0) return;
 
     var MERMAID_CDN_CANDIDATES = ['/votechain/mermaid.min.js', '/mermaid.min.js'];
@@ -1936,6 +1942,15 @@
       }
     }
 
+    function runMermaidSafely() {
+      try {
+        runMermaid();
+        return true;
+      } catch (_error) {
+        return false;
+      }
+    }
+
     // If build-time rendering has already emitted .mermaid-diagram blocks, only bind controls.
     var renderedDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-source]');
     if (renderedDiagrams.length > 0 && preBlocks.length === 0) {
@@ -1955,16 +1970,30 @@
     var existing = document.querySelector('script[data-mermaid-client]');
     if (existing && window.mermaid) {
       setMermaidAssetBaseFromScript(existing.src);
-      runMermaid();
+      if (!runMermaidSafely()) {
+        showMermaidSourceFallback();
+      }
       return;
     }
 
     loadMermaidWithFallback(0)
       .then(function () {
-        if (window.mermaid) runMermaid();
+        if (window.mermaid) {
+          if (!runMermaidSafely()) {
+            showMermaidSourceFallback();
+          }
+          return;
+        }
+        showMermaidSourceFallback();
       })
       .catch(function () {
-        if (window.mermaid) runMermaid();
+        if (window.mermaid) {
+          if (!runMermaidSafely()) {
+            showMermaidSourceFallback();
+          }
+          return;
+        }
+        showMermaidSourceFallback();
       });
   });
 </script>

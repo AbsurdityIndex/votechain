@@ -120,6 +120,11 @@ body {
   border-radius: 6px;
 }
 
+/* Hide raw Mermaid markdown until source is rendered into SVG. */
+pre[data-language="mermaid"] {
+  display: none;
+}
+
 /* Mermaid diagram inspector (fullscreen + pan/zoom) */
 .mermaid-diagram.diagram-has-overlay {
   position: relative;
