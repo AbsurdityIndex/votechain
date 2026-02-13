@@ -13,12 +13,9 @@ function normalize(path: string) {
 }
 
 // Routes that should highlight a different primary nav item.
-// e.g. /votechain/field-report-technical is a sibling of /votechain/field-report,
-// not a child, so startsWith alone won't match.
+// Evidence board aliases removed — subnav no longer renders on evidence pages.
+// field-report-technical now has its own tab in VOTECHAIN_PRIMARY_NAV.
 const routeAliases: Record<string, string> = {
-  '/votechain/field-report-technical': '/votechain/field-report',
-  '/votechain/evidence/diagram-board': '/votechain/field-report',
-  '/votechain/evidence/pi-integration-board': '/votechain/pi-integration',
   '/votechain/credential-integrity': '/votechain/architecture',
 };
 

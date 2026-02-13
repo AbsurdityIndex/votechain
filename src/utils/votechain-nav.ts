@@ -16,6 +16,7 @@ export type VoteChainAssuranceDoc = VoteChainSubpageItem;
 export const VOTECHAIN_PRIMARY_NAV: VoteChainNavItem[] = [
   { href: '/votechain', label: 'Overview', icon: 'home' },
   { href: '/votechain/field-report', label: 'Field Report', icon: 'archive' },
+  { href: '/votechain/field-report-technical', label: 'Technical Appendix', icon: 'file-check' },
   { href: '/votechain/pi-integration', label: 'Pi Integration', icon: 'cpu' },
   { href: '/votechain/architecture', label: 'Architecture', icon: 'git-branch' },
   { href: '/votechain/credential-integrity', label: 'Credential Integrity', icon: 'shield' },
@@ -24,6 +25,17 @@ export const VOTECHAIN_PRIMARY_NAV: VoteChainNavItem[] = [
   { href: '/votechain/poc', label: 'POC', icon: 'vote' },
   { href: '/votechain/assurance', label: 'Assurance', icon: 'clipboard-list' },
   { href: '/votechain/faq', label: 'FAQ', icon: 'help-circle' },
+];
+
+export const VOTECHAIN_EVIDENCE_BOARDS: VoteChainNavItem[] = [
+  { href: '/votechain/evidence/diagram-board', label: 'Field Test Board', icon: 'layout' },
+  { href: '/votechain/evidence/pi-integration-board', label: 'Pi Integration Board', icon: 'network' },
+  { href: '/votechain/evidence/crypto-ceremony-board', label: 'Crypto Ceremony', icon: 'lock' },
+  { href: '/votechain/evidence/poc-engine-board', label: 'POC Engine', icon: 'box' },
+  { href: '/votechain/evidence/bulletin-board-board', label: 'Bulletin Board', icon: 'database' },
+  { href: '/votechain/evidence/worker-ledger-board', label: 'Worker Ledger', icon: 'server' },
+  { href: '/votechain/evidence/fraud-detection-board', label: 'Fraud Detection', icon: 'alert-triangle' },
+  { href: '/votechain/evidence/e2e-verification-board', label: 'E2E Verification', icon: 'check-circle' },
 ];
 
 export const VOTECHAIN_POC_MODULES: VoteChainSubpageItem[] = [

@@ -18,6 +18,11 @@ import MermaidClient from '../../../components/votechain/MermaidClient.astro';
 >
   <article class="board-canvas">
     <div class="page">
+      <nav class="board-breadcrumb" aria-label="Breadcrumb">
+        <a href="/votechain">VoteChain</a>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span>Evidence Boards</span>
+      </nav>
       <section class="hero">
         <div class="hero-top">
           <div class="hero-text">
@@ -279,8 +284,8 @@ flowchart LR
       --line: #c5d1de;
       --line-strong: #a0b3c8;
       --card: #ffffff;
-      --bg-a: #f3f6fb;
-      --bg-b: #e8edf4;
+      --bg-a: #faf7f0;
+      --bg-b: #f0ebe0;
       --accent: #b8892e;
       --accent-soft: #f4ead1;
       --ok-bg: #e6f7ee;
@@ -314,13 +319,19 @@ flowchart LR
       margin: 40px auto 80px;
     }
 
+    .board-breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 20px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .board-breadcrumb a { color: var(--accent); text-decoration: none; }
+    .board-breadcrumb a:hover { text-decoration: underline; }
+    .board-breadcrumb svg { color: var(--line-strong); flex-shrink: 0; }
+    .board-breadcrumb span { color: var(--ink-soft); }
+
     /* ── Hero ─────────────────────────────── */
 
     .hero {
       padding: 32px 36px 28px;
       border: 1px solid var(--line);
       border-radius: 20px;
-      background: linear-gradient(135deg, #ffffff 0%, #f0f4fa 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f5f0e1 100%);
       box-shadow:
         0 1px 0 rgba(255,255,255,0.9) inset,
         0 20px 50px -12px rgba(15,34,59,0.10);

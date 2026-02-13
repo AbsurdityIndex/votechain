@@ -37,6 +37,11 @@ import MermaidClient from '../../../components/votechain/MermaidClient.astro';
       <article class="bg-parchment rounded-lg shadow-lg p-0 overflow-x-auto">
         <div class="board-canvas">
           <div class="page">
+            <nav class="board-breadcrumb" aria-label="Breadcrumb">
+              <a href="/votechain">VoteChain</a>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              <span>Evidence Boards</span>
+            </nav>
 <section class="hero">
         <p class="kicker">VoteChain Raspberry Pi Test Bench</p>
         <h1>Physical Wiring + Network Integration Map</h1>
@@ -348,8 +353,8 @@ flowchart LR
         --ink-soft: #496789;
         --line: #c0cfdf;
         --panel: #ffffff;
-        --bg-a: #edf3fb;
-        --bg-b: #dbe6f3;
+        --bg-a: #faf7f0;
+        --bg-b: #f0ebe0;
         --accent: #b9862c;
         --accent-soft: #f8ecd3;
         --good: #1b7a42;
@@ -379,11 +384,17 @@ flowchart LR
         margin: 24px auto 60px;
       }
 
+      .board-breadcrumb { display: flex; align-items: center; gap: 6px; margin-bottom: 20px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+      .board-breadcrumb a { color: var(--accent); text-decoration: none; }
+      .board-breadcrumb a:hover { text-decoration: underline; }
+      .board-breadcrumb svg { color: var(--line-strong, #a0b3c8); flex-shrink: 0; }
+      .board-breadcrumb span { color: var(--ink-soft); }
+
       .hero {
         border: 1px solid var(--line);
         border-radius: 14px;
         padding: 18px 22px;
-        background: linear-gradient(145deg, #fff, #eef4fc);
+        background: linear-gradient(145deg, #fff, #f5f0e1);
         box-shadow: 0 14px 30px rgba(26, 42, 61, 0.08);
       }
 

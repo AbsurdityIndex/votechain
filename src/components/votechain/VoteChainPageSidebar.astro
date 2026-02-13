@@ -1,41 +1,12 @@
 ---
 import Icon from '../ui/Icon.astro';
-
-interface NavLink {
-  href: string;
-  label: string;
-  icon: string;
-}
+import { VOTECHAIN_PRIMARY_NAV, VOTECHAIN_EVIDENCE_BOARDS } from '../../utils/votechain-nav';
 
 interface Props {
   currentPath: string;
 }
 
 const { currentPath } = Astro.props;
-
-const mainLinks: NavLink[] = [
-  { href: '/votechain', label: 'Overview', icon: 'home' },
-  { href: '/votechain/field-report', label: 'Field Report', icon: 'archive' },
-  { href: '/votechain/field-report-technical', label: 'Technical Appendix', icon: 'file-check' },
-  { href: '/votechain/pi-integration', label: 'Pi Integration', icon: 'cpu' },
-  { href: '/votechain/architecture', label: 'Architecture', icon: 'git-branch' },
-  { href: '/votechain/credential-integrity', label: 'Credential Integrity', icon: 'shield' },
-  { href: '/votechain/prd', label: 'VoteChain PRD', icon: 'scroll' },
-  { href: '/votechain/ewp', label: 'EWP PRD', icon: 'file-text' },
-  { href: '/votechain/assurance', label: 'Assurance', icon: 'clipboard-list' },
-  { href: '/votechain/faq', label: 'FAQ', icon: 'help-circle' },
-];
-
-const evidenceLinks: NavLink[] = [
-  { href: '/votechain/evidence/diagram-board', label: 'Field Test Board', icon: 'layout' },
-  { href: '/votechain/evidence/pi-integration-board', label: 'Pi Integration Board', icon: 'network' },
-  { href: '/votechain/evidence/crypto-ceremony-board', label: 'Crypto Ceremony', icon: 'lock' },
-  { href: '/votechain/evidence/poc-engine-board', label: 'POC Engine', icon: 'box' },
-  { href: '/votechain/evidence/bulletin-board-board', label: 'Bulletin Board', icon: 'database' },
-  { href: '/votechain/evidence/worker-ledger-board', label: 'Worker Ledger', icon: 'server' },
-  { href: '/votechain/evidence/fraud-detection-board', label: 'Fraud Detection', icon: 'alert-triangle' },
-  { href: '/votechain/evidence/e2e-verification-board', label: 'E2E Verification', icon: 'check-circle' },
-];
 
 function normalize(path: string) {
   return path.endsWith('/') && path !== '/' ? path.slice(0, -1) : path;
@@ -57,7 +28,7 @@ function isActive(href: string) {
   <p class="text-xs font-mono uppercase tracking-widest text-gold-600 mb-3">VoteChain Pages</p>
   <nav aria-label="VoteChain pages" class="space-y-1.5 text-sm">
     {
-      mainLinks.map((link) => {
+      VOTECHAIN_PRIMARY_NAV.map((link) => {
         const active = isActive(link.href);
         return (
           <a
@@ -80,7 +51,7 @@ function isActive(href: string) {
   <p class="text-xs font-mono uppercase tracking-widest text-gold-600 mt-5 mb-3">Evidence Boards</p>
   <nav aria-label="Evidence boards" class="space-y-1.5 text-sm">
     {
-      evidenceLinks.map((link) => {
+      VOTECHAIN_EVIDENCE_BOARDS.map((link) => {
         const active = isActive(link.href);
         return (
           <a

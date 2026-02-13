@@ -74,7 +74,8 @@ const jsonLd = {
 const pathname = Astro.url.pathname;
 const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/votechain/');
 
-const showGlobalVoteChainSidebar = isVoteChainRoute;
+const isEvidenceBoard = pathname.startsWith('/votechain/evidence/');
+const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
 ---
 
 <!doctype html>
@@ -240,7 +241,7 @@ const showGlobalVoteChainSidebar = isVoteChainRoute;
       document.documentElement.style.setProperty('--layout-subnav-h', '0px');
     </script>
     <main class="flex-1">
-      {isVoteChainRoute && <VoteChainSubnav currentPath={pathname} />}
+      {isVoteChainRoute && !isEvidenceBoard && <VoteChainSubnav currentPath={pathname} />}
       {
         showGlobalVoteChainSidebar ? (
           <div class="xl:max-w-7xl xl:mx-auto xl:grid xl:grid-cols-[250px_minmax(0,1fr)] xl:gap-6 xl:px-4">
