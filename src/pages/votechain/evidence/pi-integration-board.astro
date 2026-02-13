@@ -569,18 +569,13 @@ flowchart LR
         grid-column: span 5;
       }
 
-      .panel svg {
+      .panel :global(svg) {
         width: 100%;
         height: auto;
         display: block;
         border: 1px solid #d2deec;
         border-radius: 10px;
         background: #f9fcff;
-      }
-
-      .panel-topology .topology-svg {
-        width: max(1240px, 100%);
-        max-width: none;
       }
 
       .legend {

@@ -96,9 +96,11 @@ body {
 
 .board-canvas .mermaid-diagram svg {
   display: block;
-  width: auto !important;
-  max-width: none !important;
+  width: 100%;
   height: auto;
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .board-canvas .mermaid-diagram svg .label img,
