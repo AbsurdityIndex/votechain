@@ -41,22 +41,46 @@
         .trim();
     }
 
+    function normalizeNodeId(nodeId) {
+      if (!nodeId) return '';
+      return String(nodeId)
+        .replace(/^\s+|\s+$/g, '')
+        .replace(/^['"]|['"]$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
     function parseFlowchartNodeKey(nodeId) {
-      if (!nodeId) return null;
-      if (nodeId.indexOf('flowchart-') !== 0) return null;
-      var parts = nodeId.split('-');
-      // Expected: flowchart-<KEY>-<INDEX>. KEY may contain dashes.
-      if (parts.length < 3) return null;
-      parts.shift(); // flowchart
-      parts.pop(); // numeric index
-      var key = parts.join('-');
-      return key || null;
+      var raw = normalizeNodeId(nodeId);
+      if (!raw) return null;
+
+      // Mermaid often emits flowchart ids as flowchart-<KEY>-<INDEX>.
+      if (raw.indexOf('flowchart-') === 0) {
+        var parts = raw.split('-');
+        if (parts.length >= 2) {
+          parts.shift(); // flowchart
+          if (/^\d+$/.test(parts[parts.length - 1])) parts.pop();
+          if (parts.length > 0) return parts.join('-');
+        }
+      }
+
+      // Some builds output legacy/generated ids with a numeric tail, e.g. NODE-0.
+      var dashParts = raw.split('-');
+      if (dashParts.length > 1 && /^\d+$/.test(dashParts[dashParts.length - 1])) {
+        dashParts.pop();
+        if (dashParts.length > 0) return dashParts.join('-');
+      }
+
+      // Direct source IDs, including explicit names such as PMETA/B1/ING.
+      if (/^[A-Za-z0-9_\-.:]+$/.test(raw)) return raw;
+      return null;
     }
 
     function parseFlowchartEdge(edgeId) {
-      if (!edgeId) return null;
-      if (edgeId.indexOf('L_') !== 0) return null;
-      var parts = edgeId.split('_');
+      var raw = normalizeNodeId(edgeId);
+      if (!raw) return null;
+      if (raw.indexOf('L_') !== 0) return null;
+      var parts = raw.split('_');
       // Expected: L_<FROM>_<TO>_<INDEX>. FROM/TO should not contain underscores.
       if (parts.length < 4) return null;
       return { from: parts[1] || null, to: parts[2] || null };
@@ -185,6 +209,80 @@
       return txt || 'Diagram inspector';
     }
 
+    function inferMermaidTypeFromSource(sourceText) {
+      var text = String(sourceText || '');
+      if (!text) return 'Diagram';
+
+      var lines = text.split('\n');
+      var line;
+      for (var i = 0; i < lines.length; i++) {
+        line = String(lines[i] || '').trim();
+        if (!line || line.indexOf('%%') === 0) continue;
+        break;
+      }
+      if (!line) return 'Diagram';
+
+      var tokenMatch = line.match(/^([A-Za-z][A-Za-z0-9_-]*)/);
+      if (!tokenMatch || !tokenMatch[1]) return 'Diagram';
+      var token = tokenMatch[1];
+
+      var explicitMap = {
+        graph: 'Flowchart',
+        flowchart: 'Flowchart',
+        sequenceDiagram: 'Sequence',
+        sequence: 'Sequence',
+        stateDiagram: 'State',
+        stateDiagramV2: 'State',
+        classDiagram: 'Class',
+        erDiagram: 'ER',
+        gantt: 'Gantt',
+        journey: 'Journey',
+        pie: 'Pie',
+        gitGraph: 'Git',
+        mindmap: 'Mindmap',
+        requirementDiagram: 'Requirement',
+        packet: 'Packet',
+        timeline: 'Timeline',
+        block: 'Block',
+      };
+      if (explicitMap[token]) return explicitMap[token];
+
+      var formatted = token
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/[_-]/g, ' ')
+        .trim();
+      if (!formatted) return token;
+      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    }
+
+    function getDiagramMetadata(diagramEl) {
+      if (!diagramEl) {
+        return {
+          titleBase: 'Diagram inspector',
+          typeLabel: 'Diagram',
+          sourceId: '',
+        };
+      }
+
+      var titleBase = inferTitleForDiagram(diagramEl);
+      var sourceText = diagramEl.getAttribute('data-mermaid-source') || '';
+      var typeLabel = inferMermaidTypeFromSource(sourceText);
+      var sourceId = String(diagramEl.getAttribute('data-diagram-id') || '').trim();
+
+      return {
+        titleBase: titleBase,
+        typeLabel: typeLabel,
+        sourceId: sourceId,
+      };
+    }
+
+    function truncateForUi(value, maxLength) {
+      var text = String(value || '').trim();
+      var max = typeof maxLength === 'number' && maxLength > 0 ? maxLength : 0;
+      if (!max || text.length <= max) return text;
+      return text.slice(0, Math.max(0, max - 1)) + '…';
+    }
+
     function createModal() {
       var overlay = document.createElement('div');
       overlay.className = 'diagram-inspector-overlay';
@@ -198,9 +296,55 @@
       var header = document.createElement('div');
       header.className = 'diagram-inspector-header';
 
+      var titleRow = document.createElement('div');
+      titleRow.className = 'diagram-inspector-title-row';
+
+      var titleWrap = document.createElement('div');
+      titleWrap.className = 'diagram-inspector-title-wrap';
+
       var title = document.createElement('div');
       title.className = 'diagram-inspector-title';
       title.textContent = 'Diagram inspector';
+
+      var meta = document.createElement('div');
+      meta.className = 'diagram-inspector-meta';
+      meta.textContent = 'Diagram';
+
+      titleWrap.appendChild(title);
+      titleWrap.appendChild(meta);
+      titleRow.appendChild(titleWrap);
+
+      var scaleBadge = document.createElement('div');
+      scaleBadge.className = 'diagram-inspector-scale';
+      scaleBadge.textContent = '100%';
+
+      titleRow.appendChild(scaleBadge);
+
+      var statusRow = document.createElement('div');
+      statusRow.className = 'diagram-inspector-status-row';
+
+      var diagramInfo = document.createElement('div');
+      diagramInfo.className = 'diagram-inspector-diagram-info';
+      diagramInfo.textContent = 'No diagram selected';
+
+      var navPath = document.createElement('div');
+      navPath.className = 'diagram-inspector-nav-path';
+      navPath.textContent = 'Path: start';
+
+      var focusState = document.createElement('div');
+      focusState.className = 'diagram-inspector-focus';
+      focusState.textContent = 'Focus: none';
+
+      statusRow.appendChild(diagramInfo);
+      statusRow.appendChild(navPath);
+      statusRow.appendChild(focusState);
+
+      var liveStatus = document.createElement('div');
+      liveStatus.className = 'diagram-inspector-live-status';
+      liveStatus.setAttribute('role', 'status');
+      liveStatus.setAttribute('aria-live', 'polite');
+      liveStatus.setAttribute('aria-atomic', 'true');
+      liveStatus.textContent = '';
 
       var searchWrap = document.createElement('div');
       searchWrap.className = 'diagram-inspector-search';
@@ -214,6 +358,20 @@
 
       var controls = document.createElement('div');
       controls.className = 'diagram-inspector-controls';
+
+      var hints = document.createElement('div');
+      hints.className = 'diagram-inspector-hints';
+      hints.innerHTML = [
+        '<span><kbd>+</kbd>/<kbd>-</kbd> zoom</span>',
+        '<span><kbd>0</kbd> fit</span>',
+        '<span><kbd>r</kbd> reset fit</span>',
+        '<span><kbd>Tab</kbd> cycle controls</span>',
+        '<span><kbd>/</kbd> focus search</span>',
+        '<span><kbd>f</kbd> focus field</span>',
+        '<span><kbd>c</kbd> clear focus</span>',
+        '<span><kbd>right-click</kbd> decompose</span>',
+        '<span><kbd>Esc</kbd> close</span>',
+      ].join('');
 
       function makeBtn(label, action) {
         var b = document.createElement('button');
@@ -243,18 +401,37 @@
       searchWrap.appendChild(searchInput);
       searchWrap.appendChild(btnFind);
 
-      controls.appendChild(btnBack);
-      controls.appendChild(btnDecompose);
-      controls.appendChild(searchWrap);
-      controls.appendChild(btnClearFocus);
-      controls.appendChild(btnFit);
-      controls.appendChild(btnReset);
-      controls.appendChild(btnZoomOut);
-      controls.appendChild(btnZoomIn);
-      controls.appendChild(btnClose);
+      var groupNav = document.createElement('div');
+      groupNav.className = 'diagram-inspector-control-group';
+      groupNav.appendChild(btnBack);
+      groupNav.appendChild(btnDecompose);
+      groupNav.appendChild(btnClearFocus);
 
-      header.appendChild(title);
+      var groupSearch = document.createElement('div');
+      groupSearch.className = 'diagram-inspector-control-group';
+      groupSearch.appendChild(searchWrap);
+
+      var groupZoom = document.createElement('div');
+      groupZoom.className = 'diagram-inspector-control-group';
+      groupZoom.appendChild(btnFit);
+      groupZoom.appendChild(btnReset);
+      groupZoom.appendChild(btnZoomOut);
+      groupZoom.appendChild(btnZoomIn);
+
+      var groupClose = document.createElement('div');
+      groupClose.className = 'diagram-inspector-control-group';
+      groupClose.appendChild(btnClose);
+
+      controls.appendChild(groupNav);
+      controls.appendChild(groupSearch);
+      controls.appendChild(groupZoom);
+      controls.appendChild(groupClose);
+
+      header.appendChild(titleRow);
+      header.appendChild(statusRow);
+      header.appendChild(liveStatus);
       header.appendChild(controls);
+      header.appendChild(hints);
 
       var viewport = document.createElement('div');
       viewport.className = 'diagram-inspector-viewport';
@@ -270,12 +447,19 @@
         dialog: dialog,
         viewport: viewport,
         title: title,
+        meta: meta,
+        diagramInfo: diagramInfo,
+        navPath: navPath,
+        focusState: focusState,
+        liveStatus: liveStatus,
         searchInput: searchInput,
         btnFind: btnFind,
         btnBack: btnBack,
         btnDecompose: btnDecompose,
         btnClearFocus: btnClearFocus,
         btnClose: btnClose,
+        scaleBadge: scaleBadge,
+        hints: hints,
       };
     }
 
@@ -284,12 +468,22 @@
     var active = null;
     var focusIndexCache = new WeakMap();
     var diagramNavStack = [];
+    var modalReturnTarget = null;
 
     // Right-click "decomposition" jumps from a node to a deeper/alternate diagram view.
     // This stays lightweight: Mermaid remains the canonical representation.
     var DECOMPOSE_TO_DIAGRAM_ID = {
       // VoteChain consortium detail
       VCLN: 'votechain-consortium-74',
+
+      // Raspberry Pi integration drill-down paths.
+      PMETA: 'pi-machine-wiring',
+      XMETA: 'pi-network-segmentation',
+      AMETA: 'pi-compose-placement',
+      PSW: 'pi-network-segmentation',
+      VMETA: 'pi-test-cycle',
+      BMETA: 'pi-test-cycle',
+      CMETA: 'pi-compose-placement',
 
       // EWP pipeline detail (sequence view)
       VC1: 'ewp-cast-to-tally-sequence',
@@ -365,6 +559,58 @@
       panZoom.svg.style.transform =
         'translate(' + panZoom.tx + 'px, ' + panZoom.ty + 'px) scale(' + panZoom.scale + ')';
       panZoom.svg.style.willChange = 'transform';
+      updateScaleBadge();
+    }
+
+    function updateScaleBadge() {
+      if (!modal || !modal.scaleBadge) return;
+      var pct = Math.round(panZoom.scale * 100);
+      modal.scaleBadge.textContent = String(pct) + '%';
+    }
+
+    function updateLiveStatus(message) {
+      if (!modal || !modal.liveStatus) return;
+      modal.liveStatus.textContent = String(message || '');
+    }
+
+    function getInspectorPathLabel() {
+      if (!active) return 'Path: root';
+
+      var labels = [];
+      for (var i = 0; i < diagramNavStack.length; i++) {
+        var entry = diagramNavStack[i];
+        if (!entry) continue;
+        var stackLabel = entry.titleBase || 'Diagram';
+        labels.push(truncateForUi(stackLabel, 18));
+      }
+      labels.push(truncateForUi(active.titleBase || 'Diagram', 18));
+      return 'Path: ' + labels.join(' → ');
+    }
+
+    function renderDiagramInfo() {
+      if (!modal) return;
+      if (!active) {
+        modal.title.textContent = 'Diagram inspector';
+        modal.meta.textContent = 'Diagram';
+        modal.diagramInfo.textContent = 'No diagram selected';
+        modal.navPath.textContent = 'Path: start';
+        return;
+      }
+
+      var base = truncateForUi(active.titleBase || 'Diagram inspector', 72);
+      modal.title.textContent = base;
+      modal.meta.textContent = active.diagramType || 'Diagram';
+
+      var id = active.diagramId || '';
+      var idText = id ? ' • ID: ' + id : '';
+      if (active.focusIndex) {
+        modal.diagramInfo.textContent =
+          (active.focusIndex.nodes.length + ' nodes • ' + active.focusIndex.edges.length + ' edges') + idText;
+      } else {
+        modal.diagramInfo.textContent = idText || 'No selectable elements discovered';
+      }
+
+      modal.navPath.textContent = getInspectorPathLabel();
     }
 
     function centerOnElement(el) {
@@ -386,7 +632,7 @@
 
       var nodeEls = svg.querySelectorAll('g.node');
       var edgePathEls = svg.querySelectorAll('path.flowchart-link[id^="L_"]');
-      if (nodeEls.length === 0 || edgePathEls.length === 0) return null;
+      if (nodeEls.length === 0) return null;
 
       var index = {
         svg: svg,
@@ -411,6 +657,7 @@
         index.nodeByKey.set(key, record);
         index.nodeSearch.push({ key: key, keyNorm: normalizeText(key), labelNorm: normalizeText(label) });
       });
+      if (index.nodes.length === 0) return null;
 
       function addEdgeToNode(nodeKey, edgeRecord) {
         if (!nodeKey) return;
@@ -525,6 +772,12 @@
         modal.btnFind.disabled = true;
         modal.btnClearFocus.disabled = true;
         modal.btnDecompose.disabled = true;
+        modal.btnDecompose.textContent = 'Decompose';
+        modal.btnDecompose.setAttribute('title', 'Select a node first to enable drill-down');
+        modal.focusState.textContent = 'Focus: none';
+        updateLiveStatus('');
+        renderDiagramInfo();
+        updateNavUi();
         return;
       }
 
@@ -533,26 +786,102 @@
 
       var hasFocus = !!(active.focusIndex.focusNode || active.focusIndex.focusEdge);
       modal.btnClearFocus.disabled = !hasFocus;
+      if (!hasFocus) {
+        modal.focusState.textContent = 'Focus: none';
+      } else if (active.focusIndex.focusNode) {
+        modal.focusState.textContent = 'Focus: node ' + active.focusIndex.focusNode;
+      } else if (active.focusIndex.focusEdge) {
+        modal.focusState.textContent = 'Focus: transition ' + active.focusIndex.focusEdge;
+      }
 
-      var canDecompose = !!active.focusIndex.focusNode && canDecomposeNodeKey(active.focusIndex.focusNode);
-      modal.btnDecompose.disabled = !canDecompose;
+      var focusNodeKey = active.focusIndex.focusNode || '';
+      var decomposeInfo = getDecomposeInfoForNode(focusNodeKey);
+      if (decomposeInfo) {
+        modal.btnDecompose.disabled = false;
+        var decomposeLabel =
+          'Decompose ' + focusNodeKey + ' → ' + truncateForUi(decomposeInfo.title, 28);
+        modal.btnDecompose.textContent = decomposeLabel;
+        modal.btnDecompose.setAttribute(
+          'title',
+          'Open detail diagram: ' + decomposeInfo.title + ' (' + decomposeInfo.diagramId + ')',
+        );
+      } else {
+        modal.btnDecompose.disabled = !focusNodeKey;
+        modal.btnDecompose.textContent = focusNodeKey ? 'Decompose (no detail map)' : 'Decompose';
+        modal.btnDecompose.setAttribute(
+          'title',
+          focusNodeKey
+            ? 'No detail diagram mapped for ' + focusNodeKey
+            : 'Select a node first to enable drill-down',
+        );
+      }
+      if (hasFocus && active.focusIndex.focusNode) {
+        modal.searchInput.value = active.focusIndex.focusNode;
+      }
 
-      var base = active.titleBase || 'Diagram inspector';
-      if (active.focusIndex.focusNode) modal.title.textContent = base + ': ' + active.focusIndex.focusNode;
-      else if (active.focusIndex.focusEdge) modal.title.textContent = base + ': ' + active.focusIndex.focusEdge;
-      else modal.title.textContent = base;
+      if (hasFocus) {
+        if (active.focusIndex.focusNode && decomposeInfo) {
+          updateLiveStatus('Focused: node ' + focusNodeKey + '  •  decompose to ' + decomposeInfo.title);
+        } else if (active.focusIndex.focusNode) {
+          updateLiveStatus('Focused: node ' + focusNodeKey + '  •  no linked detail diagram');
+        } else {
+          updateLiveStatus('Focused: transition ' + active.focusIndex.focusEdge);
+        }
+      } else {
+        updateLiveStatus('');
+      }
+
+      renderDiagramInfo();
+      updateNavUi();
     }
 
     function updateNavUi() {
       if (!modal) return;
-      modal.btnBack.disabled = diagramNavStack.length === 0;
+
+      var canGoBack = diagramNavStack.length > 0;
+      modal.btnBack.disabled = !canGoBack;
+      if (!canGoBack) {
+        modal.btnBack.textContent = 'Back';
+        modal.btnBack.setAttribute('title', 'Open a detail view first to enable back');
+        modal.btnBack.setAttribute('aria-label', 'Back');
+      } else {
+        var parent = diagramNavStack[diagramNavStack.length - 1];
+        var parentName = getDiagramDisplayName(parent);
+        var btnLabel = 'Back to ' + truncateForUi(parentName, 22);
+        modal.btnBack.textContent = btnLabel;
+        modal.btnBack.setAttribute(
+          'title',
+          'Return to: ' + parentName + ' (detail depth ' + (diagramNavStack.length + 1) + ')',
+        );
+        modal.btnBack.setAttribute('aria-label', btnLabel);
+      }
+
+      if (!active || !active.focusIndex || !(active.focusIndex.focusNode || active.focusIndex.focusEdge)) {
+        if (!canGoBack) {
+          updateLiveStatus('Top-level diagram.');
+        } else {
+          var backParent = diagramNavStack[diagramNavStack.length - 1];
+          var backName = getDiagramDisplayName(backParent);
+          updateLiveStatus(
+            'Detail view: level ' +
+              (diagramNavStack.length + 1) +
+              ' • Back to ' +
+              truncateForUi(backName, 22),
+          );
+        }
+      }
     }
 
-    function switchModalToDiagram(diagramEl) {
+    function switchModalToDiagram(diagramElOrState) {
+      var diagramEl = diagramElOrState;
+      if (!diagramElOrState) return;
+      if (diagramElOrState.diagram && diagramElOrState.diagram instanceof HTMLElement) {
+        diagramEl = diagramElOrState.diagram;
+      }
       if (!diagramEl) return;
       if (!(diagramEl instanceof HTMLElement)) return;
       if (!modal || !active) {
-        openModalForDiagram(diagramEl);
+        openModalForDiagram(diagramEl, active && active.diagram);
         ensureControlsWired();
         return;
       }
@@ -592,8 +921,8 @@
 
       modal.viewport.appendChild(diagramEl);
 
-      var titleBase = inferTitleForDiagram(diagramEl);
-      modal.title.textContent = titleBase;
+      var metadata = getDiagramMetadata(diagramEl);
+      var titleBase = metadata.titleBase;
 
       active = {
         diagram: diagramEl,
@@ -602,6 +931,8 @@
         placeholder: placeholder,
         originalClassName: originalClassName,
         titleBase: titleBase,
+        diagramType: metadata.typeLabel,
+        diagramId: metadata.sourceId,
         focusIndex: null,
       };
 
@@ -625,6 +956,7 @@
         if (focusIndex) wireFocusHandlersForSvg(focusIndex);
       }
       active.focusIndex = focusIndex;
+      renderDiagramInfo();
       if (modal && modal.searchInput) {
         modal.searchInput.value = '';
         modal.searchInput.disabled = !focusIndex;
@@ -634,25 +966,67 @@
       updateFocusUi();
     }
 
-    function canDecomposeNodeKey(nodeKey) {
-      if (!nodeKey) return false;
+    function getDecomposeInfoForNode(nodeKey) {
+      if (!nodeKey) return null;
       var diagramId = DECOMPOSE_TO_DIAGRAM_ID[nodeKey];
-      if (!diagramId) return false;
-      return !!document.querySelector('.mermaid-diagram[data-diagram-id="' + diagramId + '"]');
+      if (!diagramId) return null;
+      var target = document.querySelector('.mermaid-diagram[data-diagram-id="' + diagramId + '"]');
+      if (!(target instanceof HTMLElement)) return null;
+      var metadata = getDiagramMetadata(target);
+      var title = metadata.titleBase && metadata.titleBase !== 'Diagram inspector' ? metadata.titleBase : metadata.sourceId;
+      return {
+        diagramId: diagramId,
+        diagram: target,
+        title: title || 'Diagram',
+        typeLabel: metadata.typeLabel || 'Diagram',
+      };
+    }
+
+    function canDecomposeNodeKey(nodeKey) {
+      return !!getDecomposeInfoForNode(nodeKey);
+    }
+
+    function getDiagramDisplayName(state) {
+      if (!state) return 'Previous diagram';
+      if (state.titleBase && state.titleBase !== 'Diagram inspector') return state.titleBase;
+      if (state.diagramId) return state.diagramId;
+      return 'Previous diagram';
     }
 
     function decomposeNodeKey(nodeKey) {
-      if (!active || !nodeKey) return false;
-      var diagramId = DECOMPOSE_TO_DIAGRAM_ID[nodeKey];
-      if (!diagramId) return false;
-      var target = document.querySelector('.mermaid-diagram[data-diagram-id="' + diagramId + '"]');
-      if (!(target instanceof HTMLElement)) return false;
+      if (!active || !nodeKey) {
+        updateLiveStatus('Select a node first, then click Decompose.');
+        return false;
+      }
+      var info = getDecomposeInfoForNode(nodeKey);
+      if (!info || !(info.diagram instanceof HTMLElement)) {
+        updateLiveStatus('No detail mapping for node ' + nodeKey + '.');
+        return false;
+      }
+      var target = info.diagram;
 
       // Push current diagram to history so Back works.
-      diagramNavStack.push(active.diagram);
+      diagramNavStack.push({
+        diagram: active.diagram,
+        titleBase: active.titleBase,
+        diagramType: active.diagramType,
+        diagramId: active.diagramId,
+      });
       switchModalToDiagram(target);
-      updateNavUi();
+      updateLiveStatus('Opened detail diagram: ' + info.title + ' (' + info.diagramId + ')');
       return true;
+    }
+
+    function getDecomposeTargetsForDiagram(index) {
+      if (!index || !index.nodes || index.nodes.length === 0) return [];
+      var out = [];
+      index.nodes.forEach(function (node) {
+        if (!node || !node.key) return;
+        var info = getDecomposeInfoForNode(node.key);
+        if (!info) return;
+        out.push({ key: node.key, title: info.title, diagramId: info.diagramId });
+      });
+      return out;
     }
 
     function focusNode(index, nodeKey, shouldCenter) {
@@ -701,8 +1075,9 @@
       }
     }
 
-    function flashSearchError() {
+    function flashSearchError(message) {
       if (!modal || !modal.searchInput) return;
+      if (message) updateLiveStatus(message);
       modal.searchInput.classList.add('diagram-inspector-search-invalid');
       setTimeout(function () {
         if (!modal || !modal.searchInput) return;
@@ -714,7 +1089,19 @@
       if (!active || !active.focusIndex) return;
       var index = active.focusIndex;
       var raw = String(query || '').trim();
-      if (!raw) return;
+      if (!raw) {
+        var decomposeTargets = getDecomposeTargetsForDiagram(index);
+        var decomposedHint = decomposeTargets.length
+          ? 'Try mapped nodes: ' + decomposeTargets.slice(0, 4).map(function (item) { return item.key; }).join(', ')
+          : '';
+        var allNodeHint = index.nodes.slice(0, 4).map(function (node) { return node.key; }).join(', ');
+        var extra = decomposedHint ? ' ' + decomposedHint : '';
+        var allHint = allNodeHint ? ' (for example: ' + allNodeHint + ')' : '';
+        flashSearchError(
+          'Enter a node id or label to find.' + extra + allHint,
+        );
+        return;
+      }
 
       // Try exact key match first (case-insensitive).
       var qNorm = normalizeText(raw);
@@ -765,8 +1152,19 @@
         });
       }
 
-      if (partial) focusNode(index, partial);
-      else flashSearchError();
+      if (partial) {
+        focusNode(index, partial);
+      } else {
+        var fallback = index.nodeSearch
+          .slice(0, 8)
+          .map(function (candidate) {
+            return candidate.key;
+          })
+          .join(', ');
+        flashSearchError(
+          'No match for: ' + raw + '. Available ids: ' + (fallback || 'none detected.'),
+        );
+      }
     }
 
     function findInEventPath(e, predicate) {
@@ -947,13 +1345,23 @@
       updateNavUi();
 
       active = null;
+
+      if (modalReturnTarget && modalReturnTarget.isConnected) {
+        try {
+          modalReturnTarget.focus();
+        } catch {
+          // ignore
+        }
+      }
+      modalReturnTarget = null;
     }
 
-    function openModalForDiagram(diagramEl) {
+    function openModalForDiagram(diagramEl, openerEl) {
       if (!modal) modal = createModal();
       if (active) closeModal();
       diagramNavStack.length = 0;
       updateNavUi();
+      modalReturnTarget = openerEl instanceof HTMLElement ? openerEl : document.activeElement;
 
       // Save original placement so we can restore.
       var parent = diagramEl.parentNode;
@@ -978,8 +1386,8 @@
       modal.viewport.appendChild(diagramEl);
 
       // Update title if we can infer something useful.
-      var titleBase = inferTitleForDiagram(diagramEl);
-      modal.title.textContent = titleBase;
+      var metadata = getDiagramMetadata(diagramEl);
+      var titleBase = metadata.titleBase;
 
       active = {
         diagram: diagramEl,
@@ -988,6 +1396,8 @@
         placeholder: placeholder,
         originalClassName: originalClassName,
         titleBase: titleBase,
+        diagramType: metadata.typeLabel,
+        diagramId: metadata.sourceId,
         focusIndex: null,
       };
 
@@ -1015,6 +1425,7 @@
         if (focusIndex) wireFocusHandlersForSvg(focusIndex);
       }
       active.focusIndex = focusIndex;
+      renderDiagramInfo();
       if (modal && modal.searchInput) {
         modal.searchInput.value = '';
         modal.searchInput.disabled = !focusIndex;
@@ -1024,13 +1435,9 @@
       updateFocusUi();
       updateNavUi();
 
-      // Focus the close button for keyboard users.
+      // Focus an initial control for keyboard users.
       requestAnimationFrame(function () {
-        try {
-          modal.btnClose.focus();
-        } catch {
-          // ignore
-        }
+        focusInitialInspectorControl();
       });
     }
 
@@ -1044,9 +1451,85 @@
         if (e.target === modal.overlay) closeModal();
       });
 
-      // Escape closes
+      // Keyboard actions while the inspector is open.
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && active) closeModal();
+        if (!active) return;
+        if (e.key === 'Escape') {
+          closeModal();
+          return;
+        }
+
+        if (e.key === 'Tab') {
+          var focusables = getInspectorFocusableElements();
+          if (focusables.length === 0) {
+            e.preventDefault();
+            return;
+          }
+
+          var activeElement = document.activeElement;
+          var index = focusables.indexOf(activeElement);
+          if (index === -1) index = 0;
+          var delta = e.shiftKey ? -1 : 1;
+          var next = index + delta;
+          if (next < 0) next = focusables.length - 1;
+          if (next >= focusables.length) next = 0;
+
+          focusables[next].focus();
+          e.preventDefault();
+          return;
+        }
+
+        var lower = e.key.toLowerCase();
+        var inTextInput = isTextInputTarget(e.target);
+
+        // / is intentionally reserved to jump to search.
+        if (!inTextInput && (lower === 'f' || lower === '/')) {
+          e.preventDefault();
+          if (modal && modal.searchInput) {
+            modal.searchInput.focus();
+            modal.searchInput.select();
+          }
+          return;
+        }
+
+        if (inTextInput) return;
+
+        if (lower === 'r') {
+          panZoom.scale = 1;
+          panZoom.tx = 0;
+          panZoom.ty = 0;
+          applyTransform();
+          fitToViewport();
+          return;
+        }
+
+        if (lower === '0') {
+          fitToViewport();
+          return;
+        }
+
+        if (e.key === '+' || e.key === '=') {
+          e.preventDefault();
+          if (modal) {
+            var r = modal.viewport.getBoundingClientRect();
+            zoomAt(r.width / 2, r.height / 2, 1.2);
+          }
+          return;
+        }
+
+        if (e.key === '-' || e.key === '_') {
+          e.preventDefault();
+          if (modal) {
+            var r2 = modal.viewport.getBoundingClientRect();
+            zoomAt(r2.width / 2, r2.height / 2, 1 / 1.2);
+          }
+          return;
+        }
+
+        if (lower === 'c' && active.focusIndex && (active.focusIndex.focusNode || active.focusIndex.focusEdge)) {
+          clearDiagramFocus(active.focusIndex);
+          updateFocusUi();
+        }
       });
 
       // Buttons
@@ -1058,14 +1541,23 @@
 
         if (action === 'close') closeModal();
         else if (action === 'back') {
-          if (diagramNavStack.length === 0) return;
+          if (diagramNavStack.length === 0) {
+            updateLiveStatus('No previous diagram in stack. Open a mapped node to decompose first.');
+            return;
+          }
           var prev = diagramNavStack.pop();
           switchModalToDiagram(prev);
-          updateNavUi();
+          updateLiveStatus(
+            'Returned to ' +
+              truncateForUi((prev && getDiagramDisplayName(prev)) || 'previous diagram', 24),
+          );
         }
         else if (action === 'decompose') {
           if (active && active.focusIndex && active.focusIndex.focusNode) {
             decomposeNodeKey(active.focusIndex.focusNode);
+          }
+          else {
+            updateLiveStatus('Focus a node first, then click decompose.');
           }
         }
         else if (action === 'clearFocus') {
@@ -1232,6 +1724,43 @@
       }
     }
 
+    function isTextInputTarget(target) {
+      if (!target || !(target instanceof HTMLElement)) return false;
+      if (target.isContentEditable) return true;
+      var tag = target.tagName;
+      if (!tag) return false;
+      tag = tag.toLowerCase();
+      return tag === 'input' || tag === 'textarea' || tag === 'select';
+    }
+
+    function getInspectorFocusableElements() {
+      if (!modal || !modal.dialog) return [];
+      var selector = [
+        'button:not([disabled])',
+        'a[href]:not([disabled])',
+        'input:not([disabled])',
+        'textarea:not([disabled])',
+        'select:not([disabled])',
+        '[tabindex]:not([disabled]):not([tabindex="-1"])',
+      ].join(',');
+      var nodes = modal.dialog.querySelectorAll(selector);
+      var out = [];
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        if (!(node instanceof HTMLElement)) continue;
+        if (node.offsetParent === null) continue;
+        out.push(node);
+      }
+      return out;
+    }
+
+    function focusInitialInspectorControl() {
+      if (!modal || !active) return;
+      var focusables = getInspectorFocusableElements();
+      if (focusables.length === 0) return;
+      focusables[0].focus();
+    }
+
     function enhanceMermaidDiagrams() {
       var diagrams = document.querySelectorAll('.mermaid-diagram');
       if (diagrams.length === 0) return;
@@ -1251,13 +1780,13 @@
         btn.setAttribute('aria-label', 'Open diagram fullscreen');
 
         btn.addEventListener('click', function () {
-          openModalForDiagram(diagram);
+          openModalForDiagram(diagram, btn);
           ensureControlsWired();
         });
 
         // Double-click on the diagram also opens the inspector.
         diagram.addEventListener('dblclick', function () {
-          openModalForDiagram(diagram);
+          openModalForDiagram(diagram, diagram);
           ensureControlsWired();
         });
 
@@ -1272,7 +1801,7 @@
           if (!key) return;
 
           e.preventDefault();
-          openModalForDiagram(diagram);
+          openModalForDiagram(diagram, diagram);
           ensureControlsWired();
           if (active && active.focusIndex) {
             if (!decomposeNodeKey(key)) focusNode(active.focusIndex, key);

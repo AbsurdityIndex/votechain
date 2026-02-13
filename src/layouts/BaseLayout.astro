@@ -11,6 +11,7 @@ import FundTheIndex from '../components/ui/FundTheIndex.astro';
 import SettingsDial from '../components/ui/SettingsDial.astro';
 import VoteChainSubnav from '../components/votechain/VoteChainSubnav.astro';
 import VoteChainPageSidebar from '../components/votechain/VoteChainPageSidebar.astro';
+import PocFocusWizard from '../components/votechain/PocFocusWizard.astro';
 
 interface Props {
   title: string;
@@ -327,6 +328,7 @@ const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
         <span id="poc-focus-label">Focus</span>
       </button>
     )}
+    {isPocRoute && <PocFocusWizard />}
     <ConstructionBanner />
     <Header />
     <script is:inline>

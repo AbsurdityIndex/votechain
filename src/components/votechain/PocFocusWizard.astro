@@ -1,0 +1,236 @@
+---
+/**
+ * PocFocusWizard — shared wizard nav + detail drawer for POC pages in focus mode.
+ *
+ * Activates when html.poc-focus is set and [data-poc-step] elements exist.
+ * Vote page exception: if #wizard-controls exists, skip step management
+ * but still provide the detail drawer + info trigger.
+ *
+ * Provides:
+ *  - Prev/Next arrow buttons + step pills for navigation
+ *  - Step counter (Step X of Y) for progress feedback
+ *  - Fade transition on step change
+ *  - Right-slide detail drawer for supplementary content
+ */
+---
+
+<div class="poc-wizard-nav" id="poc-wizard-nav"></div>
+<div id="poc-detail-backdrop" class="poc-detail-backdrop"></div>
+<aside id="poc-detail-drawer" class="poc-detail-drawer">
+  <header>
+    <span>Details</span>
+    <button class="poc-detail-drawer-close" id="poc-detail-close">Close</button>
+  </header>
+  <div id="poc-detail-content"></div>
+</aside>
+<button class="poc-detail-trigger" id="poc-detail-trigger">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  <span style="margin-left:4px">Details</span>
+</button>
+
+<script is:inline>
+(function () {
+  var html = document.documentElement
+  if (!html.classList.contains('poc-focus')) return
+
+  var steps = document.querySelectorAll('[data-poc-step]')
+  var hasVoteWizard = !!document.getElementById('wizard-controls')
+  var navBar = document.getElementById('poc-wizard-nav')
+  var backdrop = document.getElementById('poc-detail-backdrop')
+  var drawer = document.getElementById('poc-detail-drawer')
+  var drawerContent = document.getElementById('poc-detail-content')
+  var closeBtn = document.getElementById('poc-detail-close')
+  var triggerBtn = document.getElementById('poc-detail-trigger')
+
+  // ── Detail drawer ──────────────────────────────────────────────
+  var detailEls = document.querySelectorAll('[data-poc-detail]')
+  var hasDetails = detailEls.length > 0
+
+  function populateDrawer() {
+    if (!drawerContent || !hasDetails) return
+    drawerContent.innerHTML = ''
+
+    for (var i = 0; i < detailEls.length; i++) {
+      var el = detailEls[i]
+      var title = el.getAttribute('data-poc-detail-title') || 'Details'
+      var section = document.createElement('div')
+      section.className = 'poc-detail-section'
+
+      var heading = document.createElement('p')
+      heading.className = 'poc-detail-section-title'
+      heading.textContent = title
+
+      var body = document.createElement('div')
+      body.className = 'poc-detail-section-body'
+      var clone = el.cloneNode(true)
+      clone.removeAttribute('data-poc-detail')
+      clone.removeAttribute('data-poc-detail-title')
+      clone.style.display = ''
+      if (clone.tagName === 'DETAILS') {
+        clone.setAttribute('open', '')
+        var summary = clone.querySelector('summary')
+        if (summary) summary.remove()
+      }
+      body.appendChild(clone)
+
+      section.appendChild(heading)
+      section.appendChild(body)
+      drawerContent.appendChild(section)
+    }
+  }
+
+  function openDrawer() {
+    if (!hasDetails) return
+    if (backdrop) backdrop.classList.add('open')
+    if (drawer) drawer.classList.add('open')
+  }
+
+  function closeDrawer() {
+    if (backdrop) backdrop.classList.remove('open')
+    if (drawer) drawer.classList.remove('open')
+  }
+
+  if (triggerBtn) {
+    if (!hasDetails) {
+      triggerBtn.style.display = 'none'
+    } else {
+      triggerBtn.addEventListener('click', openDrawer)
+    }
+  }
+  if (closeBtn) closeBtn.addEventListener('click', closeDrawer)
+  if (backdrop) backdrop.addEventListener('click', closeDrawer)
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && drawer && drawer.classList.contains('open')) {
+      closeDrawer()
+    }
+  })
+
+  populateDrawer()
+
+  // ── Inline "learn more" links that open the drawer ─────────────
+  var learnMoreLinks = document.querySelectorAll('[data-poc-learn-more]')
+  for (var lm = 0; lm < learnMoreLinks.length; lm++) {
+    learnMoreLinks[lm].addEventListener('click', function (e) {
+      e.preventDefault()
+      openDrawer()
+    })
+  }
+
+  // ── Step wizard (skip if vote page has its own wizard) ─────────
+  if (hasVoteWizard || steps.length === 0 || !navBar) return
+
+  var currentStep = 0
+  var prevBtn = null
+  var nextBtn = null
+  var counterEl = null
+
+  function updateNavState() {
+    if (prevBtn) prevBtn.disabled = currentStep === 0
+    if (nextBtn) nextBtn.disabled = currentStep === steps.length - 1
+
+    // Update pill states
+    var pills = navBar.querySelectorAll('.poc-wizard-pill')
+    for (var j = 0; j < pills.length; j++) {
+      if (j === currentStep) {
+        pills[j].setAttribute('aria-current', 'step')
+      } else {
+        pills[j].removeAttribute('aria-current')
+      }
+    }
+
+    // Update counter
+    if (counterEl) {
+      counterEl.textContent = 'Step ' + (currentStep + 1) + ' of ' + steps.length
+    }
+  }
+
+  function showStep(index) {
+    if (index < 0 || index >= steps.length) return
+    currentStep = index
+
+    for (var i = 0; i < steps.length; i++) {
+      if (i === index) {
+        steps[i].removeAttribute('hidden')
+        steps[i].style.display = ''
+        // Fade in animation
+        steps[i].style.opacity = '0'
+        steps[i].style.transform = 'translateY(6px)'
+        // Force reflow before animation
+        void steps[i].offsetHeight
+        steps[i].style.transition = 'opacity 0.2s ease, transform 0.2s ease'
+        steps[i].style.opacity = '1'
+        steps[i].style.transform = 'translateY(0)'
+      } else {
+        steps[i].setAttribute('hidden', '')
+        steps[i].style.display = 'none'
+        steps[i].style.transition = ''
+        steps[i].style.opacity = ''
+        steps[i].style.transform = ''
+      }
+    }
+
+    updateNavState()
+
+    // Scroll main to top on step change
+    var main = document.querySelector('main')
+    if (main) main.scrollTop = 0
+  }
+
+  // Build nav bar: [<] [pills...] [>] [Step X of Y]
+  navBar.innerHTML = ''
+
+  // Prev button
+  prevBtn = document.createElement('button')
+  prevBtn.type = 'button'
+  prevBtn.className = 'poc-wizard-arrow'
+  prevBtn.setAttribute('aria-label', 'Previous step')
+  prevBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+  prevBtn.addEventListener('click', function () {
+    if (currentStep > 0) showStep(currentStep - 1)
+  })
+  navBar.appendChild(prevBtn)
+
+  // Step pills
+  var pillWrap = document.createElement('div')
+  pillWrap.className = 'poc-wizard-pills'
+  for (var k = 0; k < steps.length; k++) {
+    var label = steps[k].getAttribute('data-poc-step-label') || ('Step ' + (k + 1))
+    var pill = document.createElement('button')
+    pill.type = 'button'
+    pill.className = 'poc-wizard-pill'
+    pill.textContent = label
+    pill.setAttribute('data-wizard-index', String(k))
+    pill.addEventListener('click', function () {
+      showStep(Number(this.getAttribute('data-wizard-index')))
+    })
+    pillWrap.appendChild(pill)
+  }
+  navBar.appendChild(pillWrap)
+
+  // Next button
+  nextBtn = document.createElement('button')
+  nextBtn.type = 'button'
+  nextBtn.className = 'poc-wizard-arrow'
+  nextBtn.setAttribute('aria-label', 'Next step')
+  nextBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+  nextBtn.addEventListener('click', function () {
+    if (currentStep < steps.length - 1) showStep(currentStep + 1)
+  })
+  navBar.appendChild(nextBtn)
+
+  // Step counter
+  counterEl = document.createElement('span')
+  counterEl.className = 'poc-wizard-counter'
+  navBar.appendChild(counterEl)
+
+  // Initialize: show first step
+  showStep(0)
+
+  // Listen for programmatic step advance (e.g., after auto-verify)
+  window.addEventListener('poc-wizard:goto', function (e) {
+    var target = e.detail && typeof e.detail.step === 'number' ? e.detail.step : -1
+    if (target >= 0 && target < steps.length) showStep(target)
+  })
+})()
+</script>

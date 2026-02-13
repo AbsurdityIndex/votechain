@@ -208,6 +208,25 @@ async function hideFocusToggle(page) {
   }).catch(() => {})
 }
 
+// Hide the detail trigger button during recording
+async function hidePocDetailTrigger(page) {
+  await page.evaluate(() => {
+    const btn = document.getElementById('poc-detail-trigger')
+    if (btn) btn.style.display = 'none'
+  }).catch(() => {})
+}
+
+// Click a wizard step pill by label
+async function clickWizardPill(page, label) {
+  await page.evaluate((lbl) => {
+    const pills = document.querySelectorAll('.poc-wizard-pill')
+    for (const pill of pills) {
+      if (pill.textContent?.trim() === lbl) { pill.click(); return }
+    }
+  }, label)
+  await wait(ACTION_MS)
+}
+
 // ── Recording flow ───────────────────────────────────────────────────
 async function run() {
   await mkdir(artifactsDir, { recursive: true })
@@ -233,14 +252,18 @@ async function run() {
     await page.waitForSelector('#setup-form', { timeout: 15000 })
     await dismissViteOverlay(page)
     await hideFocusToggle(page)
+    await hidePocDetailTrigger(page)
     await showCaption(page, 'Configuring a fresh election...')
-    await scrollToCenter(page, '#setup-form')
 
+    // Step 1: Config
     await page.fill('#election-id', setupConfig.electionId)
     await page.fill('#jurisdiction-id', setupConfig.jurisdictionId)
     await page.fill('#scope-list', setupConfig.scopes.join('\n'))
     await page.fill('#voter-roll', String(setupConfig.voterRoll))
     await page.fill('#duration-days', String(setupConfig.durationDays))
+
+    // Step 2: Pools
+    await clickWizardPill(page, 'Pools')
     for (const pool of setupConfig.pools) {
       await dismissViteOverlay(page)
       await page.fill('#pool-name', pool.name)
@@ -249,6 +272,9 @@ async function run() {
       await page.fill('#pool-options', pool.options.join('\n'))
       await page.click('#add-pool')
     }
+
+    // Step 3: Questions
+    await clickWizardPill(page, 'Questions')
     for (const q of setupConfig.questions) {
       await dismissViteOverlay(page)
       await page.fill('#question-title', q.title)
@@ -257,6 +283,9 @@ async function run() {
       await selectPoolByLabel(page, q.poolLabelIncludes)
       await page.click('#add-question')
     }
+
+    // Step 4: Create
+    await clickWizardPill(page, 'Create')
     await dismissViteOverlay(page)
     await page.click('#run-setup')
     await page.waitForSelector('#setup-result:not(.hidden)', { timeout: 20000 })
@@ -272,6 +301,7 @@ async function run() {
     await page.waitForSelector('#wizard-controls', { timeout: 15000 })
     await dismissViteOverlay(page)
     await hideFocusToggle(page)
+    await hidePocDetailTrigger(page)
     await showCaption(page, 'Step 1 \u2014 Cast a vote')
     await wait(STEP_MS)
 
@@ -344,13 +374,14 @@ async function run() {
     await page.goto(buildUrl('/verify'), { waitUntil: 'domcontentloaded', timeout: 30000 })
     await dismissViteOverlay(page)
     await hideFocusToggle(page)
+    await hidePocDetailTrigger(page)
     await showCaption(page, 'Step 2 \u2014 Verify the receipt')
-    await wait(1800) // auto-verify runs
+    await wait(2200) // auto-verify runs and advances wizard to Results step
 
     await showCaption(page, '\u2705  All cryptographic checks passed')
     // Try to scroll to and highlight the verification result
-    await scrollToCenter(page, '#verify-result').catch(() => {})
-    await highlight(page, '#verify-result').catch(() => {})
+    await scrollToCenter(page, '#verify-summary').catch(() => {})
+    await highlight(page, '#verify-summary').catch(() => {})
     await wait(CAPTION_MS)
 
     // ── Scene 9: Dashboard + tally ──────────────────────────────────
@@ -359,6 +390,7 @@ async function run() {
     await page.goto(buildUrl('/dashboard'), { waitUntil: 'domcontentloaded', timeout: 30000 })
     await dismissViteOverlay(page)
     await hideFocusToggle(page)
+    await hidePocDetailTrigger(page)
     await showCaption(page, 'Step 3 \u2014 Publish the tally')
     await page.waitForSelector('#publish-tally', { timeout: 15000 })
     await scrollToCenter(page, '#publish-tally')
@@ -373,9 +405,11 @@ async function run() {
     await page.reload({ waitUntil: 'domcontentloaded' })
     await dismissViteOverlay(page)
     await hideFocusToggle(page)
+    await hidePocDetailTrigger(page)
 
+    // Navigate to Tally step to show published results
+    await clickWizardPill(page, 'Tally')
     await showCaption(page, '\u2705  Election results verified \u2014 zero trust required')
-    // Scroll to tally results
     await scrollToCenter(page, '#tally-json').catch(() =>
       scrollToCenter(page, '#publish-tally').catch(() => {})
     )
