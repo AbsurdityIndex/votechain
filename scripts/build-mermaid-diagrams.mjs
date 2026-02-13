@@ -122,10 +122,20 @@ function createMmdcPath() {
 
 function runMermaidCli(inputPath, outputPath, route) {
   const mmdcPath = createMmdcPath();
+  const puppeteerArgs = [ '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage' ];
+  const existingPuppeteerArgs = process.env.PUPPETEER_ARGS ? String(process.env.PUPPETEER_ARGS).trim() : '';
+  const normalizedExistingArgs = existingPuppeteerArgs ? existingPuppeteerArgs.split(/\s+/) : [];
+  const mergedArgs = [...puppeteerArgs, ...normalizedExistingArgs];
+  const uniquePuppeteerArgs = Array.from(new Set(mergedArgs));
+
   return new Promise((resolve, reject) => {
     const proc = spawn(mmdcPath, ['-i', inputPath, '-o', outputPath, '--quiet'], {
       stdio: ['ignore', 'pipe', 'pipe'],
       cwd: repoRoot,
+      env: {
+        ...process.env,
+        PUPPETEER_ARGS: uniquePuppeteerArgs.join(' '),
+      },
     });
 
     let stderr = '';
