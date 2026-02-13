@@ -1,12 +1,43 @@
 # PRD: VoteChain Election Web Protocol (EWP) — Ballot Integrity Protocol
 
-> **Status:** Preview / Draft (EWP/0.1)
->
-> **Date:** 2026-02-08
->
-> **Scope:** End-to-end ballot integrity layer that completes **VoteChain** voter verification — the cryptographic chain of custody from cast to tally.
->
-> **Non-claim:** This document is not an endorsement of immediate nationwide unsupervised Internet voting. It is a buildable protocol for ensuring every ballot — whether cast at a polling place, a supervised kiosk, or (with appropriate gating) a remote device — is encrypted, recorded, included, and counted correctly. Intended for controlled pilots, red teaming, and standards work (NIST/EAC/CISA + external review).
+> **A protocol for end-to-end ballot integrity that complements the VoteChain verification layer, ensuring each ballot is encrypted, recorded, included, and counted correctly from cast to tally.**
+
+**Version:** 0.1 Draft
+**Date:** 2026-02-08
+**Status:** Preview / Draft
+**Scope:** End-to-end ballot integrity layer that completes **VoteChain** voter verification
+**Authors:** Absurdity Index Project
+**Non-claim:** This document is not an endorsement of immediate nationwide unsupervised Internet voting. It is a buildable protocol for ensuring every ballot — whether cast at a polling place, a supervised kiosk, or (with appropriate gating) a remote device — is encrypted, recorded, included, and counted correctly. Intended for controlled pilots, red teaming, and standards work (NIST/EAC/CISA + external review).
+
+## Intro: Status and Policy Intent
+
+This document is a buildable protocol and implementation profile that complements
+`PRD-VOTER-VERIFICATION-CHAIN.md`. VoteChain confirms voter eligibility;
+EWP secures what happens after that step.
+
+- VoteChain deliberately stops at verification and does not define ballot casting
+  or counting.
+- EWP defines the chain-of-custody from cast-to-tally for cast ballots.
+- This profile is designed for controlled pilots, red teaming, and standards
+  development work.
+- This protocol is not an endorsement of uncontrolled nationwide internet voting.
+
+## Table of Contents
+
+1. [Relationship To The VoteChain PRD](#0-relationship-to-the-votechain-prd)
+2. [Goals & Non-Goals](#1-goals--non-goals)
+3. [Threat Model](#2-threat-model-what-we-defend-against)
+4. [Actors and Trust Boundaries](#3-actors-and-trust-boundaries)
+5. [Crypto Building Blocks (Protocol Primitives)](#4-crypto-building-blocks-protocol-primitives)
+6. [Protocol Overview (Happy Path)](#5-protocol-overview-happy-path)
+7. [HTTP(S) Profile](#6-https-profile)
+8. [On-Chain Events (VoteChain Anchors)](#7-on-chain-events-votechain-anchors)
+9. [Security Proof Sketch](#8-security-proof-sketch-why-this-works)
+10. [Coercion, Receipt-Freeness, And Mitigations](#9-coercion-receipt-freeness-and-mitigations)
+11. [Implementation Guidance (Reference Build)](#10-implementation-guidance-reference-build)
+12. [Open Questions & Gate Criteria](#11-open-questions-and-gate-criteria)
+13. [Appendix A: Error Codes](#appendix-a-error-codes-draft)
+14. [Appendix B: Revoting Extension](#appendix-b-revoting-extension-sketch)
 
 ## 0. Relationship To The VoteChain PRD
 
@@ -31,7 +62,7 @@ EWP preserves all VoteChain invariants:
 - Ballot secrecy is preserved: VoteChain learns *that* you voted (or attempted), not *how* you voted.
 - One-person-one-vote enforcement is anchored on VoteChain via a per-election **nullifier**.
 
-## 1. Goals And Non-Goals
+## 1. Goals & Non-Goals
 
 ### 1.1 Goals
 
@@ -89,7 +120,7 @@ Not claimed:
 
 - Full coercion resistance against A5 + A6 in uncontrolled environments (Mode 3). In-person (Mode 1) and supervised (Mode 2) deployments mitigate coercion through the physical environment.
 
-## 3. Actors And Trust Boundaries
+## 3. Actors and Trust Boundaries
 
 ### 3.1 Actors
 

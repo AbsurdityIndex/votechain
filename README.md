@@ -13,7 +13,7 @@ Everything is published for transparency and critique.
 │  Layer 1: Verification           │  │  Layer 2: Ballot Integrity       │
 │  (VoteChain PRD)                 │  │  (Election Web Protocol — EWP)   │
 │                                  │  │                                  │
-│  • 74-node permissioned ledger   │  │  • Encrypted ballots (ElGamal)   │
+│  • Permissioned verification ledger │  │  • Encrypted ballots (ElGamal)   │
 │  • ZK eligibility proofs         │  │  • Append-only bulletin board    │
 │  • Nullifier-based uniqueness    │  │  • Threshold decryption (t-of-n) │
 │  • Fraud detection pipeline      │  │  • Verifiable tally proofs       │
@@ -34,7 +34,7 @@ Everything is published for transparency and critique.
 | `src/votechain-poc/crypto/` | Cryptographic primitives: blind Schnorr, ECIES, ECDSA, Shamir secret sharing |
 | `workers/votechain-nodes/` | Cloudflare Workers — three independent ledger nodes (federal, state, oversight) |
 | `functions/` | Cloudflare Pages Functions (Turnstile gate, session, replication proxy) |
-| `tests/` | Vitest test suite (187 tests across 11 files) |
+| `tests/` | Vitest test suite (13 files; run with `npm test`) |
 | `docs/` | Internal assurance playbooks |
 | `PRD-VOTER-VERIFICATION-CHAIN.md` | Full VoteChain PRD (voter verification specification) |
 | `PRD-VOTECHAIN-ELECTION-WEB-PROTOCOL.md` | Full EWP specification (ballot integrity) |
