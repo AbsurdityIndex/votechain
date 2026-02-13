@@ -988,10 +988,6 @@
       };
     }
 
-    function canDecomposeNodeKey(nodeKey) {
-      return !!getDecomposeInfoForNode(nodeKey);
-    }
-
     function getDiagramDisplayName(state) {
       if (!state) return 'Previous diagram';
       if (state.titleBase && state.titleBase !== 'Diagram inspector') return state.titleBase;
