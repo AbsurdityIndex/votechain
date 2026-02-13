@@ -379,17 +379,48 @@ const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
         var btn = document.getElementById('poc-focus-toggle');
         var label = document.getElementById('poc-focus-label');
         if (!btn) return;
-        function update() {
-          var on = document.documentElement.classList.contains('poc-focus');
-          if (label) label.textContent = on ? 'Exit Focus' : 'Focus';
+
+        function isFocusOn() {
+          return document.documentElement.classList.contains('poc-focus');
         }
+
+        // Sync the URL bar with focus state (add/remove ?focus)
+        function syncUrl(on) {
+          var url = new URL(window.location);
+          if (on && !url.searchParams.has('focus')) {
+            url.searchParams.set('focus', '');
+            history.replaceState(null, '', url);
+          } else if (!on && url.searchParams.has('focus')) {
+            url.searchParams.delete('focus');
+            history.replaceState(null, '', url);
+          }
+        }
+
+        function update() {
+          var on = isFocusOn();
+          if (label) label.textContent = on ? 'Exit Focus' : 'Focus';
+          syncUrl(on);
+        }
+
         update();
+
         btn.addEventListener('click', function () {
           document.documentElement.classList.toggle('poc-focus');
-          var on = document.documentElement.classList.contains('poc-focus');
+          var on = isFocusOn();
           sessionStorage.setItem('poc-focus', on ? '1' : '0');
           update();
         });
+
+        // Rewrite POC links to carry ?focus when active
+        document.addEventListener('click', function (e) {
+          if (!isFocusOn()) return;
+          var a = e.target.closest('a[href*="/votechain/poc"]');
+          if (!a) return;
+          var href = a.getAttribute('href');
+          if (href && href.indexOf('focus') === -1) {
+            a.setAttribute('href', href + (href.indexOf('?') === -1 ? '?focus' : '&focus'));
+          }
+        }, true);
       })();
     </script>
   </body>
