@@ -1,0 +1,20 @@
+name = "votechain-today-in-congress"
+main = "src/index.ts"
+compatibility_date = "2026-02-13"
+
+[vars]
+SOURCE_URL = "https://raw.githubusercontent.com/AbsurdityIndex/votechain/main/src/data/session-status.json"
+CACHE_KEY = "today-in-congress:v1"
+AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+ALLOWED_ORIGINS = "https://absurdityindex.org,https://www.absurdityindex.org"
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "TODAY_CACHE"
+id = "REPLACE_WITH_KV_ID"
+preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+
+triggers = { crons = ["0 4 * * *"] }
+

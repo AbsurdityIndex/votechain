@@ -33,6 +33,7 @@
     "deploy:test": "npm run build && npx wrangler pages deploy dist --project-name votechain-test --branch main --commit-hash ${CI_COMMIT_SHA:-$(git rev-parse HEAD)}",
     "deploy:prod": "npm run build && npx wrangler pages deploy dist --project-name votechain --branch main --commit-hash ${CI_COMMIT_SHA:-$(git rev-parse HEAD)}",
     "deploy:workers": "npm run deploy:federal && npm run deploy:state && npm run deploy:oversight",
+    "deploy:today-cache": "npx wrangler deploy --config workers/today-in-congress/wrangler.toml",
     "deploy:federal": "npx wrangler deploy --config workers/votechain-nodes/federal/wrangler.toml",
     "deploy:state": "npx wrangler deploy --config workers/votechain-nodes/state/wrangler.toml",
     "deploy:oversight": "npx wrangler deploy --config workers/votechain-nodes/oversight/wrangler.toml"

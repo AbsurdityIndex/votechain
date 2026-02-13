@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const now = new Date();
+const lastUpdated = now.toISOString();
+
+const sessionStatus = {
+  house: {
+    status: 'recess',
+    number: 8,
+    startDate: '2026-01-27',
+    startDayOfWeek: 'Tuesday',
+    calendarDays: 36,
+    totalSessionDays: 8,
+    statusSince: '2026-01-30',
+    nextScheduledSession: '2026-02-09',
+  },
+  senate: {
+    status: 'recess',
+    number: 6,
+    startDate: '2026-01-23',
+    startDayOfWeek: 'Friday',
+    calendarDays: 36,
+    totalSessionDays: 6,
+    statusSince: '2026-01-30',
+    nextScheduledSession: '2026-02-09',
+  },
+};
+
+const featured = sessionStatus.house.calendarDays >= sessionStatus.senate.calendarDays ? 'house' : 'senate';
+const heroDate = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+const fallbackPayload = {
+  headline: 'Today in Congress',
+  summary: `The ${featured} is running the longer session day, and both chambers are currently in ${sessionStatus[featured].status}.`,
+  sourceUpdatedAt: lastUpdated,
+  generatedAt: lastUpdated,
+  generatedBy: 'fallback',
+  source: {
+    sourceUrl: 'Manual session-status snapshot',
+    dataSource: 'Local fallback in src/pages/today.astro',
+  },
+  chambers: {
+    house: sessionStatus.house,
+    senate: sessionStatus.senate,
+  },
+  satiricalPoints: [
+    `The House has turned ${sessionStatus.house.startDayOfWeek} into a recurring season of the week.`,
+    `The Senate calendar is now an exercise in patience and interpretive calendars.`,
+    `If you thought this was still Monday, the Senate might argue you are wrong in principle.`,
+    `The real clock is not the calendar clock, it is the "legislative minute" clock.`,
+    `Congress has achieved what timezones never could: everyone thinks today is a different day.`,
+  ],
+};
+
+const fallbackJson = JSON.stringify(fallbackPayload);
+---
+
+<BaseLayout
+  title="Today in Congress"
+  description="Satirical congressional snapshot: legislative days, current statuses, and AI-generated summary points refreshed daily."
+  ogType="article"
+>
+  <main class="min-h-screen bg-navy-900 text-cream-100">
+    <section class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+      <p class="mb-2 text-sm uppercase tracking-[0.25em] text-gold-500">Satirical Daily Digest</p>
+      <h1 id="today-headline" class="font-serif text-3xl font-bold text-gold-200">{fallbackPayload.headline}</h1>
+      <p class="mt-2 text-sm text-cream-300">Updated for <span id="today-summary-date">{heroDate}</span></p>
+
+      <div class="mt-6 rounded-xl border border-gold-500/20 bg-navy-800/60 p-4 sm:p-6">
+        <p id="today-summary" class="text-cream-200 leading-relaxed">{fallbackPayload.summary}</p>
+        <p class="mt-3 text-xs text-cream-400">
+          Source: <span id="today-source-url">{fallbackPayload.source.sourceUrl}</span> ·
+          Last snapshot: <span id="today-generated-at">{fallbackPayload.generatedAt}</span> ·
+          Updated from: <span id="today-source-origin">{fallbackPayload.source.dataSource}</span>
+        </p>
+      </div>
+
+      <div id="chamber-grid" class="mt-6 grid gap-4 md:grid-cols-2">
+        <article class="rounded-xl border border-gold-500/20 bg-navy-800/50 p-4">
+          <h2 class="text-lg font-serif font-bold text-gold-200">House</h2>
+          <p class="mt-2 text-sm text-cream-200">Status: <span id="house-status">{sessionStatus.house.status}</span></p>
+          <p class="text-sm text-cream-300">Legislative Day: <span id="house-day">{sessionStatus.house.number}</span></p>
+          <p class="text-sm text-cream-300">Started: <span id="house-start">{sessionStatus.house.startDate}</span> (<span id="house-weekday">{sessionStatus.house.startDayOfWeek}</span>)</p>
+          <p class="text-sm text-cream-300">Calendar days running: <span id="house-calendar-days">{sessionStatus.house.calendarDays}</span></p>
+          <p class="text-sm text-cream-300">Next scheduled session: <span id="house-next">{sessionStatus.house.nextScheduledSession}</span></p>
+        </article>
+
+        <article class="rounded-xl border border-gold-500/20 bg-navy-800/50 p-4">
+          <h2 class="text-lg font-serif font-bold text-gold-200">Senate</h2>
+          <p class="mt-2 text-sm text-cream-200">Status: <span id="senate-status">{sessionStatus.senate.status}</span></p>
+          <p class="text-sm text-cream-300">Legislative Day: <span id="senate-day">{sessionStatus.senate.number}</span></p>
+          <p class="text-sm text-cream-300">Started: <span id="senate-start">{sessionStatus.senate.startDate}</span> (<span id="senate-weekday">{sessionStatus.senate.startDayOfWeek}</span>)</p>
+          <p class="text-sm text-cream-300">Calendar days running: <span id="senate-calendar-days">{sessionStatus.senate.calendarDays}</span></p>
+          <p class="text-sm text-cream-300">Next scheduled session: <span id="senate-next">{sessionStatus.senate.nextScheduledSession}</span></p>
+        </article>
+      </div>
+
+      <section class="mt-7 rounded-xl border border-gold-500/20 bg-navy-800/40 p-4 sm:p-6">
+        <h2 class="font-serif text-xl text-gold-200">Satirical points for the day</h2>
+        <ol id="satirical-points" class="mt-3 space-y-2 text-sm text-cream-200 list-decimal pl-6">
+          {fallbackPayload.satiricalPoints.map((point) => <li>{point}</li>)}
+        </ol>
+        <p id="today-cache-note" class="mt-3 text-xs text-cream-400">Serving cached snapshot until updated by worker.</p>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const fallback = JSON.parse(`{fallbackJson}`);
+    const statusEndpoints = ['/api/today-in-congress', '/votechain/api/today-in-congress', '/api/today', '/votechain/api/today'];
+
+    function formatValue(value, fallbackValue = 'N/A') {
+      return value == null || value === '' ? fallbackValue : String(value);
+    }
+
+    function render(snapshot) {
+      const chambers = snapshot?.chambers;
+      const house = chambers?.house;
+      const senate = chambers?.senate;
+      const source = snapshot?.source || {};
+
+      if (!house || !senate) return;
+
+      document.getElementById('today-headline').textContent = formatValue(snapshot.headline, fallback.headline);
+      document.getElementById('today-summary').textContent = formatValue(snapshot.summary, fallback.summary);
+      document.getElementById('today-summary-date').textContent = new Date(snapshot.source.generatedAt || Date.now()).toLocaleDateString(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      document.getElementById('today-source-url').textContent = formatValue(source.sourceUrl, 'Manual fallback');
+      document.getElementById('today-source-origin').textContent = formatValue(source.dataSource, 'Manual fallback');
+      document.getElementById('today-generated-at').textContent = formatValue(source.generatedAt, snapshot.generatedAt);
+
+      document.getElementById('house-status').textContent = formatValue(house.status, 'Unknown');
+      document.getElementById('house-day').textContent = formatValue(house.number, '0');
+      document.getElementById('house-start').textContent = formatValue(house.startDate, 'N/A');
+      document.getElementById('house-weekday').textContent = formatValue(house.startDayOfWeek, 'N/A');
+      document.getElementById('house-calendar-days').textContent = formatValue(house.calendarDays, '0');
+      document.getElementById('house-next').textContent = formatValue(house.nextScheduledSession, 'N/A');
+
+      document.getElementById('senate-status').textContent = formatValue(senate.status, 'Unknown');
+      document.getElementById('senate-day').textContent = formatValue(senate.number, '0');
+      document.getElementById('senate-start').textContent = formatValue(senate.startDate, 'N/A');
+      document.getElementById('senate-weekday').textContent = formatValue(senate.startDayOfWeek, 'N/A');
+      document.getElementById('senate-calendar-days').textContent = formatValue(senate.calendarDays, '0');
+      document.getElementById('senate-next').textContent = formatValue(senate.nextScheduledSession, 'N/A');
+
+      const list = document.getElementById('satirical-points');
+      const points = Array.isArray(snapshot.satiricalPoints)
+        ? snapshot.satiricalPoints.filter((point) => typeof point === 'string' && point.trim().length > 0)
+        : fallback.satiricalPoints;
+
+      list.innerHTML = '';
+      points.slice(0, 5).forEach((point) => {
+        const item = document.createElement('li');
+        item.textContent = String(point);
+        list.appendChild(item);
+      });
+
+      const cacheStatus = snapshot.source.generatedBy === 'ai' ? 'AI-generated points loaded from cache.' : 'Fallback cache snapshot loaded (AI unavailable or not configured).';
+      const refreshState = snapshot.source.generatedAt ? ` Last generated at ${new Date(snapshot.source.generatedAt).toLocaleString()}.` : '';
+      const freshness = document.getElementById('today-cache-note');
+      freshness.textContent = `${cacheStatus}${refreshState}`;
+    }
+
+    async function fetchWorkerSnapshot() {
+      for (const statusEndpoint of statusEndpoints) {
+        try {
+          const response = await fetch(statusEndpoint, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+            },
+            cache: 'no-store',
+          });
+
+          if (!response.ok) continue;
+
+          const payload = await response.json();
+          return payload?.payload ?? payload;
+        } catch (_error) {
+          // Try the next endpoint candidate.
+        }
+      }
+
+      return null;
+    }
+
+    async function refreshFromWorker() {
+      const body = await fetchWorkerSnapshot();
+      if (!body) return;
+      render(body);
+    }
+
+    render(fallback);
+    refreshFromWorker();
+  </script>
+</BaseLayout>

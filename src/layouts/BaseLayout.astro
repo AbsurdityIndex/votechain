@@ -18,6 +18,7 @@ interface Props {
   ogImage?: string;
   ogType?: string;
   robots?: string;
+  pageType?: 'WebPage' | 'Article' | 'TechArticle' | 'FAQPage';
   article?: {
     publishedTime?: string;
     modifiedTime?: string;
@@ -25,6 +26,10 @@ interface Props {
     section?: string;
     tags?: string[];
   };
+  faqSchema?: {
+    question: string;
+    answer: string;
+  }[];
 }
 
 const {
@@ -33,8 +38,12 @@ const {
   ogImage,
   ogType = 'website',
   robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  pageType: rawPageType,
   article,
+  faqSchema,
 } = Astro.props;
+
+const pageType = rawPageType ?? (article ? 'Article' : 'WebPage');
 
 const fullTitle = `${title} | Absurdity Index`;
 const siteUrl = Astro.site?.origin ?? Astro.url.origin;
@@ -51,7 +60,13 @@ const ogImageType = (() => {
   return undefined;
 })();
 
-const jsonLd = {
+const escapeJsonText = (value: string) =>
+  value
+    .replace(/\s+/g, ' ')
+    .replace(/\"/g, '"')
+    .trim();
+
+const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Absurdity Index',
@@ -71,10 +86,73 @@ const jsonLd = {
   },
 };
 
+const pageJsonLd = (() => {
+  if (pageType === 'FAQPage') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: (faqSchema ?? []).map((entry) => ({
+        '@type': 'Question',
+        name: entry.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: escapeJsonText(entry.answer.replace(/<[^>]*>/g, ' ')),
+        },
+      })),
+      name: fullTitle,
+      url: canonicalUrl.href,
+      inLanguage: 'en-US',
+    };
+  }
+
+  const type = pageType === 'TechArticle' || pageType === 'Article' ? pageType : 'WebPage';
+
+  if (type === 'WebPage') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: fullTitle,
+      description,
+      url: canonicalUrl.href,
+      inLanguage: 'en-US',
+      datePublished: article?.publishedTime,
+      dateModified: article?.modifiedTime || article?.publishedTime,
+    };
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': type,
+    headline: fullTitle,
+    description,
+    datePublished: article?.publishedTime,
+    dateModified: article?.modifiedTime || article?.publishedTime,
+    author: {
+      '@type': 'Organization',
+      name: article?.author || 'Absurdity Index',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Absurdity Index',
+      url: siteUrl,
+    },
+    url: canonicalUrl.href,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl.href,
+    },
+    inLanguage: 'en-US',
+    image: [resolvedOgImage],
+  };
+})();
+
+const jsonLd = [websiteJsonLd, pageJsonLd];
+
 const pathname = Astro.url.pathname;
 const isVoteChainRoute = pathname === '/votechain' || pathname.startsWith('/votechain/');
 
 const isEvidenceBoard = pathname.startsWith('/votechain/evidence/');
+const isPocRoute = pathname === '/votechain/poc' || pathname.startsWith('/votechain/poc/');
 const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
 ---
 
@@ -233,6 +311,22 @@ const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
     <slot name="head" />
   </head>
   <body class="bg-cream-100 text-navy-900 font-sans min-h-screen flex flex-col pb-10 sm:pb-9">
+    {isPocRoute && (
+      <script is:inline>
+        (function () {
+          var params = new URLSearchParams(window.location.search);
+          if (params.has('focus') || sessionStorage.getItem('poc-focus') === '1') {
+            document.documentElement.classList.add('poc-focus');
+          }
+        })();
+      </script>
+    )}
+    {isPocRoute && (
+      <button class="poc-focus-toggle" id="poc-focus-toggle" aria-label="Toggle focus mode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <span id="poc-focus-label">Focus</span>
+      </button>
+    )}
     <ConstructionBanner />
     <Header />
     <script is:inline>
@@ -246,7 +340,7 @@ const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
         showGlobalVoteChainSidebar ? (
           <div class="xl:max-w-7xl xl:mx-auto xl:grid xl:grid-cols-[250px_minmax(0,1fr)] xl:gap-6 xl:px-4">
             <VoteChainPageSidebar currentPath={pathname} />
-            <slot />
+            <div class="min-w-0"><slot /></div>
           </div>
         ) : (
           <slot />
@@ -277,6 +371,24 @@ const showGlobalVoteChainSidebar = isVoteChainRoute && !isEvidenceBoard;
         }, { passive: true });
         btn.addEventListener('click', function () {
           window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('poc-focus-toggle');
+        var label = document.getElementById('poc-focus-label');
+        if (!btn) return;
+        function update() {
+          var on = document.documentElement.classList.contains('poc-focus');
+          if (label) label.textContent = on ? 'Exit Focus' : 'Focus';
+        }
+        update();
+        btn.addEventListener('click', function () {
+          document.documentElement.classList.toggle('poc-focus');
+          var on = document.documentElement.classList.contains('poc-focus');
+          sessionStorage.setItem('poc-focus', on ? '1' : '0');
+          update();
         });
       })();
     </script>

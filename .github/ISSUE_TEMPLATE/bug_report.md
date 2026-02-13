@@ -10,6 +10,10 @@ assignees: []
 
 Describe the issue and the expected behavior.
 
+## Expected behavior
+
+Describe the expected behavior.
+
 ## Steps to reproduce
 
 1. Step one
@@ -21,6 +25,10 @@ Describe the issue and the expected behavior.
 - Browser/Node.js version:
 - Route or page:
 - Repo hash / commit:
+
+## Evidence
+
+Paste logs, traces, screenshots, or error payloads.
 
 ## Security impact
 

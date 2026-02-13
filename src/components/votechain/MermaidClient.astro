@@ -3,7 +3,10 @@
     var preBlocks = document.querySelectorAll('pre[data-language="mermaid"]');
     if (preBlocks.length === 0) return;
 
-    var MERMAID_CDN = '/votechain/mermaid.min.js';
+    var MERMAID_CDN_CANDIDATES = ['/votechain/mermaid.min.js', '/mermaid.min.js'];
+    var MERMAID_ICON_PREFIX = '/evidence/icons/';
+    var MERMAID_ICON_PREFIX_LEGACY = '/votechain/evidence/icons/';
+    var MERMAID_ICON_PREFIX_WITHOUT_BASE = '/evidence/icons/';
 
     function isThenable(x) {
       return !!x && (typeof x === 'object' || typeof x === 'function') && typeof x.then === 'function';
@@ -11,6 +14,25 @@
 
     function clamp(value, min, max) {
       return Math.min(max, Math.max(min, value));
+    }
+
+    function deriveAssetBaseFromPath(pathname) {
+      if (pathname === '/votechain' || pathname.indexOf('/votechain/') === 0) return '/votechain';
+      return '';
+    }
+
+    function getMermaidAssetBase() {
+      return window.__votechainAssetBase || deriveAssetBaseFromPath(window.location.pathname);
+    }
+
+    function setMermaidAssetBaseFromScript(scriptPath) {
+      if (!scriptPath) return;
+      var marker = '/mermaid.min.js';
+      if (scriptPath.indexOf(marker) === scriptPath.length - marker.length) {
+        window.__votechainAssetBase = scriptPath.substring(0, scriptPath.length - marker.length) || '';
+      } else {
+        window.__votechainAssetBase = deriveAssetBaseFromPath(window.location.pathname);
+      }
     }
 
     function normalizeText(input) {
@@ -50,6 +72,93 @@
         if (m && m[1]) return m[1];
       }
       return null;
+    }
+
+    function dedupeStrings(items) {
+      var out = [];
+      for (var i = 0; i < items.length; i++) {
+        var value = String(items[i] || '');
+        if (!value) continue;
+        if (out.indexOf(value) !== -1) continue;
+        out.push(value);
+      }
+      return out;
+    }
+
+    function buildNodeIconUrlCandidates(rawSrc) {
+      if (!rawSrc) return null;
+      var scriptBase = getMermaidAssetBase();
+      var hasOrigin = rawSrc.indexOf(window.location.origin) === 0;
+      var iconName = null;
+      if (rawSrc.indexOf(MERMAID_ICON_PREFIX) === 0) {
+        iconName = rawSrc.substring(MERMAID_ICON_PREFIX.length);
+      } else if (rawSrc.indexOf(MERMAID_ICON_PREFIX_LEGACY) === 0) {
+        iconName = rawSrc.substring(MERMAID_ICON_PREFIX_LEGACY.length);
+      } else if (hasOrigin && rawSrc.indexOf(window.location.origin + MERMAID_ICON_PREFIX) === 0) {
+        iconName = rawSrc.substring((window.location.origin + MERMAID_ICON_PREFIX).length);
+      } else if (hasOrigin && rawSrc.indexOf(window.location.origin + MERMAID_ICON_PREFIX_LEGACY) === 0) {
+        iconName = rawSrc.substring((window.location.origin + MERMAID_ICON_PREFIX_LEGACY).length);
+      }
+      if (!iconName) return null;
+      return dedupeStrings([
+        scriptBase + MERMAID_ICON_PREFIX + iconName,
+        MERMAID_ICON_PREFIX_LEGACY + iconName,
+        MERMAID_ICON_PREFIX_WITHOUT_BASE + iconName,
+      ]);
+    }
+
+    function normalizeMermaidSourceIcons(sourceText) {
+      var base = getMermaidAssetBase();
+      if (!sourceText) return sourceText;
+      return String(sourceText).replace(
+        /src=(["'])(\/(?:votechain\/)?evidence\/icons\/[^"']+)\1/g,
+        function (_, quote, srcValue) {
+          var srcPrefix = "src=";
+          var marker = '/evidence/icons/';
+          var iconStart = srcValue.indexOf(marker);
+          if (iconStart === -1) return srcPrefix + quote + srcValue + quote;
+          var iconName = srcValue.substring(iconStart + marker.length);
+          return srcPrefix + quote + base + MERMAID_ICON_PREFIX + iconName + quote;
+        }
+      );
+    }
+
+    function bindNodeIconFallback(img) {
+      if (!img || img.dataset.votechainNodeIconHandled === '1') return;
+
+      var candidates = buildNodeIconUrlCandidates(img.getAttribute('src'));
+      if (!candidates || candidates.length < 2) return;
+
+      img.dataset.votechainNodeIconHandled = '1';
+      img.dataset.votechainNodeIconCandidates = candidates.join('|');
+      img.dataset.votechainNodeIconIndex = '0';
+
+      var currentIndex = 0;
+      function onNodeIconError() {
+        var nextIndex = currentIndex + 1;
+        if (nextIndex >= candidates.length) return;
+        currentIndex = nextIndex;
+        img.dataset.votechainNodeIconIndex = String(currentIndex);
+        img.src = candidates[currentIndex];
+      }
+
+      img.addEventListener('error', onNodeIconError);
+      img.addEventListener(
+        'load',
+        function () {
+          img.removeEventListener('error', onNodeIconError);
+        },
+        { once: true }
+      );
+    }
+
+    function repairMermaidNodeIcons(diagramEl) {
+      if (!diagramEl || !diagramEl.querySelectorAll) return;
+      var images = diagramEl.querySelectorAll('img');
+      if (!images || images.length === 0) return;
+      for (var i = 0; i < images.length; i++) {
+        bindNodeIconFallback(images[i]);
+      }
     }
 
     function getNodeLabelText(nodeEl) {
@@ -1128,6 +1237,7 @@
       if (diagrams.length === 0) return;
 
       diagrams.forEach(function (diagram) {
+        repairMermaidNodeIcons(diagram);
         if (!(diagram instanceof HTMLElement)) return;
         if (diagram.querySelector('.diagram-fullscreen-trigger')) return;
 
@@ -1192,6 +1302,67 @@
       });
     }
 
+    function loadMermaidWithFallback(index) {
+      return new Promise(function (resolve, reject) {
+        var candidate = MERMAID_CDN_CANDIDATES[index];
+        if (!candidate) {
+          reject(new Error('Unable to load Mermaid script.'));
+          return;
+        }
+
+        var existing = document.querySelector('script[data-mermaid-client]');
+        var script = existing || document.createElement('script');
+        if (!existing) {
+          script.setAttribute('data-mermaid-client', 'true');
+          script.src = candidate;
+        } else if (!existing.src) {
+          script.src = candidate;
+        }
+
+        function onError() {
+          if (script.parentNode) script.parentNode.removeChild(script);
+          loadMermaidWithFallback(index + 1).then(resolve, reject);
+        }
+
+        if (existing) {
+          if (window.mermaid) {
+            setMermaidAssetBaseFromScript(existing.src);
+            resolve();
+            return;
+          }
+          if (existing.readyState === 'loaded' || existing.readyState === 'complete') {
+            onError();
+            return;
+          }
+          existing.addEventListener(
+            'load',
+            function () {
+              if (window.mermaid) {
+                setMermaidAssetBaseFromScript(existing.src);
+                resolve();
+              } else {
+                onError();
+              }
+            },
+            { once: true }
+          );
+          existing.addEventListener('error', onError, { once: true });
+          return;
+        }
+
+        script.onload = function () {
+          if (window.mermaid) {
+            setMermaidAssetBaseFromScript(script.src);
+            resolve();
+            return;
+          }
+          onError();
+        };
+        script.onerror = onError;
+        document.head.appendChild(script);
+      });
+    }
+
     function runMermaid() {
       // Mermaid script loads asynchronously and provides window.mermaid.
       var isDark = document.documentElement.classList.contains('dark');
@@ -1205,7 +1376,7 @@
       });
 
       preBlocks.forEach(function (pre, index) {
-        var sourceText = pre.textContent || '';
+        var sourceText = normalizeMermaidSourceIcons(pre.textContent || '');
         var container = document.createElement('div');
         container.className = 'mermaid-diagram my-6';
         container.id = 'mermaid-diagram-' + index;
@@ -1239,16 +1410,17 @@
     // Load Mermaid only on pages that include mermaid code blocks.
     var existing = document.querySelector('script[data-mermaid-client]');
     if (existing && window.mermaid) {
+      setMermaidAssetBaseFromScript(existing.src);
       runMermaid();
       return;
     }
 
-    var script = document.createElement('script');
-    script.setAttribute('data-mermaid-client', 'true');
-    script.src = MERMAID_CDN;
-    script.onload = function () {
-      if (window.mermaid) runMermaid();
-    };
-    document.head.appendChild(script);
+    loadMermaidWithFallback(0)
+      .then(function () {
+        if (window.mermaid) runMermaid();
+      })
+      .catch(function () {
+        if (window.mermaid) runMermaid();
+      });
   });
 </script>

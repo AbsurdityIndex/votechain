@@ -1247,3 +1247,77 @@ html[data-theme='solarized-dark'] [data-theme-dynamic] {
   border-color: var(--color-gold-400);
   color: var(--color-navy-900);
 }
+
+/* ── POC Focus Mode ─────────────────────────────────────────────────
+   Activated by html.poc-focus (via ?focus query param or toggle button).
+   Hides all layout chrome so the POC content fills the viewport. */
+html.poc-focus {
+  --layout-header-h: 0px !important;
+  --layout-fund-bar-h: 0px !important;
+  --layout-subnav-h: 0px !important;
+  --layout-sticky-top: 0px !important;
+  --layout-content-top: 0px !important;
+}
+
+html.poc-focus body { padding-bottom: 0 !important; }
+
+html.poc-focus header,
+html.poc-focus [data-votechain-subnav],
+html.poc-focus .construction-banner,
+html.poc-focus footer,
+html.poc-focus [aria-label="Satire disclaimer"],
+html.poc-focus .back-to-top,
+html.poc-focus .settings-dial-fab,
+html.poc-focus #settings-panel,
+html.poc-focus #fund-tab,
+html.poc-focus #fund-drawer,
+html.poc-focus .founding-docs-drawer,
+html.poc-focus .absurdity-index-drawer,
+html.poc-focus .legislative-glossary-drawer {
+  display: none !important;
+}
+
+/* Hide the sidebar grid wrapper — just show the slot content full-width */
+html.poc-focus .xl\:grid.xl\:grid-cols-\[250px_minmax\(0\,1fr\)\] {
+  display: block !important;
+}
+html.poc-focus .xl\:grid.xl\:grid-cols-\[250px_minmax\(0\,1fr\)\] > aside {
+  display: none !important;
+}
+
+/* Expand all width-constrained containers to fill the viewport */
+html.poc-focus main [class*="max-w-"] {
+  max-width: 100% !important;
+}
+
+/* Focus mode toggle button */
+.poc-focus-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 99999;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-navy-200);
+  background: var(--color-cream-50);
+  color: var(--color-navy-700);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s;
+}
+.poc-focus-toggle:hover { opacity: 1; background: var(--color-gold-50); }
+html.poc-focus .poc-focus-toggle {
+  top: 12px;
+  background: var(--color-navy-800);
+  color: var(--color-cream-50);
+  border-color: var(--color-navy-600);
+}
+html.poc-focus .poc-focus-toggle:hover {
+  background: var(--color-navy-700);
+}
