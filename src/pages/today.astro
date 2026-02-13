@@ -53,7 +53,6 @@ const fallbackPayload = {
   ],
 };
 
-const fallbackJson = JSON.stringify(fallbackPayload);
 ---
 
 <BaseLayout
@@ -61,7 +60,11 @@ const fallbackJson = JSON.stringify(fallbackPayload);
   description="Satirical congressional snapshot: legislative days, current statuses, and AI-generated summary points refreshed daily."
   ogType="article"
 >
-  <main class="min-h-screen bg-navy-900 text-cream-100">
+  <main
+    id="today-page-root"
+    class="min-h-screen bg-navy-900 text-cream-100"
+    data-fallback-payload={JSON.stringify(fallbackPayload)}
+  >
     <section class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
       <p class="mb-2 text-sm uppercase tracking-[0.25em] text-gold-500">Satirical Daily Digest</p>
       <h1 id="today-headline" class="font-serif text-3xl font-bold text-gold-200">{fallbackPayload.headline}</h1>
@@ -107,66 +110,114 @@ const fallbackJson = JSON.stringify(fallbackPayload);
   </main>
 
   <script>
-    const fallback = JSON.parse(`{fallbackJson}`);
+    type SnapshotSource = {
+      sourceUrl?: string;
+      dataSource?: string;
+      generatedAt?: string;
+      generatedBy?: string;
+    };
+
+    type ChamberSnapshot = {
+      status?: string;
+      number?: number | string;
+      startDate?: string;
+      startDayOfWeek?: string;
+      calendarDays?: number | string;
+      nextScheduledSession?: string;
+    };
+
+    type TodaySnapshot = {
+      headline?: string;
+      summary?: string;
+      generatedAt?: string;
+      source?: SnapshotSource;
+      chambers?: {
+        house?: ChamberSnapshot;
+        senate?: ChamberSnapshot;
+      };
+      satiricalPoints?: unknown[];
+    };
+
+    const pageRoot = document.getElementById('today-page-root');
+    const fallbackPayloadFromDom = pageRoot?.getAttribute('data-fallback-payload');
+    const fallback: TodaySnapshot = fallbackPayloadFromDom ? JSON.parse(fallbackPayloadFromDom) : {};
     const statusEndpoints = ['/api/today-in-congress', '/votechain/api/today-in-congress', '/api/today', '/votechain/api/today'];
 
-    function formatValue(value, fallbackValue = 'N/A') {
+    function formatValue(value: unknown, fallbackValue = 'N/A') {
       return value == null || value === '' ? fallbackValue : String(value);
     }
 
-    function render(snapshot) {
-      const chambers = snapshot?.chambers;
+    function setText(id: string, value: unknown, fallbackText = 'N/A') {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = formatValue(value, fallbackText);
+      }
+    }
+
+    function render(snapshot: TodaySnapshot) {
+      const chambers = snapshot.chambers;
       const house = chambers?.house;
       const senate = chambers?.senate;
-      const source = snapshot?.source || {};
+      const source = snapshot.source || {};
 
       if (!house || !senate) return;
 
-      document.getElementById('today-headline').textContent = formatValue(snapshot.headline, fallback.headline);
-      document.getElementById('today-summary').textContent = formatValue(snapshot.summary, fallback.summary);
-      document.getElementById('today-summary-date').textContent = new Date(snapshot.source.generatedAt || Date.now()).toLocaleDateString(undefined, {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-      document.getElementById('today-source-url').textContent = formatValue(source.sourceUrl, 'Manual fallback');
-      document.getElementById('today-source-origin').textContent = formatValue(source.dataSource, 'Manual fallback');
-      document.getElementById('today-generated-at').textContent = formatValue(source.generatedAt, snapshot.generatedAt);
+      setText('today-headline', snapshot.headline, fallback.headline);
+      setText('today-summary', snapshot.summary, fallback.summary);
 
-      document.getElementById('house-status').textContent = formatValue(house.status, 'Unknown');
-      document.getElementById('house-day').textContent = formatValue(house.number, '0');
-      document.getElementById('house-start').textContent = formatValue(house.startDate, 'N/A');
-      document.getElementById('house-weekday').textContent = formatValue(house.startDayOfWeek, 'N/A');
-      document.getElementById('house-calendar-days').textContent = formatValue(house.calendarDays, '0');
-      document.getElementById('house-next').textContent = formatValue(house.nextScheduledSession, 'N/A');
+      const sourceGeneratedAt = formatValue(source.generatedAt || snapshot.generatedAt || '', fallback.generatedAt || 'N/A');
+      const summaryDate = document.getElementById('today-summary-date');
+      if (summaryDate) {
+        summaryDate.textContent = new Date(String(sourceGeneratedAt)).toLocaleDateString(undefined, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      }
 
-      document.getElementById('senate-status').textContent = formatValue(senate.status, 'Unknown');
-      document.getElementById('senate-day').textContent = formatValue(senate.number, '0');
-      document.getElementById('senate-start').textContent = formatValue(senate.startDate, 'N/A');
-      document.getElementById('senate-weekday').textContent = formatValue(senate.startDayOfWeek, 'N/A');
-      document.getElementById('senate-calendar-days').textContent = formatValue(senate.calendarDays, '0');
-      document.getElementById('senate-next').textContent = formatValue(senate.nextScheduledSession, 'N/A');
+      setText('today-source-url', source.sourceUrl, 'Manual fallback');
+      setText('today-source-origin', source.dataSource, 'Manual fallback');
+      setText('today-generated-at', source.generatedAt, snapshot.generatedAt);
+
+      setText('house-status', house.status, 'Unknown');
+      setText('house-day', house.number, '0');
+      setText('house-start', house.startDate, 'N/A');
+      setText('house-weekday', house.startDayOfWeek, 'N/A');
+      setText('house-calendar-days', house.calendarDays, '0');
+      setText('house-next', house.nextScheduledSession, 'N/A');
+
+      setText('senate-status', senate.status, 'Unknown');
+      setText('senate-day', senate.number, '0');
+      setText('senate-start', senate.startDate, 'N/A');
+      setText('senate-weekday', senate.startDayOfWeek, 'N/A');
+      setText('senate-calendar-days', senate.calendarDays, '0');
+      setText('senate-next', senate.nextScheduledSession, 'N/A');
 
       const list = document.getElementById('satirical-points');
-      const points = Array.isArray(snapshot.satiricalPoints)
-        ? snapshot.satiricalPoints.filter((point) => typeof point === 'string' && point.trim().length > 0)
-        : fallback.satiricalPoints;
+      if (list) {
+        const fallbackPoints = fallback.satiricalPoints || [];
+        const points = Array.isArray(snapshot.satiricalPoints)
+          ? snapshot.satiricalPoints.filter((point: unknown): point is string => typeof point === 'string' && point.trim().length > 0)
+          : fallbackPoints.filter((point): point is string => typeof point === 'string' && point.trim().length > 0);
 
-      list.innerHTML = '';
-      points.slice(0, 5).forEach((point) => {
-        const item = document.createElement('li');
-        item.textContent = String(point);
-        list.appendChild(item);
-      });
+        list.innerHTML = '';
+        points.slice(0, 5).forEach((point) => {
+          const item = document.createElement('li');
+          item.textContent = String(point);
+          list.appendChild(item);
+        });
+      }
 
-      const cacheStatus = snapshot.source.generatedBy === 'ai' ? 'AI-generated points loaded from cache.' : 'Fallback cache snapshot loaded (AI unavailable or not configured).';
-      const refreshState = snapshot.source.generatedAt ? ` Last generated at ${new Date(snapshot.source.generatedAt).toLocaleString()}.` : '';
       const freshness = document.getElementById('today-cache-note');
-      freshness.textContent = `${cacheStatus}${refreshState}`;
+      if (freshness) {
+        const cacheStatus = source.generatedBy === 'ai' ? 'AI-generated points loaded from cache.' : 'Fallback cache snapshot loaded (AI unavailable or not configured).';
+        const refreshState = source.generatedAt ? ` Last generated at ${new Date(source.generatedAt).toLocaleString()}.` : '';
+        freshness.textContent = `${cacheStatus}${refreshState}`;
+      }
     }
 
-    async function fetchWorkerSnapshot() {
+    async function fetchWorkerSnapshot(): Promise<TodaySnapshot | null> {
       for (const statusEndpoint of statusEndpoints) {
         try {
           const response = await fetch(statusEndpoint, {
@@ -180,7 +231,7 @@ const fallbackJson = JSON.stringify(fallbackPayload);
           if (!response.ok) continue;
 
           const payload = await response.json();
-          return payload?.payload ?? payload;
+          return (payload?.payload ?? payload) as TodaySnapshot;
         } catch (_error) {
           // Try the next endpoint candidate.
         }
