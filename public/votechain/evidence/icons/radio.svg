@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:506e9a01ecdf866315ee89e54754aa32f61444cca961c4e4915439d51595a54d
-size 450
+<!--
+category: Devices
+tags: [antenna, broadcast, signal, api, radio]
+version: "1.0"
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+  <path d="M16.01 16.02a5 5 0 1 0 -8.02 0" />
+  <path d="M19.17 19.2a9 9 0 1 0 -14.34 0" />
+  <path d="M12 13v8" />
+</svg>

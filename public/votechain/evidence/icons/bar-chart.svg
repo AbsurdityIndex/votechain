@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:213ac60b86414306f2a6d49ecce87ad45fc142519333590ea44db566c4b12134
-size 405
+<!--
+category: Charts
+tags: [chart, graph, tally, results, statistics]
+version: "1.0"
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 3v18h18" />
+  <path d="M7 16v-3" />
+  <path d="M11 16v-8" />
+  <path d="M15 16v-5" />
+  <path d="M19 16v-10" />
+</svg>

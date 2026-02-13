@@ -1,3 +1,10 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:46797e5042a4cca1924cc614c693d48d9f952a1b59f6885c6abeb065546a88b5
-size 406
+<!--
+category: System
+tags: [error, critical, stop, danger, octagon, conflict]
+version: "1.0"
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 9v4" />
+  <path d="M8.7 3h6.6l4.7 4.7v6.6l-4.7 4.7h-6.6l-4.7 -4.7v-6.6z" />
+  <path d="M12 16l0 .01" />
+</svg>
