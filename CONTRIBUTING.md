@@ -25,7 +25,7 @@ npm run dev         # Start the dev server
 
 1. **Branch from `main`** and name your branch descriptively (e.g., `fix/nullifier-collision`, `feat/monitor-alerts`).
 2. **Keep PRs focused.** One logical change per PR. If you're fixing a bug and also refactoring nearby code, split them into separate PRs.
-3. **Add tests** for new functionality. The test suite lives in `tests/votechain/`.
+3. **Add tests** for new functionality. The test suite lives in `tests/poc/`.
 4. **Run the full check** before submitting:
    ```bash
    npm test

@@ -17,7 +17,7 @@ npm run deploy:workers    # Deploy all 3 Workers
 
 Run a single test file:
 ```bash
-npx vitest run tests/votechain/crypto/blind-schnorr.test.ts
+npx vitest run tests/poc/crypto/blind-schnorr.test.ts
 ```
 
 Workers (optional, not needed for POC):
@@ -39,7 +39,7 @@ npx wrangler dev --config workers/votechain-nodes/federal/wrangler.toml
 | `src/votechain-poc/crypto/` | Primitives: blind Schnorr, ECIES, ECDSA, Shamir secret sharing (uses `@noble/curves`) |
 | `workers/votechain-nodes/` | 3 Cloudflare Workers (federal, state, oversight) with Durable Objects |
 | `functions/api/votechain/poc/` | Cloudflare Pages Functions (Turnstile gate, replication proxy) |
-| `tests/votechain/` | Vitest tests — crypto primitives + integration flows |
+| `tests/poc/` | Vitest tests — crypto primitives + integration flows |
 
 ### Layout coordination (CSS custom properties)
 
@@ -96,7 +96,7 @@ Changes to `src/votechain-poc/crypto/` require:
 
 ## Testing
 
-- Test setup (`tests/votechain/setup.ts`) mocks only `localStorage` — Node 20+ provides `crypto.subtle`, `atob`/`btoa`, `TextEncoder`/`TextDecoder` natively
+- Test setup (`tests/poc/setup.ts`) mocks only `localStorage` — Node 20+ provides `crypto.subtle`, `atob`/`btoa`, `TextEncoder`/`TextDecoder` natively
 - Tests reset localStorage between each test via `beforeEach`
 - Crypto tests have a 15s timeout (elliptic curve operations can be slow)
 - Run `npm test && npm run typecheck && npm run build` before submitting PRs
