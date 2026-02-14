@@ -1932,9 +1932,8 @@ html.poc-focus #wizard-step-container .rounded-lg.border.border-navy-200.bg-crea
 .poc-tether-actions { display: block; }
 
 /* ── Success screen: poc-focus mode ─────────────────────────────────── */
-/* POC harness: show client actions, hide legacy tether section */
+/* Show Done button + print notice inside iPad */
 html.poc-focus .cast-client-actions { display: block; }
-html.poc-focus .poc-tether-actions { display: none; }
 
 /* Layout: content at ~38% from top via flex spacers, button at bottom */
 html.poc-focus #cast-success .success-content {
@@ -2007,7 +2006,7 @@ html.poc-focus #cast-success .success-checkmark-wrap { animation: fade-in-up 0.5
 html.poc-focus #cast-success .success-title { animation: fade-in-up 0.4s ease-out 150ms both; }
 html.poc-focus #cast-success .success-subtitle { animation: fade-in-up 0.4s ease-out 250ms both; }
 html.poc-focus #cast-success .success-receipt-card { animation: fade-in-up 0.4s ease-out 350ms both; }
-html.poc-focus #cast-success .poc-tether-actions { animation: fade-in-up 0.4s ease-out 450ms both; }
+html.poc-focus #cast-success .cast-client-actions { animation: fade-in-up 0.4s ease-out 500ms both; }
 /* Journey card compact styling (POC mode only — hidden in focus via .poc-tether-actions) */
 #cast-success .success-journey-card .rounded-xl { padding: 0.5rem 0.75rem; }
 #cast-success .success-journey-card p.font-sans { font-size: 0.8rem; }
