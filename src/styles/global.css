@@ -1301,6 +1301,51 @@ html[data-theme='solarized-dark'] [data-theme-dynamic] {
   --color-gold-100: #f5eac8;
 }
 
+/* ── Force light theme inside iPad device screen ────────────────────── */
+/* The voting app inside the iPad frame must always use the default light
+   palette regardless of dark mode or solarized theme on the outer page. */
+html.dark .poc-device-screen,
+html[data-theme='solarized-dark'] .poc-device-screen {
+  --color-navy-50: #eef3fa;
+  --color-navy-100: #dce7f5;
+  --color-navy-200: #c2d3e8;
+  --color-navy-300: #98b3d3;
+  --color-navy-900: #0a1628;
+  --color-navy-800: #121f36;
+  --color-navy-700: #1a2d4d;
+  --color-navy-600: #2d5986;
+  --color-navy-500: #3a6fa0;
+  --color-navy-400: #5a8fbf;
+  --color-navy-950: #060f1e;
+  --color-gold-50: #fdf9ef;
+  --color-gold-100: #f7efe0;
+  --color-gold-200: #f0e4ca;
+  --color-gold-300: #e8d5b0;
+  --color-gold-400: #d4bb8a;
+  --color-gold-500: #c5a572;
+  --color-gold-600: #a88b4a;
+  --color-gold-700: #8a6e36;
+  --color-gold-800: #6d562a;
+  --color-cream-50: #fefcf7;
+  --color-cream-100: #faf7f0;
+  --color-cream-200: #f0ebe0;
+  --color-cream-300: #e0d8c8;
+  --color-cream-400: #cfc4b2;
+  --color-cream-500: #b4a894;
+  --color-parchment: #f5f0e1;
+  --color-red-700: #8b1a1a;
+  --color-red-600: #a52020;
+  --color-green-700: #1a6b3a;
+  --color-green-600: #228b4a;
+  color: #0a1628;
+  background: white;
+}
+
+html.dark .poc-device-screen .bg-white,
+html[data-theme='solarized-dark'] .poc-device-screen .bg-white {
+  background-color: white;
+}
+
 /* Hide scrollbars while preserving swipe scroll on mobile chip rows */
 .hide-scrollbar {
   -ms-overflow-style: none;
@@ -1552,24 +1597,75 @@ html.poc-focus .poc-focus-toggle:hover {
 html.poc-focus { overflow: hidden; }
 html.poc-focus body { overflow: hidden; height: 100vh; height: 100dvh; }
 html.poc-focus main {
-  overflow-y: auto;
+  overflow: hidden;
   height: 100vh;
   height: 100dvh;
   min-height: unset !important;
   display: flex;
   flex-direction: column;
-}
-
-html.poc-focus main {
   justify-content: center;
   align-items: center;
-  padding: 0;
+  padding: 0.25rem 0.5rem;
+  gap: 0;
 }
+
+/* ── External POC chrome (above iPad frame) ─────────────────────────── */
+/* Hero bar: slim title strip — top of the external nav unit */
+html.poc-focus #poc-hero-bar {
+  width: min(92vw, calc(88dvh * 200 / 142));
+  max-width: 1100px;
+  padding: 0.25rem 1.25rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+  flex-shrink: 0;
+}
+html.poc-focus #poc-hero-bar .max-w-5xl { max-width: 100%; margin: 0; padding: 0; }
+html.poc-focus #poc-hero-bar svg[role="img"][aria-label*="Seal"] { display: none; }
+html.poc-focus #poc-hero-bar p.text-\[10px\] { display: none; }
+html.poc-focus #poc-hero-bar h1 { font-size: 0.8rem; line-height: 1.3; }
+html.poc-focus .poc-hub-link { display: inline-flex !important; }
+
+/* Step indicator: compact circles — bottom of the external nav unit */
+html.poc-focus #step-indicator-bar {
+  position: static;
+  width: min(92vw, calc(88dvh * 200 / 142));
+  max-width: 1100px;
+  background: var(--color-navy-800);
+  border: none;
+  box-shadow: none;
+  padding: 0.3rem 3rem;
+  margin: 0;
+  flex-shrink: 0;
+  border-radius: 0 0 0.375rem 0.375rem;
+}
+html.poc-focus .step-circle {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.7rem;
+  background: var(--color-navy-600);
+  color: var(--color-navy-300);
+  border: 1px solid var(--color-navy-500);
+}
+html.poc-focus [data-step].text-gold-500 .step-circle,
+html.poc-focus .step-circle.bg-gold-500 {
+  background: var(--color-gold-500);
+  color: var(--color-navy-900);
+  border-color: var(--color-gold-400);
+}
+html.poc-focus .step-circle.bg-navy-800 {
+  background: var(--color-navy-700);
+  color: var(--color-gold-400);
+  border-color: var(--color-gold-500);
+}
+html.poc-focus #step-indicator p { display: none; }
+html.poc-focus .step-connector { background: var(--color-navy-600); }
+html.poc-focus .step-connector.bg-gold-500 { background: var(--color-gold-500); }
 
 html.poc-focus .poc-device-viewer {
   /*
    * Screen rect extracted from ipad-landscape.svg evenodd cutout.
    * viewBox="0 0 200 142" — landscape aspect ratio (~1.41:1).
+   * 88dvh leaves room for the external nav above while reducing
+   * bottom whitespace on tablet-sized viewports.
    */
   --svg-w: 200;        /* viewBox width                               */
   --svg-h: 142;        /* viewBox height                              */
@@ -1578,12 +1674,15 @@ html.poc-focus .poc-device-viewer {
   --sw: 188;           /* screen width  (200 − 6 − 6)                 */
   --sh: 130;           /* screen height (142 − 6 − 6)                 */
 
-  width: min(92vw, calc(92dvh * 200 / 142));
+  width: min(92vw, calc(88dvh * 200 / 142));
   max-width: 1100px;
   aspect-ratio: 200 / 142;
   position: relative;
-  margin: 0 auto;
+  margin: 0;
   overflow: visible;
+  filter: drop-shadow(0 8px 30px rgba(10, 22, 40, 0.25));
+  flex-shrink: 0;
+  margin-top: 0.25rem;
 }
 
 html.poc-focus .poc-device-frame-svg {
@@ -1604,17 +1703,21 @@ html.poc-focus .poc-device-screen {
   height: calc(var(--sh) / var(--svg-h) * 100%);
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  padding: 0.4rem;
+  padding: 0;
   box-sizing: border-box;
   z-index: 2;
   border-radius: 4px;
+  background: var(--color-white);
 }
 
 html.poc-focus .poc-device-screen > .max-w-5xl {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   max-width: 100%;
   margin: 0;
   padding: 0;
@@ -1626,31 +1729,61 @@ html.poc-focus .poc-device-screen #wizard-controls {
   margin: 0;
 }
 
-/* Content wrapper fills remaining space below hero */
-html.poc-focus main > div[class*="max-w-"] {
+/* Content wrapper: full-bleed layout filling the device screen */
+html.poc-focus .poc-device-screen > div[class*="max-w-"] {
   flex: 1;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  padding: 0 1rem;
 }
 
-/* Step containers fill available space */
+/* Step containers: fill space (non-vote pages) */
 html.poc-focus [data-poc-step]:not([hidden]) {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Vote page: wizard step container fills space, controls stick to bottom */
+/* Vote page: wizard step container fills all available space */
 html.poc-focus #wizard-step-container {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
+/* Step cards: full-bleed, no card chrome — the app screen */
 html.poc-focus #wizard-step-container > section:not(.hidden) {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0.75rem 0.25rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+/* Data sections grow to fill available space, content top-aligned */
+html.poc-focus #wizard-step-container > section:not(.hidden) > [id$="-section"] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+/* Hide context boxes inside iPad — POC educational content, not client UI */
+html.poc-focus .poc-context-box { display: none; }
+html.poc-focus #cast-success:not(.hidden),
+html.poc-focus #cast-error:not(.hidden) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
-/* Hide verbose supplementary content (shown via detail drawer instead) */
+/* Hide all POC educational content inside the iPad — the client is the app, not the tutorial */
 html.poc-focus [data-poc-detail] { display: none !important; }
 
 /* Keep brief step descriptions visible */
@@ -1659,12 +1792,12 @@ html.poc-focus [data-poc-brief] { display: block !important; }
 /* Hide JourneyStepBar (wizard nav replaces it) */
 html.poc-focus .journey-bar { display: none !important; }
 
-/* Compact hero bars */
-html.poc-focus .bg-navy-900.py-3 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+/* Hero bar compaction for non-vote POC pages (dashboard, verify, etc.) */
+html.poc-focus .bg-navy-900.py-3 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
 html.poc-focus .bg-navy-900 svg[role="img"][aria-label*="Seal"] { display: none; }
 html.poc-focus .bg-navy-900.py-3 p.text-\[10px\] { display: none; }
 html.poc-focus .bg-navy-900.py-3 p.hidden.sm\:block { display: none !important; }
-html.poc-focus .bg-navy-900.py-3 h1 { font-size: 1rem; line-height: 1.2; }
+html.poc-focus .bg-navy-900.py-3 h1 { font-size: 1.1rem; line-height: 1.2; }
 
 /* Compact content padding */
 html.poc-focus .py-10 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
@@ -1679,10 +1812,7 @@ html.poc-focus .p-5 { padding: 0.625rem; }
 html.poc-focus .sm\:p-6 { padding: 0.625rem; }
 html.poc-focus .pb-28 { padding-bottom: 0.5rem; }
 
-/* Compact step indicator on vote page */
-html.poc-focus #step-indicator-bar { padding-top: 0.25rem; padding-bottom: 0.25rem; top: 0 !important; }
-html.poc-focus .step-circle { width: 1.5rem; height: 1.5rem; font-size: 0.7rem; }
-html.poc-focus #step-indicator p { font-size: 8px; margin-top: 0.125rem; }
+/* (Step indicator now positioned externally above iPad — see top of focus section) */
 
 /* Compact metrics grid on dashboard */
 html.poc-focus .grid.grid-cols-2.lg\:grid-cols-5 .p-6 { padding: 0.5rem; }
@@ -1714,25 +1844,1301 @@ html.poc-focus .py-8 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
 /* Compact verify page textarea */
 html.poc-focus #receipt-input { min-height: 100px; font-size: 0.65rem; padding: 0.5rem; }
 
-/* Vote page: tighten wizard controls in focus mode */
+/* Vote page: wizard controls — solid bottom bar (app navigation) */
 html.poc-focus #wizard-controls {
   position: sticky;
   bottom: 0;
   border-radius: 0;
-  border-left: 0;
-  border-right: 0;
-  border-bottom: 0;
-  margin: 0 -1rem;
+  border: none;
+  border-top: 1px solid var(--color-navy-200);
+  margin: auto -1rem 0;
   padding: 0.5rem 1rem;
   width: calc(100% + 2rem);
+  background: var(--color-white);
+  box-shadow: 0 -2px 8px rgba(10, 22, 40, 0.08);
+}
+/* Constrain status text so it doesn't push controls off screen */
+html.poc-focus #wizard-controls #wizard-status {
+  font-size: 0.7rem;
+  margin-top: 0.25rem;
+  max-height: 1.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Primary CTA (Next/action button): visually prominent */
+html.poc-focus #wizard-next {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-height: 40px;
+  border-radius: 0.5rem;
+}
+/* Restart button: icon-only in focus mode to reduce prominence */
+html.poc-focus #wizard-restart span { display: none; }
+html.poc-focus #wizard-restart { padding: 0.375rem; border-color: var(--color-navy-200); color: var(--color-navy-500); }
+html.poc-focus #wizard-restart svg { color: var(--color-navy-400); }
+html.poc-focus #wizard-restart:hover { border-color: var(--color-red-300); color: var(--color-red-600); }
+html.poc-focus #wizard-restart:hover svg { color: var(--color-red-500); }
+
+/* Step headings: larger in focus mode */
+html.poc-focus #wizard-step-container > section h2 {
+  font-size: 1.375rem;
+  margin-bottom: 0.25rem;
+}
+/* Brief descriptions: readable, not tiny */
+html.poc-focus [data-poc-brief] {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-navy-600);
+  margin-bottom: 0.5rem;
+  margin-top: 0.125rem;
 }
 
-/* Brief descriptions: compact styling */
-html.poc-focus [data-poc-brief] {
+/* Hide "Learn more" links inside iPad — POC educational links, not client UI */
+html.poc-focus [data-poc-learn-more] { display: none; }
+
+/* Data grid cards: larger and more prominent in focus mode */
+html.poc-focus #wizard-step-container .rounded-lg.border.border-navy-200.bg-cream-50 {
+  padding: 0.875rem;
+  background: var(--color-cream-50);
+  border-color: var(--color-navy-200);
+}
+html.poc-focus #wizard-step-container .rounded-lg.border.border-navy-200.bg-cream-50 p.font-mono.text-xs {
   font-size: 0.8rem;
+}
+/* (Context boxes hidden in focus mode — see rule above) */
+
+/* ── Success screen: base styles (POC browser mode) ────────────────── */
+.success-receipt-card {
+  margin-top: 1.5rem;
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-navy-200);
+  background: var(--color-cream-50);
+  overflow: hidden;
+}
+.success-receipt-body {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.cast-print-footer { display: none; }
+.cast-client-actions { display: none; }
+.poc-tether-actions { display: block; }
+
+/* ── Success screen: poc-focus mode ─────────────────────────────────── */
+/* POC harness is the only client — show tether actions, hide reload button */
+html.poc-focus .poc-tether-actions { display: block; }
+html.poc-focus .cast-client-actions { display: none; }
+
+/* Layout: content at ~38% from top via flex spacers, button at bottom */
+html.poc-focus #cast-success .success-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding: 0;
+  overflow: hidden;
+}
+html.poc-focus #cast-success .success-content::before { content: ''; flex: 2; }
+html.poc-focus #cast-success .success-content::after { content: ''; flex: 3; }
+
+/* Checkmark: solid green disc, white check — high contrast */
+html.poc-focus .success-check-badge {
+  position: relative;
+  filter: drop-shadow(0 3px 10px rgba(22, 163, 74, 0.2));
+}
+html.poc-focus .success-checkmark-svg { width: 72px; height: 72px; }
+html.poc-focus .success-circle { fill: #16a34a; stroke: #16a34a; }
+html.poc-focus .success-check { stroke: white; stroke-width: 2.5; }
+
+/* Title */
+html.poc-focus .success-title { font-size: 1.75rem; margin-top: 1rem; }
+
+/* Kiosk subtitle */
+html.poc-focus .success-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  margin-top: 0.375rem;
+  color: var(--color-navy-400);
+}
+
+/* Ballot ID: subtle chip treatment */
+html.poc-focus .success-receipt-card {
+  max-width: 100%; margin-top: 1.75rem;
+  border: none; border-radius: 0; background: transparent; box-shadow: none; overflow: visible;
+}
+html.poc-focus .success-receipt-body { padding: 0; align-items: center; text-align: center; gap: 0; }
+html.poc-focus .receipt-row:nth-child(n+2) { display: none; }
+html.poc-focus .receipt-row:first-child {
+  display: flex; flex-direction: column; align-items: center; gap: 0.375rem;
+  padding: 0.75rem 1.5rem; border-radius: 0.625rem;
+  background: var(--color-cream-50); border: 1px solid var(--color-navy-100);
+}
+html.poc-focus .receipt-row:first-child .receipt-label { font-size: 0.625rem; letter-spacing: 0.12em; color: var(--color-navy-400); }
+html.poc-focus .receipt-row:first-child .receipt-value { font-size: 1.0625rem; font-weight: 600; color: var(--color-navy-900); max-width: 100%; }
+
+/* Print notice */
+html.poc-focus .cast-print-footer {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  border: none; padding: 0; margin-top: 1.25rem; background: transparent;
+}
+html.poc-focus .cast-print-footer svg { width: 16px; height: 16px; color: var(--color-navy-300); }
+html.poc-focus .cast-print-footer span { font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 500; color: var(--color-navy-400); }
+
+/* Done button */
+html.poc-focus #cast-success .cast-client-actions { flex-shrink: 0; padding-top: 1.25rem; width: 100%; }
+html.poc-focus .cast-done-btn {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  min-height: 52px; font-family: var(--font-sans); font-size: 1.125rem; font-weight: 700;
+  letter-spacing: 0.01em; color: var(--color-gold-200); background: var(--color-navy-800);
+  border: none; border-radius: 0.75rem; cursor: pointer;
+  transition: background 0.15s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+html.poc-focus .cast-done-btn:hover { background: var(--color-navy-700); }
+
+/* Entrance animations */
+html.poc-focus #cast-success .success-checkmark-wrap { animation: fade-in-up 0.5s ease-out both; }
+html.poc-focus #cast-success .success-title { animation: fade-in-up 0.4s ease-out 150ms both; }
+html.poc-focus #cast-success .success-subtitle { animation: fade-in-up 0.4s ease-out 250ms both; }
+html.poc-focus #cast-success .success-receipt-card { animation: fade-in-up 0.4s ease-out 350ms both; }
+html.poc-focus #cast-success .cast-print-footer { animation: fade-in-up 0.3s ease-out 450ms both; }
+html.poc-focus #cast-success .cast-client-actions { animation: fade-in-up 0.4s ease-out 500ms both; }
+/* Journey card compact styling (POC mode only — hidden in focus via .poc-tether-actions) */
+#cast-success .success-journey-card .rounded-xl { padding: 0.5rem 0.75rem; }
+#cast-success .success-journey-card p.font-sans { font-size: 0.8rem; }
+
+/* Touch targets: generous sizing for tablet voting */
+html.poc-focus #ballot-options label {
+  min-height: 52px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+}
+html.poc-focus #ballot-options input[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+html.poc-focus #ballot-options .space-y-2 {
+  gap: 0.5rem;
+}
+/* Contest titles bigger */
+html.poc-focus #ballot-options .font-serif.text-lg {
+  font-size: 1.25rem;
+}
+
+/* ── Ballot contest pagination (focus mode) ────────────────────────── */
+
+/* Always-visible inline summary strip — navigation + running tally */
+.ballot-summary-strip {
+  margin-top: 0.625rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-navy-200);
+}
+.ballot-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ballot-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s ease;
+}
+.ballot-summary-row:hover {
+  background: var(--color-cream-100, #f5f0e8);
+}
+.ballot-summary-row.current {
+  background: var(--color-gold-50, #fef9e7);
+}
+/* Status dot — filled = selected */
+.ballot-summary-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-navy-300);
+  background: transparent;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.ballot-summary-dot.filled {
+  background: var(--color-gold-500);
+  border-color: var(--color-gold-500);
+}
+.ballot-summary-name {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-navy-700);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ballot-summary-arrow {
+  font-size: 0.6rem;
+  color: var(--color-navy-300);
+  flex-shrink: 0;
+}
+.ballot-summary-value {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-navy-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ballot-summary-value.selected {
+  color: var(--color-navy-800);
+  font-weight: 600;
+}
+.ballot-summary-counter {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-navy-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.25rem;
+}
+
+/* Focus-mode refinements for summary strip */
+html.poc-focus .ballot-summary-strip {
+  margin-top: 0.5rem;
+  padding-top: 0.375rem;
+}
+html.poc-focus .ballot-summary-row {
+  padding: 0.35rem 0.625rem;
+  min-height: 32px;
+}
+html.poc-focus .ballot-summary-dot {
+  width: 8px;
+  height: 8px;
+}
+html.poc-focus .ballot-summary-name {
+  font-size: 0.8rem;
+}
+html.poc-focus .ballot-summary-value {
+  font-size: 0.7rem;
+}
+
+/* Fade-in-up animation for journey CTA */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+/* ── Success checkmark animation ────────────────────────────────────── */
+@keyframes success-circle-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes success-check-draw {
+  from { stroke-dashoffset: 20; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes success-ring-pulse {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+html.poc-focus .success-circle {
+  transform-origin: center;
+  animation: success-circle-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+html.poc-focus .success-check {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: success-check-draw 0.4s ease-out 0.35s both;
+}
+
+/* ── Receipt row layout ────────────────────────────────────────────── */
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.receipt-label {
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  color: var(--color-navy-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.receipt-value {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--color-navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Focus mode: stacked label/value */
+html.poc-focus .receipt-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+html.poc-focus .receipt-label {
+  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  color: var(--color-navy-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+html.poc-focus .receipt-value {
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  color: var(--color-navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+html.poc-focus .success-ring-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  animation: success-ring-pulse 0.8s ease-out 0.2s both;
+  pointer-events: none;
+}
+
+/* ── Credential step states (focus mode) ────────────────────────────── */
+/* Hide prompt/success states in non-focus mode (they use standard layout) */
+.credential-prompt,
+.credential-success { display: none; }
+
+html.poc-focus .credential-prompt:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.5rem 0;
+  gap: 0.25rem;
+}
+
+html.poc-focus .credential-prompt-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(197, 165, 114, 0.15);
+  color: var(--color-gold-600);
+  box-shadow: 0 0 20px rgba(197, 165, 114, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+html.poc-focus .credential-prompt-text {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-navy-900);
+  line-height: 1.3;
+}
+
+html.poc-focus .credential-prompt-hint {
+  font-size: 0.7rem;
+  color: var(--color-navy-500);
+  line-height: 1.4;
+  max-width: 300px;
+}
+
+html.poc-focus .credential-success:not(.hidden) {
+  display: block;
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* ── Credential badge card ────────────────────────────────────── */
+html.poc-focus .credential-badge {
+  border: 1.5px solid var(--color-green-200, #bbf7d0);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 4px rgba(21, 128, 61, 0.08);
+}
+
+html.poc-focus .credential-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, var(--color-green-50, #f0fdf4) 0%, #ecfdf5 100%);
+  border-bottom: 1px solid var(--color-green-100, #dcfce7);
+}
+
+html.poc-focus .credential-badge-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-green-600, #16a34a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html.poc-focus .credential-badge-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+html.poc-focus .credential-badge-status {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-green-700, #15803d);
+  line-height: 1.2;
+}
+
+html.poc-focus .credential-badge-org {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-green-600, #16a34a);
+  line-height: 1.3;
+}
+
+html.poc-focus .credential-badge-seal {
+  flex-shrink: 0;
+  color: var(--color-green-400, #4ade80);
+}
+
+html.poc-focus .credential-badge-body {
+  padding: 0.625rem 0.75rem;
+}
+
+html.poc-focus .credential-badge-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+html.poc-focus .credential-badge-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-navy-400);
+  flex-shrink: 0;
+  width: 52px;
+}
+
+html.poc-focus .credential-badge-value {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+html.poc-focus .credential-badge-divider {
+  height: 1px;
+  background: var(--color-navy-100);
+  margin: 0.375rem 0;
+}
+
+html.poc-focus .credential-badge-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+html.poc-focus .credential-badge-method:not(.hidden) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  color: var(--color-navy-600);
+}
+
+html.poc-focus .credential-badge-method-tag {
+  font-weight: 600;
+  color: var(--color-navy-700);
+}
+
+html.poc-focus .credential-badge-method-sep {
+  color: var(--color-navy-300);
+}
+
+html.poc-focus .credential-badge-issuer-count {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-navy-400);
+  background: var(--color-navy-50);
+  padding: 0.1rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+/* Crypto details accordion */
+html.poc-focus .credential-badge-crypto-details {
+  border-top: 1px solid var(--color-navy-100);
+}
+
+html.poc-focus .credential-badge-crypto-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-navy-400);
+  cursor: pointer;
+  transition: color 0.15s;
+  list-style: none;
+}
+
+html.poc-focus .credential-badge-crypto-toggle::-webkit-details-marker { display: none; }
+
+html.poc-focus .credential-badge-crypto-toggle:hover {
+  color: var(--color-navy-600);
+}
+
+html.poc-focus .credential-badge-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+html.poc-focus details[open] > .credential-badge-crypto-toggle .credential-badge-chevron {
+  transform: rotate(180deg);
+}
+
+html.poc-focus .credential-badge-crypto-body {
+  padding: 0 0.75rem 0.5rem;
+}
+
+html.poc-focus .credential-badge-crypto-value {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-navy-600);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* ── Verification method selector (credential step) ─────────────────── */
+.verification-methods,
+.credential-progress { display: none; }
+
+html.poc-focus .verification-methods:not(.hidden) {
+  display: block;
+}
+
+html.poc-focus .verification-methods-label {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--color-navy-500);
   margin-bottom: 0.375rem;
-  margin-top: 0;
+  text-align: left;
+}
+
+html.poc-focus .verification-method-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.4rem 0.625rem;
+  border: 1.5px solid var(--color-navy-200);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 0.25rem;
+  background: white;
+}
+
+html.poc-focus .verification-method-option:hover {
+  border-color: var(--color-gold-400);
+  background: var(--color-gold-50, #fffbeb);
+}
+
+html.poc-focus .verification-method-option:has(input:checked) {
+  border-color: var(--color-gold-500);
+  border-left: 3px solid var(--color-gold-500);
+  background: rgba(197, 165, 114, 0.08);
+  box-shadow: 0 0 0 1px rgba(197, 165, 114, 0.3);
+}
+
+html.poc-focus .verification-method-radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--color-navy-300);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+html.poc-focus .verification-method-option:has(input:checked) .verification-method-radio {
+  border-color: var(--color-gold-600);
+}
+
+html.poc-focus .verification-method-option:has(input:checked) .verification-method-radio::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--color-gold-600);
+}
+
+html.poc-focus .verification-method-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.375rem;
+  background: var(--color-navy-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-navy-500);
+  transition: all 0.15s ease;
+}
+
+html.poc-focus .verification-method-icon svg {
+  width: 18px;
+  height: 18px;
+  transition: all 0.15s ease;
+}
+
+html.poc-focus .verification-method-option:has(input:checked) .verification-method-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+html.poc-focus .verification-method-option:has(input:checked) .verification-method-icon {
+  background: rgba(197, 165, 114, 0.15);
+  color: var(--color-gold-700);
+}
+
+html.poc-focus .verification-method-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+html.poc-focus .verification-method-name {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-navy-900);
+  line-height: 1.2;
+}
+
+html.poc-focus .verification-method-desc {
+  font-size: 0.625rem;
+  color: var(--color-navy-500);
+  line-height: 1.2;
+}
+
+html.poc-focus .verification-method-time {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-navy-400);
+  flex-shrink: 0;
+  background: var(--color-navy-50);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
+/* Liveness path selection */
+html.poc-focus .verification-liveness-section {
+  border-top: 1px solid var(--color-navy-100);
+  padding-top: 0.5rem;
+  text-align: left;
+}
+
+html.poc-focus .verification-liveness-label {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-navy-500);
+  margin-bottom: 0.375rem;
+}
+
+html.poc-focus .verification-liveness-options {
+  display: flex;
+  gap: 0.375rem;
+}
+
+html.poc-focus .verification-liveness-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  border: 1.5px solid var(--color-navy-200);
+  border-radius: 2rem;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--color-navy-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: white;
+}
+
+html.poc-focus .verification-liveness-chip:hover {
+  border-color: var(--color-gold-400);
+}
+
+html.poc-focus .verification-liveness-option:has(input:checked) .verification-liveness-chip {
+  border-color: var(--color-navy-700);
+  background: var(--color-navy-50);
+  color: var(--color-navy-800);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--color-navy-700);
+}
+
+html.poc-focus .verification-liveness-note {
+  font-size: 0.6rem;
+  color: var(--color-navy-400);
+  margin-top: 0.375rem;
+  font-style: italic;
+}
+
+/* Trust indicator footer below verification methods */
+.credential-trust-footer { display: none; }
+html.poc-focus .credential-trust-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  font-size: 0.65rem;
+  color: var(--color-navy-400);
+  letter-spacing: 0.02em;
+}
+html.poc-focus .credential-trust-footer svg {
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── Credential progress animation ───────────────────────────────────── */
+html.poc-focus .credential-progress:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+html.poc-focus .credential-progress-steps {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+html.poc-focus .credential-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  opacity: 0.4;
+}
+
+html.poc-focus .credential-progress-step.active {
+  opacity: 1;
+  background: var(--color-navy-50);
+}
+
+html.poc-focus .credential-progress-step.done {
+  opacity: 1;
+}
+
+html.poc-focus .credential-progress-indicator {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html.poc-focus .credential-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-navy-300);
+}
+
+html.poc-focus .credential-progress-step.active .credential-progress-dot,
+html.poc-focus .credential-progress-step.done .credential-progress-dot {
+  display: none;
+}
+
+html.poc-focus .credential-progress-step.active .credential-progress-spinner {
+  display: block !important;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-navy-200);
+  border-top-color: var(--color-navy-700);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+html.poc-focus .credential-progress-step.done .credential-progress-check {
+  display: block !important;
+  color: var(--color-green-600, #16a34a);
+}
+
+html.poc-focus .credential-progress-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-navy-600);
+  flex: 1;
+}
+
+html.poc-focus .credential-progress-step.active .credential-progress-label {
+  font-weight: 600;
+  color: var(--color-navy-900);
+}
+
+html.poc-focus .credential-progress-step.done .credential-progress-label {
+  color: var(--color-green-700, #15803d);
+}
+
+html.poc-focus .credential-progress-time {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-navy-400);
+}
+
+html.poc-focus .credential-progress-step.active .credential-progress-time {
+  color: var(--color-navy-600);
+}
+
+html.poc-focus .credential-progress-step.done .credential-progress-time {
+  color: var(--color-green-600, #16a34a);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* (credential-success-method styles moved into credential-badge-method above) */
+
+/* ── Challenge step states (focus mode) ──────────────────────────────── */
+.challenge-prompt,
+.challenge-success,
+.challenge-progress { display: none; }
+
+html.poc-focus .challenge-prompt:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem 0.5rem 0;
+  gap: 0.25rem;
+}
+
+html.poc-focus .challenge-prompt-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-navy-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.125rem;
+}
+
+html.poc-focus .challenge-prompt-text {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-navy-900);
+  line-height: 1.3;
+}
+
+html.poc-focus .challenge-prompt-hint {
+  font-size: 0.7rem;
+  color: var(--color-navy-500);
+  line-height: 1.4;
+  max-width: 340px;
+}
+
+/* Challenge progress — reuses credential-progress-step/indicator classes */
+html.poc-focus .challenge-progress:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+html.poc-focus .challenge-progress-steps {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+html.poc-focus .challenge-success:not(.hidden) {
+  display: block;
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* ── Challenge badge card ──────────────────────────────────────────── */
+html.poc-focus .challenge-badge {
+  border: 1.5px solid var(--color-navy-200);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 4px rgba(10, 22, 40, 0.06);
+}
+
+html.poc-focus .challenge-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, var(--color-navy-50) 0%, #f0f4f8 100%);
+  border-bottom: 1px solid var(--color-navy-100);
+}
+
+html.poc-focus .challenge-badge-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-navy-700);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html.poc-focus .challenge-badge-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+html.poc-focus .challenge-badge-status {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-navy-800);
+  line-height: 1.2;
+}
+
+html.poc-focus .challenge-badge-org {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-navy-500);
+  line-height: 1.3;
+}
+
+html.poc-focus .challenge-badge-timer {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-navy-600);
+  background: var(--color-navy-50);
+  padding: 0.15rem 0.5rem;
+  border-radius: 2rem;
+}
+
+html.poc-focus .challenge-badge-body {
+  padding: 0.625rem 0.75rem;
+}
+
+html.poc-focus .challenge-badge-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+html.poc-focus .challenge-badge-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-navy-400);
+  flex-shrink: 0;
+  width: 52px;
+}
+
+html.poc-focus .challenge-badge-value {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-navy-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+html.poc-focus .challenge-badge-status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+html.poc-focus .challenge-badge-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-navy-300);
+  flex-shrink: 0;
+}
+html.poc-focus .challenge-badge-status-dot.active { background: var(--color-green-500, #22c55e); }
+html.poc-focus .challenge-badge-status-dot.expired { background: #f87171; }
+html.poc-focus .challenge-badge-status-dot.used { background: #fbbf24; }
+
+html.poc-focus .challenge-badge-status-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--color-navy-600);
+}
+html.poc-focus .challenge-badge-status-label.active { color: var(--color-green-700, #15803d); }
+html.poc-focus .challenge-badge-status-label.expired { color: #dc2626; }
+html.poc-focus .challenge-badge-status-label.used { color: #d97706; }
+
+html.poc-focus .challenge-badge-divider {
+  height: 1px;
+  background: var(--color-navy-100);
+  margin: 0.375rem 0;
+}
+
+html.poc-focus .challenge-badge-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+html.poc-focus .challenge-badge-kid-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-navy-400);
+}
+
+html.poc-focus .challenge-badge-kid-value {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-navy-600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Challenge raw JSON accordion */
+html.poc-focus .challenge-badge-raw-details {
+  border-top: 1px solid var(--color-navy-100);
+}
+
+html.poc-focus .challenge-badge-raw-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-navy-400);
+  cursor: pointer;
+  transition: color 0.15s;
+  list-style: none;
+}
+
+html.poc-focus .challenge-badge-raw-toggle::-webkit-details-marker { display: none; }
+
+html.poc-focus .challenge-badge-raw-toggle:hover {
+  color: var(--color-navy-600);
+}
+
+html.poc-focus .challenge-badge-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+html.poc-focus details[open] > .challenge-badge-raw-toggle .challenge-badge-chevron {
+  transform: rotate(180deg);
+}
+
+html.poc-focus .challenge-badge-raw-body {
+  padding: 0 0.75rem 0.5rem;
+}
+
+html.poc-focus .challenge-badge-raw-pre {
+  border-radius: 0.375rem;
+  background: var(--color-navy-800);
+  color: var(--color-cream-100, #f5f0e8);
+  padding: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.55rem;
+  line-height: 1.5;
+  max-height: 100px;
+}
+
+
+/* ── In-iPad help drawer ─────────────────────────────────────────────── */
+/* Hide "?" help buttons in non-focus mode */
+.poc-help-btn { display: none; }
+/* Hide POC labels in focus mode */
+html.poc-focus .poc-label { display: none; }
+
+/* Show "?" help buttons in focus mode */
+html.poc-focus .poc-help-btn {
+  display: inline-flex;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 2px;
+  margin-left: auto;
+  cursor: pointer;
+  color: var(--color-navy-300);
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+html.poc-focus .poc-help-btn:hover { color: var(--color-gold-600); }
+
+/* Help drawer: slides in from right inside the iPad screen */
+html.poc-focus .poc-ipad-help {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+}
+html.poc-focus .poc-ipad-help.hidden { display: none; }
+
+html.poc-focus .poc-ipad-help-backdrop {
+  flex: 1;
+  background: rgba(10, 22, 40, 0.25);
+  cursor: pointer;
+}
+
+html.poc-focus .poc-ipad-help-panel {
+  width: 40%;
+  min-width: 260px;
+  max-width: 360px;
+  background: var(--color-white);
+  border-left: 1px solid var(--color-navy-200);
+  box-shadow: -4px 0 20px rgba(10, 22, 40, 0.12);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: poc-help-slide-in 0.2s ease-out;
+}
+
+@keyframes poc-help-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+html.poc-focus .poc-ipad-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--color-navy-100);
+  flex-shrink: 0;
+}
+
+html.poc-focus .poc-ipad-help-header h3 {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-navy-900);
+}
+
+html.poc-focus .poc-ipad-help-header button {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-navy-400);
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+html.poc-focus .poc-ipad-help-header button:hover {
+  background: var(--color-navy-100);
+  color: var(--color-navy-700);
+}
+
+html.poc-focus .poc-ipad-help-body {
+  flex: 1;
+  padding: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--color-navy-700);
+}
+
+html.poc-focus .poc-ipad-help-body p {
+  margin-bottom: 0.75rem;
+}
+
+html.poc-focus .poc-ipad-help-body strong {
+  color: var(--color-navy-900);
+}
+
+html.poc-focus .poc-ipad-help-body em {
+  color: var(--color-gold-700);
+  font-style: italic;
 }
 
 /* ── Wizard nav bar ── */
@@ -1845,7 +3251,7 @@ html.poc-focus .poc-wizard-nav {
   right: 0;
   bottom: 0;
   z-index: 9999;
-  width: min(420px, 85vw);
+  width: min(360px, 50vw);
   background: var(--color-cream-50);
   border-left: 1px solid var(--color-navy-200);
   box-shadow: -4px 0 24px rgba(10, 22, 40, 0.15);

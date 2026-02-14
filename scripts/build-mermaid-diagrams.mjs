@@ -50,10 +50,15 @@ function decodeHtmlEntities(raw) {
 
 function stripPrismCodeMarkup(raw) {
   return String(raw || '')
+    .replace(/<div\b[^>]*ec-line[^>]*>\s*<div\b[^>]*code[^>]*>/gi, '')
+    .replace(/<\/div>\s*<\/div>/gi, '\n')
     .replace(/<code\b[^>]*>/gi, '')
     .replace(/<\/code>/gi, '')
     .replace(/<span\b[^>]*>/gi, '')
-    .replace(/<\/span>/gi, '');
+    .replace(/<\/span>/gi, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\r/g, '')
+    .trim();
 }
 
 function normalizeMermaidSourceIcons(sourceText) {
