@@ -2007,8 +2007,7 @@ html.poc-focus #cast-success .success-checkmark-wrap { animation: fade-in-up 0.5
 html.poc-focus #cast-success .success-title { animation: fade-in-up 0.4s ease-out 150ms both; }
 html.poc-focus #cast-success .success-subtitle { animation: fade-in-up 0.4s ease-out 250ms both; }
 html.poc-focus #cast-success .success-receipt-card { animation: fade-in-up 0.4s ease-out 350ms both; }
-html.poc-focus #cast-success .cast-print-footer { animation: fade-in-up 0.3s ease-out 450ms both; }
-html.poc-focus #cast-success .cast-client-actions { animation: fade-in-up 0.4s ease-out 500ms both; }
+html.poc-focus #cast-success .poc-tether-actions { animation: fade-in-up 0.4s ease-out 450ms both; }
 /* Journey card compact styling (POC mode only — hidden in focus via .poc-tether-actions) */
 #cast-success .success-journey-card .rounded-xl { padding: 0.5rem 0.75rem; }
 #cast-success .success-journey-card p.font-sans { font-size: 0.8rem; }
