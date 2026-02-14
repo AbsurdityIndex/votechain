@@ -1,0 +1,166 @@
+---
+import OfficialSeal from '../../ui/OfficialSeal.astro';
+
+export interface Props {
+  current: 'vote' | 'setup' | 'verify' | 'lookup' | 'monitor' | 'dashboard' | 'trust';
+  title: string;
+  subtitle?: string;
+  variant?: 'full' | 'minimal';
+}
+
+const {
+  current,
+  title,
+  subtitle = '',
+  variant = 'full',
+} = Astro.props;
+const minimalVariant = variant === 'minimal';
+const isVote = current === 'vote';
+const clients = [
+  {
+    key: 'vote',
+    label: 'Voting Kiosk',
+    href: '/votechain/poc/vote',
+    description: 'Issue credential, clear challenges, encrypt, and cast.',
+  },
+  {
+    key: 'setup',
+    label: 'Admin Console',
+    href: '/votechain/poc/setup',
+    description: 'Election configuration plus registration desk tooling.',
+  },
+  {
+    key: 'setup-reg',
+    label: 'Registration Desk',
+    href: '/votechain/poc/setup',
+    description: 'Same-day eligibility checks and credential intake.',
+  },
+  {
+    key: 'lookup',
+    label: 'Board Audit',
+    href: '/votechain/poc/lookup',
+    description: 'Ballot lookup, bulletin-board inspection, and anchors.',
+  },
+  {
+    key: 'verify',
+    label: 'Receipt Verification',
+    href: '/votechain/poc/verify',
+    description: 'Signature, Merkle proof, and ledger checks.',
+  },
+  {
+    key: 'monitor',
+    label: 'Operations Monitor',
+    href: '/votechain/poc/monitor',
+    description: 'Fraud alerts, health telemetry, and ledger drift.',
+  },
+  {
+    key: 'dashboard',
+    label: 'Reveal & Tally',
+    href: '/votechain/poc/dashboard',
+    description: 'Publish close artifacts and oversee results.',
+  },
+  {
+    key: 'trust',
+    label: 'Trust Portal',
+    href: '/votechain/poc/trust',
+    description: 'Independent manifest, STH, and key verification.',
+  },
+] as const;
+---
+
+<header class="bg-navy-900 py-3" id="poc-harness-bar" role="banner">
+  <div class="max-w-5xl mx-auto px-4 flex items-center gap-3">
+    <OfficialSeal size="30" />
+    <div class="flex-1 min-w-0">
+      <p class="text-[10px] text-gold-500 font-mono uppercase tracking-widest leading-none">EWP POC</p>
+      <h1 class="font-serif text-lg sm:text-xl text-gold-400 font-bold leading-tight">POC Harness</h1>
+      <p class="text-[11px] text-navy-200 font-sans truncate">{title}{subtitle ? ` • ${subtitle}` : ''}</p>
+    </div>
+  </div>
+</header>
+
+{minimalVariant ? (
+  <section class="max-w-5xl mx-auto px-4 pt-3" id="poc-harness-brief">
+    <div class="rounded-lg border border-navy-200/70 bg-white/80 p-4 shadow-sm">
+      <p class="text-[10px] font-mono uppercase tracking-widest text-navy-500 mb-1">Harness Overview</p>
+      <p class="text-sm text-navy-700">
+        Launch the primary demo below. The harness remains pinned so you can still pop any operator
+        client into the modal after the tour &mdash; no duplicate launchers needed here.
+      </p>
+    </div>
+  </section>
+) : (
+  <>
+    <section class="max-w-5xl mx-auto px-4 pt-3" id="poc-harness-switcher">
+      <nav
+        class="rounded-lg border border-navy-200 bg-white/90 p-2 shadow-sm overflow-x-auto"
+        aria-label="POC client switcher"
+      >
+        <div class="flex items-center gap-2 min-w-max">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-navy-500 px-1">Clients</span>
+          {clients.map((client) => {
+            const active = client.key === current
+              || (isVote && client.key === 'vote')
+              || (current === 'setup' && client.key === 'setup-reg');
+            return (
+              <button
+                type="button"
+                class={`harness-client-pill ${active ? 'active' : ''}`}
+                data-open-client-modal
+                data-poc-module
+                data-client-key={client.key}
+                data-client-title={client.label}
+                data-client-path={client.href}
+                aria-haspopup="dialog"
+                aria-controls="poc-voting-client-modal"
+                aria-label={`Open ${client.label}: ${client.description}`}
+              >
+                {client.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </section>
+
+    <section class="max-w-5xl mx-auto px-4 pt-4" id="poc-harness-clients">
+      <div class="rounded-xl border border-navy-200 bg-white p-4 shadow-sm">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <p class="text-[10px] font-mono uppercase tracking-widest text-navy-500">Harness Client Matrix</p>
+          <p class="text-xs text-navy-600">Mocked operator clients before, during, and after voting.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" role="list">
+          {clients.map((client) => {
+            const active = client.key === current
+              || (isVote && client.key === 'vote')
+              || (current === 'setup' && client.key === 'setup-reg');
+            const descId = `poc-client-desc-${client.key}`;
+            return (
+              <article class={`harness-client-card ${active ? 'active' : ''}`} role="listitem">
+                <div class="harness-client-card-header">
+                  <p class="harness-client-card-title">{client.label}</p>
+                  {active ? <span class="harness-client-card-badge">Active</span> : null}
+                </div>
+                <p id={descId} class="harness-client-card-desc">{client.description}</p>
+                <button
+                  type="button"
+                  class="harness-client-card-action"
+                  data-open-client-modal
+                  data-poc-module
+                  data-client-key={client.key}
+                  data-client-title={client.label}
+                  data-client-path={client.href}
+                  aria-describedby={descId}
+                  aria-haspopup="dialog"
+                  aria-controls="poc-voting-client-modal"
+                >
+                  {client.key === 'vote' ? 'Open iPad Client' : 'Open Client'}
+                </button>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  </>
+)}

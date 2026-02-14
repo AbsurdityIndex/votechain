@@ -1,0 +1,36 @@
+{
+  "project": "VoteChain",
+  "branchName": "ralph/poc-improvement-pass",
+  "description": "Structured backlog for iterative Ralph execution on VoteChain.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Harden POC harness UX",
+      "description": "As an operator, I need consistent harness navigation and predictable client launch behavior.",
+      "acceptanceCriteria": [
+        "All /votechain/poc routes expose consistent harness navigation and client access",
+        "Voting client launches from harness without page-context breakage",
+        "npm run typecheck passes",
+        "npm run test passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Improve kiosk viewport behavior",
+      "description": "As a poll worker, I need the iPad kiosk flow to fit within the viewport without vertical scroll.",
+      "acceptanceCriteria": [
+        "Primary voting flow fits inside kiosk viewport in focus/modal mode",
+        "No required action controls are off-screen in normal kiosk interaction",
+        "Playwright flow verifies step progression and cast success",
+        "npm run typecheck passes",
+        "npm run test passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

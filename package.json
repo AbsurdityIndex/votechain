@@ -38,7 +38,12 @@
     "deploy:today-cache": "npx wrangler deploy --config workers/today-in-congress/wrangler.toml",
     "deploy:federal": "npx wrangler deploy --config workers/votechain-nodes/federal/wrangler.toml",
     "deploy:state": "npx wrangler deploy --config workers/votechain-nodes/state/wrangler.toml",
-    "deploy:oversight": "npx wrangler deploy --config workers/votechain-nodes/oversight/wrangler.toml"
+    "deploy:oversight": "npx wrangler deploy --config workers/votechain-nodes/oversight/wrangler.toml",
+    "ralph": "./scripts/ralph/ralph.sh",
+    "ralph:codex": "RALPH_MODEL=gpt-5.3-codex RALPH_BASE_URL=http://127.0.0.1:4321/votechain/poc/ RALPH_DISABLE_PLAYWRIGHT_MCP=1 ./scripts/ralph/ralph.sh --tool codex",
+    "ralph:claude": "./scripts/ralph/ralph.sh --tool claude",
+    "ralph:amp": "./scripts/ralph/ralph.sh --tool amp",
+    "ralph:overnight": "RALPH_TOOL=codex RALPH_MODEL=gpt-5.3-codex RALPH_BASE_URL=http://127.0.0.1:4321/votechain/poc/ RALPH_DISABLE_PLAYWRIGHT_MCP=1 ./scripts/ralph/overnight.sh 200"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
@@ -65,9 +70,13 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "@mermaid-js/mermaid-cli": "^11.12.0",
+    "danger": "^12.3.1",
+    "minimatch": "^9.0.5",
     "playwright": "^1.56.1",
     "puppeteer": "^23.11.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "zod": "^3.25.76"
   }
 }

@@ -15,6 +15,7 @@ dist/
 
 # Debug & review artifacts
 .playwright-mcp/
+.playwright-cli/
 .verify/
 playwright-artifacts/
 playwright-report/
@@ -22,3 +23,9 @@ test-results/
 coverage/
 public/votechain/evidence/diagrams/debug/
 *.log
+
+# Ralph runtime artifacts
+scripts/ralph/prd.json
+scripts/ralph/progress.txt
+scripts/ralph/archive/
+scripts/ralph/.last-branch

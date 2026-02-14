@@ -173,9 +173,9 @@ POC setup flow and ledger anchoring notes are documented in `docs/votechain-poc-
 
 ### Screenshots
 
-| Experience VoteChain | Voting Client |
+| Experience VoteChain | Voting Kiosk |
 |:---:|:---:|
-| ![POC Landing](docs/screenshots/poc-landing.png) | ![Voting Client](docs/screenshots/poc-vote.png) |
+| ![POC Landing](docs/screenshots/poc-landing.png) | ![Voting Kiosk](docs/screenshots/poc-vote.png) |
 | **Oversight Dashboard** | **Receipt Verification** |
 | ![Dashboard](docs/screenshots/poc-dashboard.png) | ![Verify](docs/screenshots/poc-verify.png) |
 

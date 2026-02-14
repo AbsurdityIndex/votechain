@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import OfficialSeal from '../../../components/ui/OfficialSeal.astro';
 import Divider from '../../../components/ui/Divider.astro';
 import Icon from '../../../components/ui/Icon.astro';
-import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
@@ -17,23 +17,31 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     tags: ['votechain', 'ewp', 'poc', 'verification'],
   }}
 >
-  <JourneyStepBar currentStep={2} />
-  <main class="bg-parchment min-h-screen">
-    <!-- Compact hero bar (matching vote page style) -->
-    <section class="bg-navy-900 py-3">
-      <div class="max-w-5xl mx-auto px-4 flex items-center gap-3">
-        <OfficialSeal size="32" />
-        <div>
-          <p class="text-[10px] text-gold-500 font-mono uppercase tracking-widest leading-none">EWP POC &mdash; Step 2 of 3</p>
-          <h1 class="font-serif text-lg sm:text-xl text-gold-400 font-bold leading-tight">Receipt Verification</h1>
-        </div>
-        <p class="hidden sm:block ml-auto text-gold-300/70 text-xs max-w-xs text-right">
-          Independently verify your ballot was recorded correctly &mdash; without revealing how you voted.
-        </p>
-      </div>
-    </section>
+  <main
+    id="poc-verify-main"
+    class="bg-parchment min-h-screen"
+    role="main"
+    aria-labelledby="poc-verify-title"
+  >
+    <PocHarnessShell
+      current="verify"
+      title="Receipt Verification"
+      subtitle="Run signature, Merkle proof, and ledger anchor checks"
+    />
 
-    <div class="max-w-5xl mx-auto px-4 py-10 sm:py-12 space-y-8">
+    <header class="max-w-5xl mx-auto px-4 pt-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Step 2 &middot; Receipt Verification</p>
+      <h1 id="poc-verify-title" class="font-serif text-3xl text-navy-900 font-bold">
+        Verify your cast receipt end-to-end
+      </h1>
+      <p class="text-navy-600 text-sm mt-2 max-w-3xl">
+        Run the four independent checks &mdash; signature validity, bulletin-board inclusion, Merkle proof,
+        and VoteChain ledger anchor &mdash; without leaving the harness. The status banner below announces every
+        result via <span class="font-mono">aria-live</span> updates, so screen-reader users get the same confirmation.
+      </p>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8">
       <!-- Wizard Step 1: Load Receipt -->
       <section data-poc-step="1" data-poc-step-label="Load Receipt">
         <div class="bg-white rounded-xl border border-navy-200 p-6 sm:p-8 shadow-md">
@@ -74,6 +82,20 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
             not forge a valid receipt or hide a missing ballot.
           </p>
 
+          <div
+            id="verify-state"
+            class="mt-4 rounded-lg border border-navy-200 bg-white/90 p-4"
+            role="status"
+            aria-live="polite"
+          >
+            <p id="verify-state-title" class="font-sans text-sm font-semibold text-navy-900">
+              Waiting for receipt.
+            </p>
+            <p id="verify-state-desc" class="text-xs text-navy-600 mt-0.5">
+              Load the most recent receipt or paste JSON, then click Verify to run all tests.
+            </p>
+          </div>
+
           <div class="mt-4 flex flex-wrap gap-2">
             <button
               id="load-last"
@@ -89,7 +111,7 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
               type="button"
             >
               <Icon name="shield" class="text-navy-900" size={18} />
-              Verify
+              <span data-button-label>Verify</span>
             </button>
           </div>
 
@@ -133,15 +155,31 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
               Every cryptographic check passed. Your ballot is provably in the count.
               Now see the full picture &mdash; publish the tally and watch the results.
             </p>
-            <a
-              href="/votechain/poc/dashboard"
+            <button
+              type="button"
+              data-open-client-modal
+              data-client-key="dashboard"
+              data-client-title="Reveal & Tally"
+              data-client-path="/votechain/poc/dashboard"
               class="mt-4 inline-flex items-center gap-2 rounded-lg bg-navy-800 px-6 py-3 text-gold-300 font-sans text-sm font-bold hover:bg-navy-700 transition-all shadow-md hover:shadow-lg group"
+              aria-haspopup="dialog"
+              aria-controls="poc-voting-client-modal"
             >
               Continue to Step 3: Watch the Count
               <Icon name="arrow-right" class="text-gold-400 transition-transform group-hover:translate-x-0.5" size={18} />
-            </a>
+            </button>
             <p class="text-navy-400 text-xs mt-3 italic">
-              Or explore the <a href="/votechain/poc/lookup" class="text-gold-600 hover:text-gold-700 underline">Ballot Lookup</a> tool
+              Or explore the
+            <a
+              href="/votechain/poc/lookup"
+              class="text-gold-600 hover:text-gold-700 underline"
+              data-open-client-modal
+              data-client-key="lookup"
+              data-client-title="Board Audit"
+              data-client-path="/votechain/poc/lookup"
+              aria-haspopup="dialog"
+              aria-controls="poc-voting-client-modal"
+            >Board Audit</a> tool
             </p>
           </div>
         </div>
@@ -169,6 +207,7 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
         </div>
       </section>
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -180,6 +219,12 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     const summaryEl = document.getElementById('verify-summary') as HTMLElement;
     const proofEl = document.getElementById('proof-json') as HTMLElement;
     const journeyPrompt = document.getElementById('verify-journey-prompt');
+    const verifyState = document.getElementById('verify-state') as HTMLElement;
+    const verifyStateTitle = document.getElementById('verify-state-title') as HTMLElement;
+    const verifyStateDesc = document.getElementById('verify-state-desc') as HTMLElement;
+    const verifyBtnLabel = verifyBtn?.querySelector<HTMLElement>('[data-button-label]') ?? null;
+    type VerifyState = 'idle' | 'loading' | 'success' | 'error';
+    let verifyBusy = false;
 
     function el(tag: keyof HTMLElementTagNameMap, className?: string, text?: string) {
       const node = document.createElement(tag);
@@ -197,6 +242,41 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
           : 'inline-flex items-center rounded-full bg-red-600/15 px-2.5 py-1 text-xs font-semibold text-red-700',
         ok ? 'OK' : 'FAIL',
       );
+    }
+
+    function setVerifyState(state: VerifyState, title: string, detail: string) {
+      const palette: Record<VerifyState, { wrapper: string; title: string; desc: string }> = {
+        idle: {
+          wrapper: 'border border-navy-200 bg-white/90',
+          title: 'text-navy-900',
+          desc: 'text-navy-600',
+        },
+        loading: {
+          wrapper: 'border border-gold-300 bg-gold-50',
+          title: 'text-gold-900',
+          desc: 'text-gold-700',
+        },
+        success: {
+          wrapper: 'border border-green-300 bg-green-50',
+          title: 'text-green-900',
+          desc: 'text-green-700',
+        },
+        error: {
+          wrapper: 'border border-red-300 bg-red-50',
+          title: 'text-red-900',
+          desc: 'text-red-700',
+        },
+      };
+      const base = 'mt-4 rounded-lg p-4';
+      verifyState.className = `${base} ${palette[state].wrapper}`;
+      verifyStateTitle.className = `font-sans text-sm font-semibold ${palette[state].title}`;
+      verifyStateDesc.className = `text-xs mt-0.5 ${palette[state].desc}`;
+      verifyStateTitle.textContent = title;
+      verifyStateDesc.textContent = detail;
+    }
+
+    function hideJourneyPrompt() {
+      if (journeyPrompt) journeyPrompt.classList.add('hidden');
     }
 
     function renderResult(result: any) {
@@ -229,29 +309,93 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
       // Advance wizard to Results step and show journey CTA if all passed
       window.dispatchEvent(new CustomEvent('poc-wizard:goto', { detail: { step: 1 } }));
 
-      if (result.status === 'ok' && journeyPrompt) {
-        journeyPrompt.classList.remove('hidden');
-        setTimeout(() => {
-          journeyPrompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 400);
+      if (journeyPrompt) {
+        if (result.status === 'ok') {
+          journeyPrompt.classList.remove('hidden');
+          setTimeout(() => {
+            journeyPrompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 400);
+        } else {
+          journeyPrompt.classList.add('hidden');
+        }
       }
     }
 
     async function runVerification() {
+      if (verifyBusy) return;
+      verifyBusy = true;
+      verifyBtn.disabled = true;
+      if (verifyBtnLabel) verifyBtnLabel.textContent = 'Verifying...';
       summaryEl.replaceChildren();
       proofEl.textContent = 'Working...';
+      hideJourneyPrompt();
+      setVerifyState(
+        'loading',
+        'Verifying receipt...',
+        'Running signature, Merkle inclusion, and ledger anchor checks.',
+      );
 
-      let receipt: unknown;
-      try {
-        receipt = JSON.parse(receiptInput.value);
-      } catch (err) {
-        summaryEl.appendChild(el('p', 'text-red-700 text-sm', `Invalid JSON: ${String(err)}`));
+      const rawReceipt = receiptInput.value.trim();
+      if (!rawReceipt) {
+        summaryEl.appendChild(
+          el('p', 'text-red-700 text-sm', 'Paste cast_receipt JSON before running verification.'),
+        );
         proofEl.textContent = 'N/A';
+        setVerifyState('error', 'Receipt required.', 'Paste the JSON receipt and try again.');
+        verifyBtn.disabled = false;
+        if (verifyBtnLabel) verifyBtnLabel.textContent = 'Verify';
+        verifyBusy = false;
         return;
       }
 
-      const result = await verifyReceipt(receipt as any);
-      renderResult(result);
+      let receipt: unknown;
+      try {
+        receipt = JSON.parse(rawReceipt);
+      } catch (err) {
+        summaryEl.appendChild(el('p', 'text-red-700 text-sm', `Invalid JSON: ${String(err)}`));
+        proofEl.textContent = 'N/A';
+        setVerifyState(
+          'error',
+          'Invalid receipt JSON.',
+          'Fix the JSON syntax (quotes, braces) and try again.',
+        );
+        verifyBtn.disabled = false;
+        if (verifyBtnLabel) verifyBtnLabel.textContent = 'Verify';
+        verifyBusy = false;
+        return;
+      }
+
+      try {
+        const result = await verifyReceipt(receipt as any);
+        renderResult(result);
+        if (result.status === 'ok') {
+          setVerifyState(
+            'success',
+            'Receipt verified.',
+            'All checks passed. Continue to Step 3 to watch the tally.',
+          );
+        } else {
+          setVerifyState(
+            'error',
+            'Verification issues detected.',
+            'Review the failing checks below and resolve before continuing.',
+          );
+        }
+      } catch (err) {
+        summaryEl.appendChild(
+          el('p', 'text-red-700 text-sm', `Verification failed: ${String(err)}`),
+        );
+        proofEl.textContent = 'N/A';
+        setVerifyState(
+          'error',
+          'Verification failed.',
+          'Retry after reloading the receipt or resetting the demo session.',
+        );
+      } finally {
+        verifyBtn.disabled = false;
+        if (verifyBtnLabel) verifyBtnLabel.textContent = 'Verify';
+        verifyBusy = false;
+      }
     }
 
     // Auto-load last receipt on page load
@@ -280,5 +424,10 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     });
 
     verifyBtn?.addEventListener('click', () => runVerification());
+    setVerifyState(
+      'idle',
+      'Waiting for receipt.',
+      'Load the most recent receipt or paste JSON before verifying.',
+    );
   </script>
 </BaseLayout>

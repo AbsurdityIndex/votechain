@@ -1,12 +1,12 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import OfficialSeal from '../../../components/ui/OfficialSeal.astro';
 import Icon from '../../../components/ui/Icon.astro';
-import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
-  title="VoteChain POC Oversight Dashboard"
+  title="VoteChain Reveal & Tally"
   description="POC oversight dashboard: simulated VoteChain ledger events, bulletin board STHs, fraud flags, and tally publishing."
   ogType="article"
   article={{
@@ -16,23 +16,47 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     tags: ['votechain', 'ewp', 'poc', 'dashboard'],
   }}
 >
-  <JourneyStepBar currentStep={3} />
-  <main class="bg-parchment min-h-screen">
-    <!-- Compact hero bar (matching vote/verify page style) -->
-    <section class="bg-navy-900 py-3">
-      <div class="max-w-5xl mx-auto px-4 flex items-center gap-3">
-        <OfficialSeal size="32" />
-        <div>
-          <p class="text-[10px] text-gold-500 font-mono uppercase tracking-widest leading-none">EWP POC &mdash; Step 3 of 3</p>
-          <h1 class="font-serif text-lg sm:text-xl text-gold-400 font-bold leading-tight">Oversight Dashboard</h1>
-        </div>
-        <p class="hidden sm:block ml-auto text-gold-300/70 text-xs max-w-xs text-right">
-          The public observer view. Publish the tally, review fraud flags, and watch the full ledger in real time.
+  <main
+    id="poc-dashboard-main"
+    class="bg-parchment min-h-screen"
+    role="main"
+    aria-labelledby="poc-dashboard-title"
+  >
+    <PocHarnessShell
+      current="dashboard"
+      title="Reveal & Tally"
+      subtitle="Election-wide controls, tally publication, and oversight monitoring"
+    />
+
+    <header class="max-w-5xl mx-auto px-4 pt-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Reveal & Tally</p>
+      <h1 id="poc-dashboard-title" class="font-serif text-3xl text-navy-900 font-bold">
+        Publish the tally and oversee every election control
+      </h1>
+      <p class="text-navy-600 text-sm mt-2 max-w-3xl">
+        These sections cover the operator dashboard: refresh telemetry, gather trustee shares, decrypt the tally,
+        and inspect bulletin-board snapshots. All controls now expose consistent focus states so keyboard users can
+        safely publish results or reset a POC election without guessing where focus lives.
+      </p>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 pt-4">
+      <div
+        id="dashboard-status"
+        class="rounded-lg border border-navy-200 bg-white/90 p-4 shadow-sm"
+        role="status"
+        aria-live="polite"
+      >
+        <p id="dashboard-status-title" class="font-sans text-sm font-semibold text-navy-900">
+          Loading dashboard.
+        </p>
+        <p id="dashboard-status-desc" class="text-xs text-navy-600 mt-0.5">
+          Fetching ledger snapshots, trustee shares, and bulletin board data.
         </p>
       </div>
-    </section>
+    </div>
 
-    <div class="max-w-5xl mx-auto px-4 py-10 sm:py-12 space-y-8">
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8">
       <!-- Wizard Step 1: Overview -->
       <section data-poc-step="1" data-poc-step-label="Overview">
       <p class="text-navy-600 text-sm mb-2" data-poc-brief>
@@ -501,6 +525,7 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
       </section>
       </section><!-- /Step 3: Audit -->
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -552,6 +577,9 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     const newVoterBtn = document.getElementById('new-voter') as HTMLButtonElement;
     const resetBtn = document.getElementById('reset') as HTMLButtonElement;
     const statusEl = document.getElementById('controls-status') as HTMLElement;
+    const dashboardStatus = document.getElementById('dashboard-status') as HTMLElement;
+    const dashboardStatusTitle = document.getElementById('dashboard-status-title') as HTMLElement;
+    const dashboardStatusDesc = document.getElementById('dashboard-status-desc') as HTMLElement;
 
     const trusteesThresholdEl = document.getElementById('trustees-threshold') as HTMLElement;
     const trusteeShareList = document.getElementById('trustee-share-list') as HTMLElement;
@@ -758,6 +786,39 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
       await refresh();
     }
 
+    type DashboardStatusState = 'loading' | 'success' | 'warning' | 'error';
+
+    function setDashboardStatus(state: DashboardStatusState, title: string, detail: string) {
+      const palette: Record<DashboardStatusState, { wrapper: string; title: string; desc: string }> = {
+        loading: {
+          wrapper: 'rounded-lg border border-gold-300 bg-gold-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-gold-900',
+          desc: 'text-xs text-gold-700 mt-0.5',
+        },
+        success: {
+          wrapper: 'rounded-lg border border-green-300 bg-green-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-green-900',
+          desc: 'text-xs text-green-700 mt-0.5',
+        },
+        warning: {
+          wrapper: 'rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-amber-900',
+          desc: 'text-xs text-amber-700 mt-0.5',
+        },
+        error: {
+          wrapper: 'rounded-lg border border-red-300 bg-red-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-red-900',
+          desc: 'text-xs text-red-700 mt-0.5',
+        },
+      };
+      const entry = palette[state];
+      dashboardStatus.className = entry.wrapper;
+      dashboardStatusTitle.className = entry.title;
+      dashboardStatusDesc.className = entry.desc;
+      dashboardStatusTitle.textContent = title;
+      dashboardStatusDesc.textContent = detail;
+    }
+
     function render(snapshot: any) {
       mVerified.textContent = String(snapshot.metrics.verified);
       mConflict.textContent = String(snapshot.metrics.crypto_conflict);
@@ -814,11 +875,28 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
       renderFraudQueue(snapshot.fraud_cases || []);
     }
 
-    async function refresh() {
-      const [snapshot, trustees] = await Promise.all([getDashboardSnapshot(), getTrusteeShares()]);
-      render(snapshot);
-      renderTrusteeShares(trustees);
-      statusEl.textContent = `Updated: ${new Date().toLocaleString()}`;
+    async function refresh(showStatus = true) {
+      if (showStatus) {
+        setDashboardStatus(
+          'loading',
+          'Refreshing dashboard...',
+          'Collecting the latest snapshot, tally, and trustee shares.',
+        );
+      }
+      try {
+        const [snapshot, trustees] = await Promise.all([getDashboardSnapshot(), getTrusteeShares()]);
+        render(snapshot);
+        renderTrusteeShares(trustees);
+        const timestamp = new Date().toLocaleString();
+        statusEl.textContent = `Updated: ${timestamp}`;
+        if (showStatus) {
+          setDashboardStatus('success', 'Dashboard updated.', `Snapshot refreshed ${timestamp}.`);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        statusEl.textContent = `Failed to refresh: ${message}`;
+        setDashboardStatus('error', 'Dashboard refresh failed.', message);
+      }
     }
 
     // Reviewer identity persistence for the demo UI
@@ -848,23 +926,39 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
     publishBtn?.addEventListener('click', async () => {
       publishBtn.disabled = true;
       statusEl.textContent = 'Publishing tally...';
+      setDashboardStatus(
+        'loading',
+        'Publishing tally...',
+        'Reconstructing trustee shares and anchoring results.',
+      );
       try {
         const shares = getSelectedShares();
         if (trusteeBundle && shares.length < trusteeBundle.threshold.t) {
           statusEl.textContent = `Select at least ${trusteeBundle.threshold.t} trustee shares.`;
+          setDashboardStatus(
+            'warning',
+            'Missing trustee shares.',
+            `Select at least ${trusteeBundle.threshold.t} share(s) before publishing.`,
+          );
           return;
         }
 
         const res = trusteeBundle ? await publishTally({ shares }) : await publishTally();
         if ('error' in res) {
           statusEl.textContent = res.error;
+          setDashboardStatus('error', 'Tally publish failed.', res.error);
         } else {
           statusEl.textContent = 'Tally published and anchored.';
+           setDashboardStatus(
+            'success',
+            'Tally published.',
+            'Results anchored on the ledger. Verify them in the Trust portal next.',
+          );
           window.dispatchEvent(new CustomEvent('votechain:state-changed'));
         }
       } finally {
         publishBtn.disabled = false;
-        await refresh();
+        await refresh(false);
       }
     });
 
@@ -889,6 +983,11 @@ import JourneyStepBar from '../../../components/votechain/JourneyStepBar.astro';
       window.location.reload();
     });
 
+    setDashboardStatus(
+      'loading',
+      'Loading dashboard.',
+      'Fetching ledger snapshots, trustee shares, and bulletin board data.',
+    );
     refresh();
   </script>
 </BaseLayout>

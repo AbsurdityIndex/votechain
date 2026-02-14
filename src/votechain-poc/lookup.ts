@@ -1,5 +1,5 @@
 /**
- * VoteChain POC — Ballot Lookup
+ * VoteChain POC — Board Audit (Ballot Lookup)
  *
  * Look up a ballot by its hash on the bulletin board and verify
  * its inclusion proof, VCL anchor, and STH signature.

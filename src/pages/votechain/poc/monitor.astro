@@ -1,12 +1,12 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import OfficialSeal from '../../../components/ui/OfficialSeal.astro';
 import Icon from '../../../components/ui/Icon.astro';
-import PocToolNav from '../../../components/votechain/PocToolNav.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
-  title="VoteChain Node Monitor"
+  title="VoteChain Operations Monitor"
   description="Real-time monitoring dashboard for the 3 VoteChain Workers nodes: federal, state, and oversight."
   ogType="article"
   article={{
@@ -16,26 +16,47 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     tags: ['votechain', 'ewp', 'poc', 'monitor', 'workers', 'nodes'],
   }}
 >
-  <main class="bg-parchment min-h-screen">
-    <section class="relative bg-navy-900 py-10 sm:py-14">
-      <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
-        <div class="flex justify-center">
-          <OfficialSeal size="90" />
-        </div>
-        <p class="text-sm text-gold-500 font-mono uppercase tracking-widest mt-5 mb-2">EWP POC</p>
-        <h1 class="font-serif text-3xl sm:text-4xl text-gold-400 font-bold">
-          Node Monitor
-        </h1>
-        <p class="mt-3 text-gold-300/80 font-sans text-base max-w-3xl mx-auto">
-          Real-time monitoring of the 3 VoteChain distributed ledger nodes.
-          Configure node URLs below, then watch ledger events, health status,
-          and cross-node consistency in real time.
+  <main
+    id="poc-monitor-main"
+    class="bg-parchment min-h-screen"
+    role="main"
+    aria-labelledby="poc-monitor-title"
+  >
+    <PocHarnessShell
+      current="monitor"
+      title="Operations Monitor"
+      subtitle="Health, drift, and fraud alerts across distributed ledger nodes"
+    />
+
+    <header class="max-w-5xl mx-auto px-4 pt-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Operations Monitor</p>
+      <h1 id="poc-monitor-title" class="font-serif text-3xl text-navy-900 font-bold">
+        Monitor node health, drift alerts, and fraud flags
+      </h1>
+      <p class="text-navy-600 text-sm mt-2 max-w-3xl">
+        Configure the node endpoints you want to observe, then use keyboard-friendly controls to toggle auto-refresh,
+        replay event feeds, and drill into anomaly alerts. Status regions below announce state changes through
+        <span class="font-mono">aria-live</span> so nothing is silent for assistive tech.
+      </p>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 pt-4">
+      <div
+        id="monitor-status"
+        class="rounded-lg border border-navy-200 bg-white/90 p-4 shadow-sm"
+        role="status"
+        aria-live="polite"
+      >
+        <p id="monitor-status-title" class="font-sans text-sm font-semibold text-navy-900">
+          Waiting for configuration.
+        </p>
+        <p id="monitor-status-desc" class="text-xs text-navy-600 mt-0.5">
+          Add node endpoints below to start streaming worker telemetry.
         </p>
       </div>
-    </section>
-    <PocToolNav current="monitor" />
+    </div>
 
-    <div class="max-w-5xl mx-auto px-4 py-10 sm:py-12 space-y-8">
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8">
       <!-- Section 1: Node Configuration -->
       <section class="bg-white rounded-xl border border-navy-200 p-6 sm:p-8 shadow-md">
         <details>
@@ -208,6 +229,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         </div>
       </section>
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -244,6 +266,9 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     const toggleRefreshBtn = document.getElementById('toggle-refresh-btn') as HTMLButtonElement;
     const autoRefreshIndicator = document.getElementById('auto-refresh-indicator') as HTMLElement;
     const refreshEventsBtn = document.getElementById('refresh-events-btn') as HTMLButtonElement;
+    const monitorStatus = document.getElementById('monitor-status') as HTMLElement;
+    const monitorStatusTitle = document.getElementById('monitor-status-title') as HTMLElement;
+    const monitorStatusDesc = document.getElementById('monitor-status-desc') as HTMLElement;
 
     // ── State ──────────────────────────────────────────────────────────────────
 
@@ -273,9 +298,47 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
       stats: LedgerStats | null;
       online: boolean;
       entries: LedgerEntry[];
+      error?: string | null;
     }
 
     let nodeStates: NodeState[] = [];
+    type MonitorStatusState = 'idle' | 'loading' | 'success' | 'warning' | 'error';
+
+    function setMonitorStatus(state: MonitorStatusState, title: string, detail: string) {
+      const palette: Record<MonitorStatusState, { wrapper: string; title: string; desc: string }> = {
+        idle: {
+          wrapper: 'rounded-lg border border-navy-200 bg-white/90 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-navy-900',
+          desc: 'text-xs text-navy-600 mt-0.5',
+        },
+        loading: {
+          wrapper: 'rounded-lg border border-gold-300 bg-gold-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-gold-900',
+          desc: 'text-xs text-gold-700 mt-0.5',
+        },
+        success: {
+          wrapper: 'rounded-lg border border-green-300 bg-green-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-green-900',
+          desc: 'text-xs text-green-700 mt-0.5',
+        },
+        warning: {
+          wrapper: 'rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-amber-900',
+          desc: 'text-xs text-amber-700 mt-0.5',
+        },
+        error: {
+          wrapper: 'rounded-lg border border-red-300 bg-red-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-red-900',
+          desc: 'text-xs text-red-700 mt-0.5',
+        },
+      };
+      const paletteEntry = palette[state];
+      monitorStatus.className = paletteEntry.wrapper;
+      monitorStatusTitle.className = paletteEntry.title;
+      monitorStatusDesc.className = paletteEntry.desc;
+      monitorStatusTitle.textContent = title;
+      monitorStatusDesc.textContent = detail;
+    }
 
     // ── Config form ────────────────────────────────────────────────────────────
 
@@ -398,7 +461,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         } else {
           const p = document.createElement('p');
           p.className = 'text-xs text-red-600';
-          p.textContent = 'Offline';
+          p.textContent = ns.error ? `Offline (${ns.error})` : 'Offline';
           card.appendChild(p);
         }
 
@@ -678,34 +741,85 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
 
     async function refreshAll() {
       const configs = getNodeConfig();
+      try {
+        setMonitorStatus(
+          'loading',
+          'Refreshing node telemetry...',
+          'Checking node health, drift, and credential issuance stats.',
+        );
 
-      // Fetch all node data in parallel
-      nodeStates = await Promise.all(
-        configs.map(async (cfg): Promise<NodeState> => {
-          if (!cfg.url.trim()) {
-            return { config: cfg, info: null, stats: null, online: false, entries: [] };
-          }
-          const [health, info, stats, entriesPage] = await Promise.all([
-            fetchNodeHealth(cfg),
-            fetchNodeInfo(cfg),
-            fetchLedgerStats(cfg),
-            fetchLedgerEntries(cfg, { from: 1, limit: 50 }),
-          ]);
-          return {
-            config: cfg,
-            info: info ?? null,
-            stats: stats ?? null,
-            online: health.online,
-            entries: entriesPage?.entries ?? [],
-          };
-        }),
-      );
+        nodeStates = await Promise.all(
+          configs.map(async (cfg): Promise<NodeState> => {
+            if (!cfg.url.trim()) {
+              return { config: cfg, info: null, stats: null, online: false, entries: [], error: 'Not configured' };
+            }
+            try {
+              const [health, info, stats, entriesPage] = await Promise.all([
+                fetchNodeHealth(cfg),
+                fetchNodeInfo(cfg),
+                fetchLedgerStats(cfg),
+                fetchLedgerEntries(cfg, { from: 1, limit: 50 }),
+              ]);
+              return {
+                config: cfg,
+                info: info ?? null,
+                stats: stats ?? null,
+                online: health.online,
+                entries: entriesPage?.entries ?? [],
+                error: health.online ? null : (health.error ?? 'Unreachable'),
+              };
+            } catch (err) {
+              return {
+                config: cfg,
+                info: null,
+                stats: null,
+                online: false,
+                entries: [],
+                error: err instanceof Error ? err.message : String(err),
+              };
+            }
+          }),
+        );
 
-      renderHealthCards();
-      renderConsistency();
-      renderCredentialMonitor();
-      renderEventTimeline();
-      renderAnomalies();
+        renderHealthCards();
+        renderConsistency();
+        renderCredentialMonitor();
+        renderEventTimeline();
+        renderAnomalies();
+
+        const configured = nodeStates.filter((ns) => ns.config.url.trim());
+        const offline = configured.filter((ns) => !ns.online);
+        if (configured.length === 0) {
+          setMonitorStatus(
+            'idle',
+            'Nodes not configured.',
+            'Add URLs for each Workers node to populate this dashboard.',
+          );
+        } else if (offline.length > 0) {
+          setMonitorStatus(
+            'warning',
+            `${offline.length} node${offline.length === 1 ? '' : 's'} offline.`,
+            'Verify the tunnel or URLs, then refresh.',
+          );
+        } else {
+          setMonitorStatus(
+            'success',
+            'Telemetry updated.',
+            `Last refreshed ${new Date().toLocaleTimeString()}.`,
+          );
+        }
+      } catch (err) {
+        renderHealthCards();
+        renderConsistency();
+        renderCredentialMonitor();
+        renderEventTimeline();
+        renderAnomalies();
+        setMonitorStatus(
+          'error',
+          'Monitor refresh failed.',
+          err instanceof Error ? err.message : String(err),
+        );
+      }
     }
 
     function startAutoRefresh() {
@@ -745,6 +859,11 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     // ── Init ───────────────────────────────────────────────────────────────────
 
     renderConfigForm();
+    setMonitorStatus(
+      'idle',
+      'Waiting for configuration.',
+      'Add node endpoints below to start streaming worker telemetry.',
+    );
     refreshAll();
   </script>
 

@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import OfficialSeal from '../../../components/ui/OfficialSeal.astro';
 import Divider from '../../../components/ui/Divider.astro';
 import Icon from '../../../components/ui/Icon.astro';
-import PocToolNav from '../../../components/votechain/PocToolNav.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
-  title="VoteChain Public Ballot Lookup"
-  description="Public ballot verification: look up any ballot by hash and verify its inclusion on the bulletin board and VoteChain ledger."
+  title="VoteChain Board Audit"
+  description="Audit ballots by hash and verify their inclusion on the bulletin board and VoteChain ledger."
   ogType="article"
   article={{
     publishedTime: '2026-02-08',
@@ -17,26 +17,30 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     tags: ['votechain', 'ewp', 'poc', 'public verification', 'ballot lookup'],
   }}
 >
-  <main class="bg-parchment min-h-screen">
-    <section class="relative bg-navy-900 py-10 sm:py-14">
-      <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
-        <div class="flex justify-center">
-          <OfficialSeal size="90" />
-        </div>
-        <p class="text-sm text-gold-500 font-mono uppercase tracking-widest mt-5 mb-2">EWP POC</p>
-        <h1 class="font-serif text-3xl sm:text-4xl text-gold-400 font-bold">
-          Public Ballot Lookup
-        </h1>
-        <p class="mt-3 text-gold-300/80 font-sans text-base max-w-3xl mx-auto">
-          Anyone can verify that a specific ballot is included in the election record. Enter a
-          ballot hash to check the bulletin board, Merkle inclusion proof, and VoteChain ledger
-          anchor &mdash; all without revealing how anyone voted.
-        </p>
-      </div>
-    </section>
-    <PocToolNav current="lookup" />
+  <main
+    id="poc-lookup-main"
+    class="bg-parchment min-h-screen"
+    role="main"
+    aria-labelledby="poc-lookup-title"
+  >
+    <PocHarnessShell
+      current="lookup"
+      title="Board Audit"
+      subtitle="Ballot lookup, bulletin-board inspection, and VoteChain anchors"
+    />
 
-    <div class="max-w-5xl mx-auto px-4 py-10 sm:py-12 space-y-8">
+    <header class="max-w-5xl mx-auto px-4 pt-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Board Audit</p>
+      <h1 id="poc-lookup-title" class="font-serif text-3xl text-navy-900 font-bold">
+        Audit the bulletin board and anchors by ballot hash
+      </h1>
+      <p class="text-navy-600 text-sm mt-2 max-w-3xl">
+        Paste a <span class="font-mono">ballot_hash</span> or browse the ledger to prove the ballot exists on the bulletin board and is anchored on
+        VoteChain. Keyboard users get visible focus rings for the lookup form, chip filters, and table rows.
+      </p>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8">
       <!-- Lookup form -->
       <section class="bg-white rounded-xl border border-navy-200 p-6 sm:p-8 shadow-md">
         <div class="flex items-center justify-between flex-wrap gap-3">
@@ -70,6 +74,20 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
           single authority can fabricate or suppress verification outcomes.
         </p>
 
+        <div
+          id="lookup-state"
+          class="mt-4 rounded-lg border border-navy-200 bg-white/90 p-4"
+          role="status"
+          aria-live="polite"
+        >
+          <p id="lookup-state-title" class="font-sans text-sm font-semibold text-navy-900">
+            Waiting for ballot hash.
+          </p>
+          <p id="lookup-state-desc" class="text-xs text-navy-600 mt-0.5">
+            Paste the <code class="font-mono">ballot_hash</code> from your receipt and run the lookup.
+          </p>
+        </div>
+
         <div class="mt-4 flex flex-col sm:flex-row gap-3">
           <input
             id="ballot-hash-input"
@@ -83,7 +101,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
             type="button"
           >
             <Icon name="search" class="text-navy-900" size={18} />
-            Look Up
+            <span data-button-label>Look Up</span>
           </button>
         </div>
 
@@ -216,9 +234,19 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         </div>
         <p id="bb-empty" class="mt-4 text-sm text-navy-500 hidden">
           No ballots on the bulletin board yet. Cast a vote from the
-          <a href="/votechain/poc/vote" class="underline hover:text-gold-700">Voting Client</a>
+          <a
+            href="/votechain/poc/vote"
+            class="underline hover:text-gold-700"
+            data-open-client-modal
+            data-client-key="vote"
+            data-client-title="Voting Kiosk"
+            data-client-path="/votechain/poc/vote"
+            aria-haspopup="dialog"
+            aria-controls="poc-voting-client-modal"
+          >Voting Kiosk</a>
           to see ballots appear here.
         </p>
+        <p id="bb-status" class="mt-2 text-xs text-red-700 hidden"></p>
       </section>
 
       <!-- How public verification works -->
@@ -269,6 +297,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         </div>
       </section>
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -294,6 +323,13 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     const proofJson = document.getElementById('proof-json') as HTMLElement;
     const bbBody = document.getElementById('bb-body') as HTMLElement;
     const bbEmpty = document.getElementById('bb-empty') as HTMLElement;
+    const bbStatus = document.getElementById('bb-status') as HTMLElement;
+    const lookupState = document.getElementById('lookup-state') as HTMLElement;
+    const lookupStateTitle = document.getElementById('lookup-state-title') as HTMLElement;
+    const lookupStateDesc = document.getElementById('lookup-state-desc') as HTMLElement;
+    const lookupBtnLabel = lookupBtn?.querySelector<HTMLElement>('[data-button-label]') ?? null;
+    type LookupState = 'idle' | 'loading' | 'success' | 'error';
+    let lookupBusy = false;
 
     function short(value: string, n = 12) {
       if (!value || value.length <= n * 2 + 3) return value;
@@ -327,6 +363,37 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
       }
 
       return svg;
+    }
+
+    function setLookupState(state: LookupState, title: string, detail: string) {
+      const palette: Record<LookupState, { wrapper: string; title: string; desc: string }> = {
+        idle: {
+          wrapper: 'border border-navy-200 bg-white/90',
+          title: 'text-navy-900',
+          desc: 'text-navy-600',
+        },
+        loading: {
+          wrapper: 'border border-gold-300 bg-gold-50',
+          title: 'text-gold-900',
+          desc: 'text-gold-700',
+        },
+        success: {
+          wrapper: 'border border-green-300 bg-green-50',
+          title: 'text-green-900',
+          desc: 'text-green-700',
+        },
+        error: {
+          wrapper: 'border border-red-300 bg-red-50',
+          title: 'text-red-900',
+          desc: 'text-red-700',
+        },
+      };
+      const base = 'mt-4 rounded-lg p-4';
+      lookupState.className = `${base} ${palette[state].wrapper}`;
+      lookupStateTitle.className = `font-sans text-sm font-semibold ${palette[state].title}`;
+      lookupStateDesc.className = `text-xs mt-0.5 ${palette[state].desc}`;
+      lookupStateTitle.textContent = title;
+      lookupStateDesc.textContent = detail;
     }
 
     function renderChecks(checks: BallotLookupResult['checks']) {
@@ -439,26 +506,73 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     }
 
     // Perform lookup
+    function clearResults() {
+      resultsSection.classList.add('hidden');
+      ballotDetails.classList.add('hidden');
+    }
+
     lookupBtn?.addEventListener('click', async () => {
+      if (lookupBusy) return;
       const hash = input.value.trim();
       if (!hash) {
         lookupStatus.textContent = 'Please enter a ballot hash.';
         lookupStatus.classList.remove('hidden');
+        setLookupState(
+          'error',
+          'Ballot hash required.',
+          'Paste the hash from your receipt and try again.',
+        );
         return;
       }
 
+      lookupBusy = true;
       lookupBtn.disabled = true;
+      if (lookupBtnLabel) lookupBtnLabel.textContent = 'Looking up...';
       lookupStatus.textContent = 'Looking up...';
       lookupStatus.classList.remove('hidden');
+      clearResults();
+      setLookupState(
+        'loading',
+        'Looking up ballot...',
+        'Checking bulletin board inclusion and ledger anchors.',
+      );
 
       try {
         const result = await lookupBallotByHash(hash);
         lookupStatus.classList.add('hidden');
         showResult(result);
+        const allOk = result.checks.every((c) => c.status === 'ok');
+        if (result.found && allOk) {
+          setLookupState(
+            'success',
+            'Ballot verified.',
+            'This ballot is recorded on the bulletin board and anchored on the ledger.',
+          );
+        } else if (result.found) {
+          setLookupState(
+            'error',
+            'Ballot found with issues.',
+            'Review the failing checks to see which layer needs attention.',
+          );
+        } else {
+          setLookupState(
+            'error',
+            'Ballot not found.',
+            'Confirm the hash matches this election snapshot and try again.',
+          );
+        }
       } catch (err) {
         lookupStatus.textContent = `Error: ${String(err)}`;
+        lookupStatus.classList.remove('hidden');
+        setLookupState(
+          'error',
+          'Lookup failed.',
+          'Check your connection or reload the page before trying again.',
+        );
       } finally {
         lookupBtn.disabled = false;
+        if (lookupBtnLabel) lookupBtnLabel.textContent = 'Look Up';
+        lookupBusy = false;
       }
     });
 
@@ -474,74 +588,101 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     }
 
     // Load bulletin board entries
-    async function loadBulletinBoard() {
-      const snapshot = await getDashboardSnapshot();
-      const leaves = snapshot.leaves;
-
-      if (leaves.length === 0) {
-        bbEmpty.classList.remove('hidden');
+    function setBbStatus(message: string | null, isError = false) {
+      if (!message) {
+        bbStatus.textContent = '';
+        bbStatus.classList.add('hidden');
         return;
       }
+      bbStatus.textContent = message;
+      bbStatus.className = isError
+        ? 'mt-2 text-xs text-red-700'
+        : 'mt-2 text-xs text-navy-500';
+      bbStatus.classList.remove('hidden');
+    }
 
-      bbBody.replaceChildren();
-      for (let i = 0; i < leaves.length; i++) {
-        const leaf = leaves[i];
-        const ballotHash = (leaf.payload as any)?.encrypted_ballot?.ballot_hash ?? '';
-        const receivedAt = (leaf.payload as any)?.received_at ?? '';
-        // Leaves are returned newest-first from getDashboardSnapshot
-        const leafIndex = leaves.length - 1 - i;
+    async function loadBulletinBoard() {
+      try {
+        setBbStatus('Loading bulletin board entries...');
+        const snapshot = await getDashboardSnapshot();
+        const leaves = snapshot.leaves;
 
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-cream-50 cursor-pointer transition-colors';
+        if (leaves.length === 0) {
+          bbBody.replaceChildren();
+          bbEmpty.classList.remove('hidden');
+          setBbStatus('Cast a ballot to populate the bulletin board.', false);
+          return;
+        }
 
-        const tdNum = document.createElement('td');
-        tdNum.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-500';
-        tdNum.textContent = String(leafIndex);
-        tr.appendChild(tdNum);
+        bbEmpty.classList.add('hidden');
+        setBbStatus(null);
+        bbBody.replaceChildren();
+        for (let i = 0; i < leaves.length; i++) {
+          const leaf = leaves[i];
+          const ballotHash = (leaf.payload as any)?.encrypted_ballot?.ballot_hash ?? '';
+          const receivedAt = (leaf.payload as any)?.received_at ?? '';
+          // Leaves are returned newest-first from getDashboardSnapshot
+          const leafIndex = leaves.length - 1 - i;
 
-        const tdHash = document.createElement('td');
-        tdHash.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-800';
-        tdHash.textContent = short(ballotHash);
-        tdHash.title = ballotHash;
-        tr.appendChild(tdHash);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-cream-50 cursor-pointer transition-colors';
 
-        const tdLeaf = document.createElement('td');
-        tdLeaf.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-800';
-        tdLeaf.textContent = short(leaf.leaf_hash);
-        tdLeaf.title = leaf.leaf_hash;
-        tr.appendChild(tdLeaf);
+          const tdNum = document.createElement('td');
+          tdNum.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-500';
+          tdNum.textContent = String(leafIndex);
+          tr.appendChild(tdNum);
 
-        const tdTime = document.createElement('td');
-        tdTime.className = 'px-3 py-2 border-b border-navy-100 text-xs text-navy-700';
-        tdTime.textContent = receivedAt ? new Date(receivedAt).toLocaleString() : '-';
-        tr.appendChild(tdTime);
+          const tdHash = document.createElement('td');
+          tdHash.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-800';
+          tdHash.textContent = short(ballotHash);
+          tdHash.title = ballotHash;
+          tr.appendChild(tdHash);
 
-        const tdAction = document.createElement('td');
-        tdAction.className = 'px-3 py-2 border-b border-navy-100';
-        const lookupLink = document.createElement('button');
-        lookupLink.type = 'button';
-        lookupLink.className = 'text-xs font-sans font-semibold text-gold-700 hover:text-gold-900 underline';
-        lookupLink.textContent = 'Verify';
-        lookupLink.addEventListener('click', () => {
-          input.value = ballotHash;
-          lookupBtn.click();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-        tdAction.appendChild(lookupLink);
-        tr.appendChild(tdAction);
+          const tdLeaf = document.createElement('td');
+          tdLeaf.className = 'px-3 py-2 border-b border-navy-100 font-mono text-xs text-navy-800';
+          tdLeaf.textContent = short(leaf.leaf_hash);
+          tdLeaf.title = leaf.leaf_hash;
+          tr.appendChild(tdLeaf);
 
-        // Clicking the row also triggers lookup
-        tr.addEventListener('click', (e) => {
-          if ((e.target as HTMLElement).tagName === 'BUTTON') return;
-          input.value = ballotHash;
-          lookupBtn.click();
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
+          const tdTime = document.createElement('td');
+          tdTime.className = 'px-3 py-2 border-b border-navy-100 text-xs text-navy-700';
+          tdTime.textContent = receivedAt ? new Date(receivedAt).toLocaleString() : '-';
+          tr.appendChild(tdTime);
 
-        bbBody.appendChild(tr);
+          const tdAction = document.createElement('td');
+          tdAction.className = 'px-3 py-2 border-b border-navy-100';
+          const lookupLink = document.createElement('button');
+          lookupLink.type = 'button';
+          lookupLink.className = 'text-xs font-sans font-semibold text-gold-700 hover:text-gold-900 underline';
+          lookupLink.textContent = 'Verify';
+          lookupLink.addEventListener('click', () => {
+            input.value = ballotHash;
+            lookupBtn.click();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          tdAction.appendChild(lookupLink);
+          tr.appendChild(tdAction);
+
+          // Clicking the row also triggers lookup
+          tr.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+            input.value = ballotHash;
+            lookupBtn.click();
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+
+          bbBody.appendChild(tr);
+        }
+      } catch (err) {
+        setBbStatus(`Unable to load bulletin board: ${String(err)}`, true);
       }
     }
 
     loadBulletinBoard();
+    setLookupState(
+      'idle',
+      'Waiting for ballot hash.',
+      'Paste a hash from your receipt or pick any entry from the board below.',
+    );
   </script>
 </BaseLayout>

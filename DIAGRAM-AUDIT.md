@@ -20,6 +20,13 @@
 
 ---
 
+## Build Troubleshooting
+
+- `npm run build` now fails open when Chromium cannot launch inside a sandboxed environment; the Mermaid CLI step logs the reason and skips rendering so the rest of the build can finish.
+- Set `MERMAID_RENDER_STRICT=1` locally or in CI to force the build to error when Mermaid renders are skipped (useful when a real diagram regression needs to be caught).
+
+---
+
 ## Global Changes
 
 ### 1. CSS Icon Badge System (`src/styles/global.css`)

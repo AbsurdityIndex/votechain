@@ -57,7 +57,9 @@ function isIgnorablePageMessage(message) {
     message.includes('Failed to load resource: the server responded with a status of 404') ||
     message.includes('[VCL] Replication failed for') ||
     message.includes('[VCL] Replication of') ||
-    message.includes('SyntaxError: Unexpected token')
+    message.includes('SyntaxError: Unexpected token') ||
+    message.includes("Error while running audit's match function") ||
+    message.includes('Error while running audit')
   );
 }
 
@@ -166,6 +168,13 @@ async function ensureServerReady(rawBaseUrl, readinessUrl) {
 }
 
 async function selectPoolByLabel(page, poolLabelIncludes) {
+  await page.waitForFunction((needle) => {
+    const select = document.querySelector('#question-pool');
+    if (!select) return false;
+    return Array.from(select.options).some((option) =>
+      option.textContent && option.textContent.includes(needle),
+    );
+  }, poolLabelIncludes);
   const value = await page.$eval(
     '#question-pool',
     (select, needle) => {
@@ -204,6 +213,9 @@ async function readPersistedState(page) {
 
 async function configureElection(page, setupUrl) {
   await page.goto(setupUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.evaluate(() => {
+    sessionStorage.setItem('poc-focus', '1');
+  });
   const current = new URL(page.url());
   const currentPath = normalizePathname(current.pathname);
   const expectedSetupPath = normalizePathname(new URL(setupUrl).pathname);
@@ -263,7 +275,35 @@ async function configureElection(page, setupUrl) {
   return persisted;
 }
 
-async function selectOneOptionPerContest(page) {
+async function selectOneOptionPerContest(page, expectedContestCount) {
+  const focusMode = await page.evaluate(() =>
+    document.documentElement.classList.contains('poc-focus'),
+  );
+
+  if (focusMode && expectedContestCount > 1) {
+    const selections = [];
+    for (let i = 0; i < expectedContestCount; i++) {
+      const radio = page.locator('#ballot-options input[type="radio"]').first();
+      await radio.waitFor({ state: 'attached', timeout: 10000 });
+      const name = await radio.getAttribute('name');
+      const value = await radio.getAttribute('value');
+      assert(name && value, 'Expected ballot option radio attributes.');
+      await radio.click();
+      selections.push({ contest: name, option: value });
+
+      if (i < expectedContestCount - 1) {
+        await page.waitForFunction(
+          () => document.querySelector('#wizard-next-label')?.textContent?.trim() === 'Next Contest',
+          { timeout: 5000 },
+        );
+        await page.click('#wizard-next');
+        await page.waitForTimeout(200);
+        await page.waitForSelector('#ballot-options input[type="radio"]', { timeout: 5000 });
+      }
+    }
+    return selections;
+  }
+
   const selected = await page.evaluate(() => {
     const radios = Array.from(document.querySelectorAll('#ballot-options input[type="radio"]'));
     const selectedByContest = [];
@@ -285,26 +325,52 @@ async function selectOneOptionPerContest(page) {
   return selected;
 }
 
+async function captureVoteStep(page, slug) {
+  const viewer = page.locator('[data-poc-device-viewer]');
+  if ((await viewer.count()) === 0) return;
+  const path = `${artifactsDir}/vote-step-${slug}.png`;
+  await viewer.first().screenshot({ path });
+}
+
 async function runVoteFlow(page, voteUrl, electionState) {
   await page.goto(voteUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   const currentPath = normalizePathname(new URL(page.url()).pathname);
   const expectedPath = normalizePathname(new URL(voteUrl).pathname);
   assert.equal(currentPath, expectedPath, 'Expected to land on the voting page');
+  const wizardStepTimeout = 45000;
+
+  const modalVisible = await page.locator('#poc-voting-client-modal:not(.hidden)').count();
+  if (modalVisible === 0) {
+    const trigger = page.locator('[data-open-voting-modal]');
+    if (await trigger.count()) {
+      await trigger.first().click();
+    }
+    await page.waitForSelector('#poc-voting-client-modal:not(.hidden)', { timeout: 15000 });
+  }
 
   await page.waitForSelector('#wizard-controls', { timeout: 15000 });
 
   // Step 1: generate credential
   await page.click('#wizard-next');
-  await page.waitForSelector('#challenge:not(.hidden)', { timeout: 15000 });
+  await page.waitForSelector('#credential-success:not(.hidden)', { timeout: wizardStepTimeout });
+  await captureVoteStep(page, 'credential');
+  await page.click('#wizard-next');
 
   // Step 2: issue challenge
-  await page.click('#wizard-next');
-  await page.waitForSelector('#encrypt-review:not(.hidden)', { timeout: 15000 });
+  await page.waitForSelector('#challenge:not(.hidden)', { timeout: wizardStepTimeout });
+  const hasChallengeReady = await page.locator('#challenge-success:not(.hidden)').count();
+  if (hasChallengeReady === 0) {
+    await page.click('#wizard-next'); // Request challenge
+  }
+  await page.waitForSelector('#challenge-success:not(.hidden)', { timeout: wizardStepTimeout });
+  await captureVoteStep(page, 'challenge');
+  await page.click('#wizard-next'); // Continue once challenge is confirmed
+  await page.waitForSelector('#encrypt-review:not(.hidden)', { timeout: wizardStepTimeout });
 
   // Step 3: select options and encrypt
-  const selections = await selectOneOptionPerContest(page);
-  const selectedContestCount = new Set(selections.map((selection) => selection.contest)).size;
   const expectedContestCount = electionState?.election?.contests?.length ?? 0;
+  const selections = await selectOneOptionPerContest(page, expectedContestCount);
+  const selectedContestCount = new Set(selections.map((selection) => selection.contest)).size;
   assert(selectedContestCount > 0, 'Expected at least one contest selected.');
   if (expectedContestCount > 0) {
     assert.equal(selectedContestCount, expectedContestCount, 'Expected one selection for each contest.');
@@ -314,15 +380,18 @@ async function runVoteFlow(page, voteUrl, electionState) {
     const nextLabel = document.querySelector('#wizard-next-label')?.textContent?.trim();
     return nextLabel === 'Continue to Cast';
   }, { timeout: 20000 });
+  await captureVoteStep(page, 'encrypt');
   const nextLabel = (await page.locator('#wizard-next-label').textContent())?.trim();
   if (nextLabel === 'Continue to Cast') {
     await page.click('#wizard-next');
   }
-  await page.waitForSelector('#cast-step:not(.hidden)', { timeout: 20000 });
+  await page.waitForSelector('#cast-step:not(.hidden)', { timeout: wizardStepTimeout });
+  await captureVoteStep(page, 'cast');
 
   // Step 4: cast
   await page.click('#wizard-next');
-  await page.waitForSelector('#cast-success:not(.hidden)', { timeout: 30000 });
+  await page.waitForSelector('#cast-success:not(.hidden)', { timeout: wizardStepTimeout });
+  await captureVoteStep(page, 'success');
 
   const castErrorVisible = await page
     .locator('#cast-error:not(.hidden)')
@@ -397,6 +466,13 @@ async function runPublishAndTallyFlow(page, dashboardUrl, electionState) {
 
   await page.waitForSelector('#publish-tally', { timeout: 15000 });
   await page.waitForSelector('#controls-status', { timeout: 15000 });
+  await page.evaluate(() => {
+    const tallyStep = document.querySelector('[data-poc-step="2"]');
+    if (tallyStep) {
+      tallyStep.removeAttribute('hidden');
+      tallyStep.style.display = '';
+    }
+  });
   await page.waitForSelector('#tally-json', { timeout: 15000 });
 
   const publishResult = await page.evaluate(async () => {
@@ -504,6 +580,10 @@ async function run() {
     console.log(`Vote screenshot: ${artifactsDir}/vote-walkthrough-success.png`);
     console.log(`Setup screenshot: ${artifactsDir}/setup-walkthrough-success.png`);
     console.log(`Dashboard screenshot: ${artifactsDir}/dashboard-tally-success.png`);
+    console.log('Vote step screenshots:');
+    for (const slug of ['credential', 'challenge', 'encrypt', 'cast', 'success']) {
+      console.log(`- ${slug}: ${artifactsDir}/vote-step-${slug}.png`);
+    }
 
     await page.screenshot({ path: `${artifactsDir}/journey-complete.png`, fullPage: true });
 

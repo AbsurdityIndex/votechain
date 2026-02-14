@@ -1,0 +1,175 @@
+---
+import VotingClient from './VotingClient.astro';
+---
+
+<div
+  id="poc-voting-client-modal"
+  class="fixed inset-0 z-[90] hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="poc-client-modal-title"
+  aria-describedby="poc-client-modal-eyebrow"
+  aria-hidden="true"
+>
+  <div
+    data-close-voting-modal
+    class="absolute inset-0 bg-navy-900/70"
+    role="presentation"
+    tabindex="-1"
+    aria-hidden="true"
+  ></div>
+  <div class="relative z-[91] max-h-[calc(100vh-2rem)] overflow-auto w-[min(98vw,1600px)] mx-auto mt-4 mb-4 rounded-xl border border-navy-200 bg-parchment shadow-2xl">
+    <div class="sticky top-0 z-10 flex items-center justify-between bg-navy-900 px-4 py-3 border-b border-navy-700">
+      <div>
+        <p id="poc-client-modal-eyebrow" class="text-[10px] text-gold-400 font-mono uppercase tracking-widest">Test Client</p>
+        <p id="poc-client-modal-title" class="text-sm text-cream-100 font-semibold">Voting Kiosk</p>
+      </div>
+      <button type="button" id="close-voting-client-modal" class="inline-flex items-center gap-1.5 rounded-md border border-navy-500 px-3 py-1.5 text-xs text-cream-100 hover:border-gold-400 hover:text-gold-200 transition-colors">
+        <span aria-hidden="true">&times;</span>
+        Close
+      </button>
+    </div>
+    <div id="poc-modal-voting-client">
+      <VotingClient />
+    </div>
+    <iframe id="poc-modal-client-frame" title="POC client" class="hidden w-full h-[min(88vh,980px)] border-0 bg-white"></iframe>
+  </div>
+</div>
+
+<script>
+  const votingClientModal = document.getElementById('poc-voting-client-modal') as HTMLElement;
+  const clientModalEyebrow = document.getElementById('poc-client-modal-eyebrow') as HTMLElement;
+  const clientModalTitle = document.getElementById('poc-client-modal-title') as HTMLElement;
+  const modalVotingClient = document.getElementById('poc-modal-voting-client') as HTMLElement;
+  const modalClientFrame = document.getElementById('poc-modal-client-frame') as HTMLIFrameElement;
+  const closeVotingClientModalBtn = document.getElementById('close-voting-client-modal') as HTMLButtonElement;
+  const openVotingClientModalBtns = document.querySelectorAll<HTMLElement>('[data-open-client-modal], [data-open-voting-modal]');
+  const closeVotingClientModalTargets = document.querySelectorAll<HTMLElement>('[data-close-voting-modal]');
+  let modalHadFocusMode = false;
+  let currentClientKey = 'vote';
+  let lastFocusedElement: HTMLElement | null = null;
+
+  function isModalOpen() {
+    return votingClientModal && !votingClientModal.classList.contains('hidden');
+  }
+
+  function getFocusableElements() {
+    if (!votingClientModal) return [];
+    const selector = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(votingClientModal.querySelectorAll<HTMLElement>(selector)).filter(
+      (node) => !node.hasAttribute('aria-hidden') || node.getAttribute('aria-hidden') !== 'true',
+    );
+  }
+
+  function focusFirstModalElement() {
+    if (closeVotingClientModalBtn) {
+      closeVotingClientModalBtn.focus();
+      return;
+    }
+    const focusable = getFocusableElements();
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+  }
+
+  function setModalClient(clientKey: string, clientTitle: string, clientPath: string | null) {
+    currentClientKey = clientKey;
+
+    if (clientKey === 'vote') {
+      clientModalEyebrow.textContent = 'Test Client';
+      clientModalTitle.textContent = clientTitle || 'Voting Kiosk';
+      modalClientFrame.classList.add('hidden');
+      modalClientFrame.removeAttribute('src');
+      modalVotingClient.classList.remove('hidden');
+      window.dispatchEvent(new CustomEvent('votechain:voting-client-open'));
+      return;
+    }
+
+    clientModalEyebrow.textContent = 'Harness Client';
+    clientModalTitle.textContent = clientTitle || 'POC Client';
+    modalVotingClient.classList.add('hidden');
+    modalClientFrame.classList.remove('hidden');
+    const nextSrc = clientPath || '/votechain/poc';
+    if (modalClientFrame.getAttribute('src') !== nextSrc) {
+      modalClientFrame.setAttribute('src', nextSrc);
+    }
+  }
+
+  function openVotingClientModal(clientKey = 'vote', clientTitle = 'Voting Kiosk', clientPath: string | null = '/votechain/poc/vote') {
+    if (document.activeElement instanceof HTMLElement) {
+      lastFocusedElement = document.activeElement;
+    } else {
+      lastFocusedElement = null;
+    }
+    modalHadFocusMode = document.documentElement.classList.contains('poc-focus');
+    document.documentElement.classList.add('poc-focus');
+    votingClientModal?.classList.remove('hidden');
+    votingClientModal?.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setModalClient(clientKey, clientTitle, clientPath);
+    focusFirstModalElement();
+  }
+
+  function closeVotingClientModal() {
+    votingClientModal?.classList.add('hidden');
+    votingClientModal?.setAttribute('aria-hidden', 'true');
+    if (!modalHadFocusMode) {
+      document.documentElement.classList.remove('poc-focus');
+    }
+    document.body.style.overflow = '';
+    if (currentClientKey !== 'vote') {
+      modalClientFrame.removeAttribute('src');
+    }
+    window.dispatchEvent(new CustomEvent('votechain:voting-client-close'));
+    if (lastFocusedElement) {
+      lastFocusedElement.focus();
+    }
+    lastFocusedElement = null;
+  }
+
+  openVotingClientModalBtns.forEach((el) => {
+    el.addEventListener('click', (event) => {
+      event.preventDefault();
+      const clientKey = el.getAttribute('data-client-key') ?? (el.hasAttribute('data-open-voting-modal') ? 'vote' : 'vote');
+      const clientTitle = el.getAttribute('data-client-title') ?? 'Voting Kiosk';
+      const clientPath = el.getAttribute('data-client-path');
+      openVotingClientModal(clientKey, clientTitle, clientPath);
+    });
+  });
+
+  closeVotingClientModalBtn?.addEventListener('click', closeVotingClientModal);
+  closeVotingClientModalTargets.forEach((el) => {
+    el.addEventListener('click', closeVotingClientModal);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!isModalOpen()) return;
+    if (event.key === 'Escape') {
+      closeVotingClientModal();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey) {
+        if (activeElement === first || !activeElement) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
+</script>

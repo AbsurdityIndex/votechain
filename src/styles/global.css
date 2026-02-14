@@ -84,6 +84,19 @@ body {
   line-height: 1.6;
 }
 
+:root {
+  --focus-ring-color: var(--color-gold-500, #c5a572);
+}
+
+:where(a, button, input, textarea, select, summary, [role='button'], [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+:where(.poc-hero-primary, .poc-hero-secondary, .journey-cta-primary, .journey-cta-secondary, .journey-cta-done, .harness-client-card-action, .harness-client-pill, .poc-progress-dot):focus-visible {
+  box-shadow: 0 0 0 3px rgba(197, 165, 114, 0.35);
+}
+
 /* Mermaid diagrams */
 .mermaid-diagram {
   margin: 0;
@@ -1558,36 +1571,108 @@ html.poc-focus main [class*="max-w-"] {
   max-width: 100% !important;
 }
 
-/* Focus mode toggle button */
-.poc-focus-toggle {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 99999;
+/* Harness client switcher */
+.harness-client-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  justify-content: center;
+  border-radius: 0.5rem;
   border: 1px solid var(--color-navy-200);
-  background: var(--color-cream-50);
-  color: var(--color-navy-700);
+  background: var(--color-white);
+  color: var(--color-navy-800);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 0.95rem;
   font-weight: 600;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
 }
-.poc-focus-toggle:hover { opacity: 1; background: var(--color-gold-50); }
-html.poc-focus .poc-focus-toggle {
-  top: 12px;
-  background: var(--color-navy-800);
-  color: var(--color-cream-50);
-  border-color: var(--color-navy-600);
+.harness-client-pill:hover {
+  border-color: var(--color-gold-400);
+  background: var(--color-gold-50);
+  color: var(--color-navy-900);
 }
-html.poc-focus .poc-focus-toggle:hover {
-  background: var(--color-navy-700);
+.harness-client-pill.active {
+  border-color: var(--color-gold-400);
+  background: var(--color-gold-500);
+  color: var(--color-navy-900);
+}
+
+.harness-client-card {
+  border: 1px solid var(--color-navy-200);
+  border-radius: 0.625rem;
+  background: var(--color-cream-50);
+  padding: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 132px;
+}
+
+.harness-client-card.active {
+  border-color: var(--color-gold-400);
+  background: var(--color-gold-50);
+}
+
+.harness-client-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.harness-client-card-title {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-navy-900);
+}
+
+.harness-client-card-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-green-300);
+  background: var(--color-green-50);
+  color: var(--color-green-700);
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+}
+
+.harness-client-card-desc {
+  color: var(--color-navy-600);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.harness-client-card-action {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-navy-200);
+  background: var(--color-white);
+  color: var(--color-navy-900);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.5rem 0.625rem;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.harness-client-card-action:hover {
+  border-color: var(--color-gold-400);
+  background: var(--color-gold-100);
+  color: var(--color-navy-900);
 }
 
 /* ── POC Focus Mode: Wizard & Compaction ─────────────────────────────
@@ -1659,6 +1744,7 @@ html.poc-focus .step-circle.bg-navy-800 {
 html.poc-focus #step-indicator p { display: none; }
 html.poc-focus .step-connector { background: var(--color-navy-600); }
 html.poc-focus .step-connector.bg-gold-500 { background: var(--color-gold-500); }
+html.poc-focus #poc-harness-clients { display: none; }
 
 html.poc-focus .poc-device-viewer {
   /*
@@ -1701,9 +1787,8 @@ html.poc-focus .poc-device-screen {
   left:   calc(var(--sx) / var(--svg-w) * 100%);
   width:  calc(var(--sw) / var(--svg-w) * 100%);
   height: calc(var(--sh) / var(--svg-h) * 100%);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
+  overflow: hidden;
+  overscroll-behavior: none;
   pointer-events: auto;
   display: flex;
   flex-direction: column;
@@ -1716,6 +1801,7 @@ html.poc-focus .poc-device-screen {
 
 html.poc-focus .poc-device-screen > .max-w-5xl {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   max-width: 100%;
@@ -1732,6 +1818,7 @@ html.poc-focus .poc-device-screen #wizard-controls {
 /* Content wrapper: full-bleed layout filling the device screen */
 html.poc-focus .poc-device-screen > div[class*="max-w-"] {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   max-width: 100%;
@@ -1748,12 +1835,14 @@ html.poc-focus [data-poc-step]:not([hidden]) {
 /* Vote page: wizard step container fills all available space */
 html.poc-focus #wizard-step-container {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 /* Step cards: full-bleed, no card chrome — the app screen */
 html.poc-focus #wizard-step-container > section:not(.hidden) {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1766,12 +1855,12 @@ html.poc-focus #wizard-step-container > section:not(.hidden) {
 /* Data sections grow to fill available space, content top-aligned */
 html.poc-focus #wizard-step-container > section:not(.hidden) > [id$="-section"] {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
 /* Hide context boxes inside iPad — POC educational content, not client UI */
-html.poc-focus .poc-context-box { display: none; }
 html.poc-focus #cast-success:not(.hidden),
 html.poc-focus #cast-error:not(.hidden) {
   flex: 1;
@@ -1784,7 +1873,30 @@ html.poc-focus #cast-error:not(.hidden) {
 }
 
 /* Hide all POC educational content inside the iPad — the client is the app, not the tutorial */
-html.poc-focus [data-poc-detail] { display: none !important; }
+html.poc-focus .poc-context-box {
+  font-size: 0.8rem;
+  border-color: rgba(15, 23, 42, 0.15);
+  background: rgba(250, 249, 246, 0.92);
+}
+html.poc-focus .poc-context-box summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b5d26;
+  cursor: pointer;
+}
+html.poc-focus [data-poc-detail] {
+  display: block !important;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+html.poc-focus [data-poc-detail] summary {
+  font-size: 0.7rem;
+}
 
 /* Keep brief step descriptions visible */
 html.poc-focus [data-poc-brief] { display: block !important; }
@@ -1908,6 +2020,55 @@ html.poc-focus #wizard-step-container .rounded-lg.border.border-navy-200.bg-crea
   font-size: 0.8rem;
 }
 /* (Context boxes hidden in focus mode — see rule above) */
+
+/* Kiosk layout helpers keep each step within the iPad viewport */
+html.poc-focus .poc-kiosk-step:not(.hidden) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  column-gap: 0.75rem;
+  row-gap: 0.35rem;
+  align-items: start;
+}
+html.poc-focus #credential.poc-kiosk-step:not(.hidden),
+html.poc-focus #challenge.poc-kiosk-step:not(.hidden) {
+  grid-template-columns: minmax(0, 0.55fr) minmax(0, 0.45fr);
+}
+html.poc-focus #cast-step.poc-kiosk-step:not(.hidden) {
+  grid-template-columns: minmax(0, 0.56fr) minmax(0, 0.44fr);
+}
+html.poc-focus #encrypt-review.poc-kiosk-step:not(.hidden) {
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 0.38fr);
+  grid-auto-rows: min-content;
+}
+html.poc-focus .poc-kiosk-step > * {
+  grid-column: 1 / 2;
+}
+html.poc-focus .poc-kiosk-status-panel {
+  grid-column: 2 / 3;
+  align-self: stretch;
+  margin-top: 0 !important;
+}
+html.poc-focus #credential-progress,
+html.poc-focus #challenge-progress {
+  min-height: 0;
+}
+html.poc-focus #encrypt-review #ballot-section {
+  grid-column: 1 / 2;
+  min-height: 0;
+}
+html.poc-focus #encrypt-review #ballot-section #ballot-options {
+  min-height: 0;
+}
+html.poc-focus #encrypt-review #review-panel {
+  margin: 0;
+}
+html.poc-focus #cast-summary-card {
+  margin-top: 0;
+}
+html.poc-focus .poc-kiosk-full {
+  grid-column: 1 / 3;
+}
+
 
 /* ── Success screen: base styles (POC browser mode) ────────────────── */
 .success-receipt-card {
@@ -2461,17 +2622,19 @@ html.poc-focus .credential-badge-crypto-value {
 .credential-progress { display: none; }
 
 html.poc-focus .verification-methods:not(.hidden) {
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
 }
 
 html.poc-focus .verification-methods-label {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.64rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-navy-500);
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.2rem;
   text-align: left;
 }
 
@@ -2479,13 +2642,13 @@ html.poc-focus .verification-method-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.4rem 0.625rem;
+  min-height: 0;
+  padding: 0.4rem 0.55rem;
   border: 1.5px solid var(--color-navy-200);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-bottom: 0.25rem;
+  margin: 0;
   background: white;
 }
 
@@ -2557,6 +2720,7 @@ html.poc-focus .verification-method-content {
   flex-direction: column;
   flex: 1;
   min-width: 0;
+  gap: 0.05rem;
 }
 
 html.poc-focus .verification-method-name {
@@ -2603,6 +2767,8 @@ html.poc-focus .verification-liveness-label {
 html.poc-focus .verification-liveness-options {
   display: flex;
   gap: 0.375rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 html.poc-focus .verification-liveness-chip {

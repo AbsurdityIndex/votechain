@@ -11,6 +11,14 @@ const repoRoot = path.resolve(path.dirname(__filename), '..');
 const distDir = path.join(repoRoot, 'dist');
 const PRE_MERMAID_RE = /<pre\b[^>]*\bdata-language=(["'])mermaid\1[^>]*>([\s\S]*?)<\/pre>/gi;
 const ICON_ATTR_RE = /src=(["'])(\/?(?:votechain\/)?evidence\/icons\/[^"']+)\1/gi;
+const SANDBOX_ERROR_PATTERNS = [
+  /failed to launch the browser process/i,
+  /bootstrap_check_in/i,
+  /mach_port/i,
+  /zygote_host_impl_linux/i,
+  /permission denied\s*\(1100\)/i,
+  /no usable sandbox/i,
+];
 
 function toRoute(filePath) {
   const normalized = path.relative(distDir, filePath).replace(/\\/g, '/');
@@ -123,6 +131,30 @@ function renderDiagramContainer(sourceText, svg) {
 function createMmdcPath() {
   const bin = process.platform === 'win32' ? 'mmdc.cmd' : 'mmdc';
   return path.join(repoRoot, 'node_modules', '.bin', bin);
+}
+
+function normalizeErrorText(error) {
+  if (!error) return '';
+  if (typeof error === 'string') return error;
+  const parts = [];
+  if (error?.message) parts.push(error.message);
+  if (error?.stack && error.stack !== error.message) {
+    parts.push(error.stack);
+  }
+  return parts.join('\n');
+}
+
+function isStrictMermaidModeEnabled() {
+  const raw = process.env.MERMAID_RENDER_STRICT;
+  if (!raw) return false;
+  const normalized = String(raw).trim().toLowerCase();
+  return ['1', 'true', 'yes', 'on', 'strict'].includes(normalized);
+}
+
+function isChromiumSandboxLaunchError(error) {
+  const text = normalizeErrorText(error);
+  if (!text) return false;
+  return SANDBOX_ERROR_PATTERNS.some((pattern) => pattern.test(text));
 }
 
 function runMermaidCli(inputPath, outputPath, route, puppeteerConfigPath) {
@@ -320,7 +352,25 @@ async function compileMermaidDiagrams() {
 }
 
 compileMermaidDiagrams().catch((error) => {
+  const sandboxed = isChromiumSandboxLaunchError(error);
+  if (sandboxed && !isStrictMermaidModeEnabled()) {
+    console.warn(
+      '[mermaid-build] Mermaid render skipped: Chromium cannot start in this sandboxed environment.',
+    );
+    console.warn(
+      '[mermaid-build] Set MERMAID_RENDER_STRICT=1 to force builds to fail when this happens.',
+    );
+    const detail = normalizeErrorText(error);
+    if (detail) {
+      console.warn(detail);
+    }
+    process.exit(0);
+  }
+
   console.error('[mermaid-build] Mermaid render failed.');
-  console.error(error?.message || String(error));
+  const detail = normalizeErrorText(error);
+  if (detail) {
+    console.error(detail);
+  }
   process.exit(1);
 });

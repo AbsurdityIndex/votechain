@@ -1,0 +1,36 @@
+name = "votechain-setup-playwright"
+main = "src/index.ts"
+compatibility_date = "2026-02-13"
+
+[vars]
+# PRD §6.2 — default protocol version negotiated with clients.
+EWP_VERSION = "0.1-preview"
+# Allowed origins for `/setup/playwright` POST automation (comma separated list).
+PLAYWRIGHT_ALLOWED_ORIGINS = "http://127.0.0.1:4321,https://absurdityindex.org"
+# Staging-only automation flag so production cannot accidentally enable the worker.
+PLAYWRIGHT_AUTOMATION_MODE = "disabled"
+# Mode 3 (remote) is explicitly gated per PRD §10.1; expose the gate to callers.
+MODE3_GATE_STATE = "gated"
+
+[env.staging.vars]
+PLAYWRIGHT_AUTOMATION_MODE = "staging-only"
+STAGING_ACCESS_WINDOW = "pilot"
+
+[[kv_namespaces]]
+binding = "PLAYWRIGHT_RATE_LIMIT"
+id = "REPLACE_WITH_KV_ID"
+preview_id = "REPLACE_WITH_KV_PREVIEW_ID"
+
+[[d1_databases]]
+binding = "VOTECHAIN_POC_STATE"
+database_name = "votechain_poc_state_v2"
+database_id = "REPLACE_WITH_D1_ID"
+preview_database_id = "REPLACE_WITH_D1_PREVIEW_ID"
+
+[[r2_buckets]]
+binding = "PLAYWRIGHT_ARTIFACTS"
+bucket_name = "playwright-artifacts"
+
+[assets]
+binding = "__STATIC_CONTENT"
+directory = "../../dist"

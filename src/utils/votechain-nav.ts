@@ -47,32 +47,32 @@ export const VOTECHAIN_POC_MODULES: VoteChainSubpageItem[] = [
   },
   {
     href: '/votechain/poc/setup',
-    label: 'Setup',
-    description: 'Configure a new election with arbitrary user-defined scopes.',
+    label: 'Admin Console',
+    description: 'Configure elections and run the registration desk from one surface.',
     icon: 'file-plus',
   },
   {
     href: '/votechain/poc/vote',
-    label: 'Voting Client',
-    description: 'Cast an encrypted ballot with credential issuance and ZK proof.',
+    label: 'Voting Kiosk',
+    description: 'Issue a credential, clear challenges, encrypt, and cast without leaving the harness.',
     icon: 'vote',
   },
   {
     href: '/votechain/poc/verify',
-    label: 'Verify Receipt',
-    description: 'Independently verify a cast receipt with Merkle inclusion.',
+    label: 'Receipt Verification',
+    description: 'Run signature, Merkle inclusion, and ledger anchor checks.',
     icon: 'shield',
   },
   {
     href: '/votechain/poc/lookup',
-    label: 'Ballot Lookup',
-    description: 'Look up a ballot by hash on the bulletin board.',
+    label: 'Board Audit',
+    description: 'Look up ballots by hash, inspect the bulletin board, and confirm anchors.',
     icon: 'search',
   },
   {
     href: '/votechain/poc/dashboard',
-    label: 'Dashboard',
-    description: 'Oversight view of all VCL events, BB entries, fraud flags, and tally.',
+    label: 'Reveal & Tally',
+    description: 'Oversight controls for VCL events, bulletin board entries, fraud flags, and tally.',
     icon: 'bar-chart',
   },
   {
@@ -83,8 +83,8 @@ export const VOTECHAIN_POC_MODULES: VoteChainSubpageItem[] = [
   },
   {
     href: '/votechain/poc/monitor',
-    label: 'Node Monitor',
-    description: 'Real-time monitoring of the 3 distributed VoteChain ledger nodes.',
+    label: 'Operations Monitor',
+    description: 'Real-time monitoring of the distributed VoteChain ledger nodes and fraud alerts.',
     icon: 'activity',
   },
 ];

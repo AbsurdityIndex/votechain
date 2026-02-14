@@ -1,0 +1,2401 @@
+---
+import Icon from '../../ui/Icon.astro';
+import Divider from '../../ui/Divider.astro';
+---
+    <!-- iPad device viewer — THE CLIENT (no POC chrome inside) -->
+    <div class="poc-device-viewer" data-poc-device-viewer>
+      <img src="/votechain/images/ipad-landscape.svg" alt="" class="poc-device-frame-svg" aria-hidden="true" />
+      <div class="poc-device-screen">
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-6 pb-28">
+
+      <!-- Wizard step container -->
+      <div id="wizard-step-container" class="space-y-6">
+      <!-- Step 1: Credential -->
+      <section
+        class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md poc-kiosk-step"
+        id="credential"
+      >
+        <h2 class="font-serif text-lg text-navy-900 font-bold flex items-center gap-2">
+          <Icon name="user" class="text-gold-600" />
+          Credential <span class="poc-label">(POC)</span>
+          <button class="poc-help-btn" data-help-step="1" type="button" aria-label="How credentials work">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </button>
+        </h2>
+        <p class="text-navy-600 text-sm mt-2" data-poc-brief>
+          Choose a verification method and tap <strong>Issue Credential</strong> to mint a fresh, blind-signed credential in seconds.
+          <a href="#" data-poc-learn-more class="text-gold-600 hover:text-gold-700 text-xs font-semibold ml-1">Learn more</a>
+        </p>
+        <details class="mt-2 text-sm text-navy-600" data-poc-detail="credential-how" data-poc-detail-title="How Credentials Work">
+          <summary class="cursor-pointer text-navy-500 hover:text-navy-700 font-sans text-xs font-semibold uppercase tracking-wider">How it works</summary>
+          <div class="mt-2 space-y-1.5">
+            <p>
+              <strong>What:</strong> Your identity is verified and a unique, anonymous voting credential
+              is issued. Your signing key stays on your device &mdash; the issuance event is recorded on
+              the distributed ledger.
+            </p>
+            <p>
+              <strong>Why:</strong> Your credential proves you're eligible to vote without revealing
+              who you are. The <em>nullifier</em> is a one-time-use fingerprint tied to this election
+              &mdash; it prevents double-voting while keeping your identity private.
+            </p>
+            <p>
+              <strong>How:</strong> The registration authority certifies your public key
+              using a <em>blind Schnorr signature</em> &mdash; they sign your key
+              without learning which key it signed. This breaks the link between registration and
+              voting.
+            </p>
+          </div>
+        </details>
+
+        <!-- Before generation: prompt state -->
+        <div id="credential-prompt" class="credential-prompt mt-4">
+          <div class="credential-prompt-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <p class="credential-prompt-text">Verify your identity to receive an anonymous voting credential</p>
+          <p class="credential-prompt-hint">Your credential is cryptographically signed so no one &mdash; not even the issuer &mdash; can link it back to you.</p>
+
+          <!-- Same-day verification method selection -->
+          <div id="verification-methods" class="verification-methods mt-5 w-full max-w-md">
+            <p class="verification-methods-label">How would you like to verify?</p>
+
+            <!-- Method 1: NFC Tap -->
+            <label class="verification-method-option" data-method="nfc">
+              <input type="radio" name="verify-method" value="nfc" class="sr-only" checked />
+              <div class="verification-method-radio"></div>
+              <div class="verification-method-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/></svg>
+              </div>
+              <div class="verification-method-content">
+                <span class="verification-method-name">NFC Tap</span>
+                <span class="verification-method-desc">Tap your secure card or phone</span>
+              </div>
+              <span class="verification-method-time">&lt; 5s</span>
+            </label>
+
+            <!-- Method 2: QR Scan -->
+            <label class="verification-method-option" data-method="qr">
+              <input type="radio" name="verify-method" value="qr" class="sr-only" />
+              <div class="verification-method-radio"></div>
+              <div class="verification-method-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+              </div>
+              <div class="verification-method-content">
+                <span class="verification-method-name">QR Code</span>
+                <span class="verification-method-desc">Scan your credential QR code</span>
+              </div>
+              <span class="verification-method-time">&lt; 5s</span>
+            </label>
+
+            <!-- Method 3: DID + PIN -->
+            <label class="verification-method-option" data-method="pin">
+              <input type="radio" name="verify-method" value="pin" class="sr-only" />
+              <div class="verification-method-radio"></div>
+              <div class="verification-method-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+              </div>
+              <div class="verification-method-content">
+                <span class="verification-method-name">DID + PIN</span>
+                <span class="verification-method-desc">Enter your credential ID and passphrase</span>
+              </div>
+              <span class="verification-method-time">&lt; 10s</span>
+            </label>
+
+            <!-- Liveness path selection -->
+            <div class="verification-liveness-section mt-4">
+              <p class="verification-liveness-label">Liveness verification</p>
+              <div class="verification-liveness-options">
+                <label class="verification-liveness-option" data-liveness="biometric">
+                  <input type="radio" name="liveness-method" value="biometric" class="sr-only" checked />
+                  <div class="verification-liveness-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02.1 2.51.4 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>
+                    <span>Biometric</span>
+                  </div>
+                </label>
+                <label class="verification-liveness-option" data-liveness="non-biometric">
+                  <input type="radio" name="liveness-method" value="non-biometric" class="sr-only" />
+                  <div class="verification-liveness-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>PIN + Attestation</span>
+                  </div>
+                </label>
+              </div>
+              <p class="verification-liveness-note">Both paths have equal legal standing. Your choice is never recorded.</p>
+            </div>
+
+            <!-- Trust indicator footer -->
+            <div class="credential-trust-footer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span>End-to-end encrypted &middot; Zero-knowledge proof</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification progress (shown during generation) -->
+        <div id="credential-progress" class="credential-progress hidden mt-4 poc-kiosk-status-panel">
+          <div class="credential-progress-steps">
+            <div class="credential-progress-step" data-progress-step="present">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Present credential</span>
+              <span class="credential-progress-time">&lt; 5s</span>
+            </div>
+            <div class="credential-progress-step" data-progress-step="liveness">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Liveness check</span>
+              <span class="credential-progress-time">&lt; 10s</span>
+            </div>
+            <div class="credential-progress-step" data-progress-step="zk">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Five-pillar ZK proof</span>
+              <span class="credential-progress-time">&lt; 30s</span>
+            </div>
+            <div class="credential-progress-step" data-progress-step="issue">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Issue credential</span>
+              <span class="credential-progress-time">&lt; 5s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- After generation: success state -->
+        <div id="credential-success" class="credential-success hidden mt-4 poc-kiosk-status-panel">
+          <!-- Credential badge card -->
+          <div class="credential-badge">
+            <div class="credential-badge-header">
+              <div class="credential-badge-check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="credential-badge-title">
+                <span class="credential-badge-status">Verified</span>
+                <span class="credential-badge-org">VoteChain Credential</span>
+              </div>
+              <div class="credential-badge-seal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 12 15 16 10" stroke-width="2"/></svg>
+              </div>
+            </div>
+
+            <div class="credential-badge-body">
+              <div class="credential-badge-row">
+                <span class="credential-badge-label">DID</span>
+                <span id="credential-did" class="credential-badge-value credential-badge-did">Not generated</span>
+              </div>
+              <div class="credential-badge-row">
+                <span class="credential-badge-label">Nullifier</span>
+                <span id="credential-nullifier" class="credential-badge-value">Not generated</span>
+              </div>
+              <div class="credential-badge-divider"></div>
+              <div class="credential-badge-meta">
+                <div id="credential-success-method" class="credential-badge-method hidden">
+                  <span id="credential-success-method-name" class="credential-badge-method-tag"></span>
+                  <span class="credential-badge-method-sep">&middot;</span>
+                  <span id="credential-success-liveness-name" class="credential-badge-method-tag"></span>
+                </div>
+                <span class="credential-badge-issuer-count" id="credential-issuer-count">3 issuers</span>
+              </div>
+            </div>
+
+            <details class="credential-badge-crypto-details">
+              <summary class="credential-badge-crypto-toggle">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Blind signatures
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-badge-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="credential-badge-crypto-body">
+                <p id="credential-blind-sig" class="credential-badge-crypto-value">Not generated</p>
+              </div>
+            </details>
+          </div>
+        </div>
+        <details class="mt-3 rounded-lg border border-gold-200 bg-gold-50 p-3 poc-context-box">
+          <summary>How the credential works</summary>
+          <div class="text-navy-700 text-xs leading-relaxed mt-2">
+            <p>
+              Your browser generates a keypair locally. The registration authority signs it using a
+              <em>blind Schnorr</em> ceremony &mdash; they certify your key without ever seeing it. This breaks the link
+              between registration and voting.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Step 2: Challenge -->
+      <section
+        class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md poc-kiosk-step hidden"
+        id="challenge"
+      >
+        <h2 class="font-serif text-lg text-navy-900 font-bold flex items-center gap-2">
+          <Icon name="repeat" class="text-gold-600" />
+          Challenge <span class="poc-label">(Anti-Replay)</span>
+          <button class="poc-help-btn" data-help-step="2" type="button" aria-label="How challenges work">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </button>
+        </h2>
+        <p class="text-navy-600 text-sm mt-2" data-poc-brief>
+          Hit <strong>Request Challenge</strong> to fetch a one-time anti-replay code before you encrypt.
+          <a href="#" data-poc-learn-more class="text-gold-600 hover:text-gold-700 text-xs font-semibold ml-1">Learn more</a>
+        </p>
+        <details class="mt-2 text-sm text-navy-600" data-poc-detail="challenge-how" data-poc-detail-title="How Challenges Work">
+          <summary class="cursor-pointer text-navy-500 hover:text-navy-700 font-sans text-xs font-semibold uppercase tracking-wider">How it works</summary>
+          <div class="mt-2 space-y-1.5">
+            <p>
+              <strong>What:</strong> Click <strong>Request Challenge</strong> below. This one-time code
+              will be baked into your ballot to prove it was cast right now, not replayed from a previous session.
+            </p>
+            <p>
+              <strong>Why:</strong> Without this step, an attacker could intercept your ballot and
+              re-submit it later. The challenge expires after 10 minutes.
+            </p>
+            <p>
+              <strong>In a real election:</strong> The challenge would be issued by the Election Web
+              Gateway and signed with the gateway's private key.
+            </p>
+          </div>
+        </details>
+        <!-- Before issuance: prompt state -->
+        <div id="challenge-prompt" class="challenge-prompt mt-4">
+          <div class="challenge-prompt-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-navy-300"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <p class="challenge-prompt-text">Request a one-time anti-replay challenge</p>
+          <p class="challenge-prompt-hint">This cryptographic nonce is baked into your ballot to prove it was cast right now &mdash; not replayed from a previous session. It expires in 10 minutes.</p>
+        </div>
+
+        <!-- Progress animation (shown during request) -->
+        <div id="challenge-progress" class="challenge-progress hidden mt-4 poc-kiosk-status-panel">
+          <div class="challenge-progress-steps">
+            <div class="credential-progress-step" data-challenge-step="connect">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Connect to gateway</span>
+              <span class="credential-progress-time">&lt; 1s</span>
+            </div>
+            <div class="credential-progress-step" data-challenge-step="nonce">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Generate nonce</span>
+              <span class="credential-progress-time">&lt; 1s</span>
+            </div>
+            <div class="credential-progress-step" data-challenge-step="sign">
+              <div class="credential-progress-indicator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="credential-progress-check hidden"><polyline points="20 6 9 17 4 12"/></svg>
+                <div class="credential-progress-spinner hidden"></div>
+                <div class="credential-progress-dot"></div>
+              </div>
+              <span class="credential-progress-label">Sign challenge</span>
+              <span class="credential-progress-time">&lt; 1s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- After issuance: success badge -->
+        <div id="challenge-success" class="challenge-success hidden mt-4 poc-kiosk-status-panel">
+          <div class="challenge-badge">
+            <div class="challenge-badge-header">
+              <div class="challenge-badge-check">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="challenge-badge-title">
+                <span class="challenge-badge-status" id="challenge-badge-status-text">Active</span>
+                <span class="challenge-badge-org">Anti-Replay Challenge</span>
+              </div>
+              <div class="challenge-badge-timer" id="challenge-badge-timer">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="challenge-badge-countdown"></span>
+              </div>
+            </div>
+
+            <div class="challenge-badge-body">
+              <div class="challenge-badge-row">
+                <span class="challenge-badge-label">ID</span>
+                <span id="challenge-id-val" class="challenge-badge-value">—</span>
+              </div>
+              <div class="challenge-badge-row">
+                <span class="challenge-badge-label">Status</span>
+                <div id="challenge-status-val" class="challenge-badge-status-row">
+                  <span class="challenge-badge-status-dot"></span>
+                  <span class="challenge-badge-status-label">—</span>
+                </div>
+              </div>
+              <div class="challenge-badge-row">
+                <span class="challenge-badge-label">Expires</span>
+                <span id="challenge-expires-val" class="challenge-badge-value">—</span>
+              </div>
+              <div class="challenge-badge-divider"></div>
+              <div class="challenge-badge-meta">
+                <span class="challenge-badge-kid-label">Server Key</span>
+                <span id="challenge-kid-val" class="challenge-badge-kid-value">—</span>
+              </div>
+            </div>
+
+            <details class="challenge-badge-raw-details">
+              <summary class="challenge-badge-raw-toggle">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                Raw challenge JSON
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="challenge-badge-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div class="challenge-badge-raw-body">
+                <pre class="challenge-badge-raw-pre"><code id="challenge-json">{}</code></pre>
+              </div>
+            </details>
+          </div>
+        </div>
+        <details class="mt-3 rounded-lg border border-gold-200 bg-gold-50 p-3 poc-context-box">
+          <summary>Why the challenge exists</summary>
+          <div class="text-navy-700 text-xs leading-relaxed mt-2">
+            <p>
+              The challenge is a one-time nonce baked into your ballot. It proves the ballot was cast right now
+              &mdash; not replayed from a previous session. It expires in 10 minutes to prevent reuse.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Step 3: Encrypt & Review (with Benaloh challenge) -->
+      <section
+        class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md poc-kiosk-step hidden"
+        id="encrypt-review"
+      >
+        <h2 class="font-serif text-lg text-navy-900 font-bold flex items-center gap-2">
+          <Icon name="vote" class="text-gold-600" />
+          Your Ballot
+          <button class="poc-help-btn" data-help-step="3" type="button" aria-label="How encryption works">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </button>
+        </h2>
+        <p class="text-navy-600 text-sm mt-2" data-poc-brief>
+          Fill the contests, tap <strong>Encrypt Ballot</strong>, then either <strong>Cast</strong> or <strong>Challenge (Spoil)</strong>.
+          <a href="#" data-poc-learn-more class="text-gold-600 hover:text-gold-700 text-xs font-semibold ml-1">Learn more</a>
+        </p>
+        <details class="mt-2 text-sm text-navy-600" data-poc-detail="encrypt-how" data-poc-detail-title="How Encryption Works">
+          <summary class="cursor-pointer text-navy-500 hover:text-navy-700 font-sans text-xs font-semibold uppercase tracking-wider">How it works</summary>
+          <div class="mt-2 space-y-1.5">
+            <p>
+              <strong>What:</strong> Make your selections below, then click <strong>Encrypt Ballot</strong>.
+              Your choices will be encrypted so no one can see how you voted until the official tally.
+            </p>
+            <p>
+              After encryption you can <strong>Cast</strong> (submit) or <strong>Challenge (Spoil)</strong>
+              to verify the device encrypted your actual selections honestly.
+            </p>
+            <p>
+              <strong>In a real election:</strong> Only a quorum of independent trustees holding
+              separate key shares could decrypt the ballots together during the official tally.
+            </p>
+          </div>
+        </details>
+
+        <!-- Ballot options (multi-contest) -->
+        <div class="mt-4 rounded-lg border border-navy-200 bg-cream-50 p-4" id="ballot-section">
+          <div id="ballot-options" class="space-y-6"></div>
+
+          <!-- Inline summary strip (always visible in focus-mode pagination) -->
+          <div id="ballot-summary-strip" class="ballot-summary-strip hidden">
+            <div id="ballot-summary-list" class="ballot-summary-list"></div>
+            <span id="ballot-summary-counter" class="ballot-summary-counter"></span>
+          </div>
+        </div>
+
+        <!-- Review panel (hidden until encryption) -->
+        <div id="review-panel" class="hidden mt-3 poc-kiosk-status-panel">
+          <Divider withSeal={false} />
+
+          <p class="text-navy-600 text-sm mt-2 mb-2">
+            Ballot encrypted. <strong>Cast</strong> to submit, or <strong>Challenge (Spoil)</strong> to verify the device was honest.
+          </p>
+
+          <div class="rounded-lg border border-navy-200 bg-cream-50 p-3">
+            <p class="text-[11px] font-mono uppercase tracking-widest text-navy-500 mb-1.5">
+              Encrypted Ballot
+            </p>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="min-w-0">
+                <p class="text-[10px] font-mono text-navy-400 mb-0.5">Ballot Hash</p>
+                <p id="review-ballot-hash" class="font-mono text-xs text-navy-900 truncate" title="">-</p>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-mono text-navy-400 mb-0.5">Ballot ID</p>
+                <p id="review-ballot-id" class="font-mono text-xs text-navy-900 truncate" title="">-</p>
+              </div>
+            </div>
+            <div class="mt-1.5">
+              <p class="text-[10px] font-mono text-navy-400 mb-0.5">Your Selections</p>
+              <div id="review-selections" class="space-y-0.5"></div>
+            </div>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between flex-wrap gap-2">
+            <p id="spoil-count" class="text-sm text-navy-500 font-sans">Spoil checks: 0</p>
+            <button
+              id="spoil-btn"
+              class="inline-flex items-center gap-2 rounded-md border border-navy-200 bg-white px-3 py-1.5 text-navy-800 font-sans text-sm font-semibold hover:border-gold-500 hover:shadow-sm transition-all"
+              type="button"
+            >
+              <Icon name="eye" class="text-navy-700" size={16} />
+              Challenge (Spoil)
+            </button>
+          </div>
+
+          <!-- Spoil verification result (hidden until spoil) -->
+          <div id="spoil-result" class="hidden mt-3">
+            <p class="text-navy-600 text-xs mb-2">
+              The device revealed its encryption randomness. We re-encrypted your selections and
+              compared the result. If they match, the device was honest. This ballot is now
+              <strong>spoiled</strong> &mdash; click <em>Re-Encrypt</em> for a fresh one.
+            </p>
+            <div
+              class="rounded-lg border-2 p-3"
+              id="spoil-result-box"
+            >
+              <div class="flex items-start gap-3">
+                <div id="spoil-result-icon" class="shrink-0 mt-0.5"></div>
+                <div class="flex-1">
+                  <p id="spoil-result-title" class="font-sans font-semibold text-sm"></p>
+                  <p id="spoil-result-detail" class="text-xs mt-1"></p>
+                </div>
+              </div>
+              <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <p class="text-[10px] font-mono text-navy-400 mb-0.5">Revealed IV</p>
+                  <p id="spoil-iv" class="font-mono text-xs text-navy-800 break-all">-</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-mono text-navy-400 mb-0.5">Spoil Receipt ID</p>
+                  <p id="spoil-receipt-id" class="font-mono text-xs text-navy-800 break-all">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 flex justify-end">
+              <button
+                id="re-encrypt-btn"
+                class="inline-flex items-center gap-2 rounded-md bg-gold-500 px-3 py-1.5 text-navy-900 font-sans text-sm font-semibold hover:bg-gold-400 transition-colors"
+                type="button"
+              >
+                <Icon name="repeat" class="text-navy-900" size={16} />
+                Re-Encrypt & Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Cast -->
+      <section
+        class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md poc-kiosk-step hidden"
+        id="cast-step"
+      >
+        <div class="flex items-center justify-between flex-wrap gap-2 poc-kiosk-full">
+          <h2 class="font-serif text-lg text-navy-900 font-bold flex items-center gap-2">
+            <Icon name="check-square" class="text-gold-600" />
+            Cast Ballot
+            <button class="poc-help-btn" data-help-step="4" type="button" aria-label="How casting works">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            </button>
+          </h2>
+          <button
+            type="button"
+            data-open-client-modal
+            data-client-key="dashboard"
+            data-client-title="Reveal + Tally"
+            data-client-path="/votechain/poc/dashboard"
+            class="text-xs font-sans font-semibold text-navy-700 hover:text-gold-700 underline"
+          >
+            Dashboard
+          </button>
+        </div>
+        <p class="text-navy-600 text-sm mt-2">
+          Submit your encrypted ballot with the eligibility proof and challenge. Click
+          <strong>Cast Ballot</strong> below.
+        </p>
+
+        <div id="cast-summary-card" class="mt-3 rounded-lg border border-navy-200 bg-cream-50 p-3 poc-kiosk-status-panel">
+          <p class="text-[11px] font-mono uppercase tracking-widest text-navy-500 mb-2">
+            Cast Summary
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="min-w-0">
+              <p class="text-[10px] font-mono text-navy-400 mb-0.5">Ballot Hash</p>
+              <p id="cast-summary-ballot-hash" class="font-mono text-xs text-navy-900 truncate" title="">-</p>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] font-mono text-navy-400 mb-0.5">Ballot ID</p>
+              <p id="cast-summary-ballot-id" class="font-mono text-xs text-navy-900 truncate" title="">-</p>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] font-mono text-navy-400 mb-0.5">Challenge ID</p>
+              <p id="cast-summary-challenge-id" class="font-mono text-xs text-navy-900 truncate" title="">-</p>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] font-mono text-navy-400 mb-0.5">Challenge Expires</p>
+              <p id="cast-summary-challenge-exp" class="font-mono text-xs text-navy-900">-</p>
+            </div>
+          </div>
+          <p class="text-navy-500 text-xs mt-1.5 italic" id="cast-summary-hint">-</p>
+        </div>
+
+        <!-- Cast request/response JSON (shown after you click Cast) -->
+        <details id="cast-json-panel" class="hidden mt-3">
+          <summary class="text-xs text-navy-500 cursor-pointer hover:text-navy-700 font-sans font-semibold">Show EWP request &amp; response</summary>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-2">
+            <div>
+              <p class="text-[11px] font-mono uppercase tracking-widest text-navy-500 mb-1">
+                Cast Request
+              </p>
+              <pre
+                class="rounded-lg bg-navy-800 text-cream-100 p-3 overflow-x-auto text-xs leading-relaxed font-mono"><code id="cast-request-json">Waiting...</code></pre>
+            </div>
+            <div>
+              <p class="text-[11px] font-mono uppercase tracking-widest text-navy-500 mb-1">
+                Cast Response
+              </p>
+              <pre
+                class="rounded-lg bg-navy-800 text-cream-100 p-3 overflow-x-auto text-xs leading-relaxed font-mono"><code id="cast-response-json">Waiting...</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <details class="mt-3 rounded-lg border border-gold-200 bg-gold-50 p-3 poc-context-box">
+          <summary>What happens next</summary>
+          <div class="text-navy-700 text-xs leading-relaxed mt-2">
+            <p>
+              Your encrypted ballot is submitted with an eligibility proof and the anti-replay challenge. The gateway
+              validates everything, writes the ballot to the bulletin board, anchors it on the VoteChain ledger, and
+              returns a signed receipt.
+            </p>
+          </div>
+        </details>
+      </section>
+      </div><!-- /wizard-step-container -->
+
+      <!-- Wizard Controls -->
+      <section
+        id="wizard-controls"
+        class="sticky bottom-3 z-10 bg-white rounded-xl border border-navy-200 px-4 py-3 shadow-lg"
+      >
+        <div class="flex items-center justify-between gap-2">
+          <button
+            id="wizard-back"
+            class="inline-flex items-center gap-1.5 rounded-md border border-navy-200 bg-white px-3 py-1.5 text-navy-800 font-sans text-sm font-semibold hover:border-gold-500 transition-all disabled:opacity-50 disabled:hover:border-navy-200"
+            type="button"
+          >
+            <Icon name="arrow-right" class="text-navy-700 rotate-180" size={16} />
+            Back
+          </button>
+
+          <div class="flex items-center gap-2">
+            <button
+              id="wizard-restart"
+              class="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-3 py-1.5 text-red-700 font-sans text-sm font-semibold hover:border-red-400 hover:bg-red-50 transition-all"
+              type="button"
+              title="Reset all POC state and start fresh"
+            >
+              <Icon name="repeat" class="text-red-500" size={16} />
+              <span>Reset</span>
+            </button>
+
+            <button
+              id="wizard-next"
+              class="inline-flex items-center gap-1.5 rounded-md bg-gold-500 px-4 py-1.5 text-navy-900 font-sans text-sm font-semibold hover:bg-gold-400 transition-colors disabled:opacity-50"
+              type="button"
+            >
+              <span id="wizard-next-label">Next</span>
+              <Icon name="arrow-right" class="text-navy-900" size={16} />
+            </button>
+          </div>
+        </div>
+
+        <p
+          id="wizard-status"
+          class="mt-2 text-sm text-navy-700 min-h-[1.5em]"
+          role="status"
+          aria-live="polite"
+        ></p>
+      </section>
+
+      <!-- Cast error section (hidden until error) -->
+      <section
+        class="bg-white rounded-xl border-2 border-red-300 p-6 sm:p-8 shadow-md hidden"
+        id="cast-error"
+      >
+        <div class="flex items-start gap-4">
+          <div class="shrink-0 mt-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h2 class="font-serif text-xl text-red-800 font-bold">Ballot Not Cast</h2>
+            <p id="cast-error-message" class="text-red-700 text-sm mt-2"></p>
+            <p id="cast-error-hint" class="text-navy-600 text-sm mt-2"></p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button
+                id="cast-error-retry"
+                class="inline-flex items-center gap-2 rounded-md bg-navy-800 px-4 py-2 text-gold-200 font-sans text-sm font-semibold hover:bg-navy-700 transition-colors"
+                type="button"
+              >
+                <Icon name="repeat" class="text-gold-300" size={18} />
+                <span id="cast-error-retry-label">Start Over</span>
+              </button>
+            </div>
+            <details class="mt-4">
+              <summary class="text-xs text-navy-500 cursor-pointer hover:text-navy-700">Show raw error</summary>
+              <pre id="cast-error-raw" class="mt-2 rounded-lg bg-navy-800 text-cream-100 p-4 overflow-x-auto text-xs leading-relaxed font-mono"></pre>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Post-cast success section (hidden until success) -->
+      <section
+        class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md hidden"
+        id="cast-success"
+      >
+        <div class="text-center success-content">
+          <!-- Hero: checkmark badge with background -->
+          <div class="success-checkmark-wrap">
+            <div class="success-check-badge">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-green-600 success-checkmark-svg"
+              >
+                <circle cx="12" cy="12" r="10" class="success-circle" />
+                <polyline points="9 12 11.5 14.5 16 9.5" class="success-check" />
+              </svg>
+              <div class="success-ring-pulse"></div>
+            </div>
+          </div>
+
+          <h2 class="success-title font-serif text-xl sm:text-2xl text-navy-900 font-bold mt-4">Ballot Cast Successfully</h2>
+          <p class="success-subtitle text-navy-500 mt-2">
+            Your vote has been encrypted and recorded.
+          </p>
+
+          <!-- Receipt card: details + print notice as one visual unit -->
+          <div class="success-receipt-card">
+            <div id="success-details" class="success-receipt-body"></div>
+            <!-- Print notice footer — visible only in iPad kiosk mode -->
+            <div class="cast-print-footer">
+              <svg class="flex-shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+              <span>Please collect your printed receipt from the tray below.</span>
+            </div>
+          </div>
+
+          <!-- Client UI: Done button (visible in iPad) -->
+          <div class="cast-client-actions">
+            <button
+              id="success-done-btn"
+              class="cast-done-btn"
+              type="button"
+            >
+              Done
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Election Manifest (reference, below wizard) -->
+      <details class="bg-white rounded-xl border border-navy-200 p-5 sm:p-6 shadow-md" data-poc-detail="election-manifest" data-poc-detail-title="Election Manifest">
+        <summary class="flex items-center justify-between flex-wrap gap-3 cursor-pointer list-none">
+          <div class="flex items-center gap-2">
+            <Icon name="file-text" class="text-gold-600" />
+            <span class="font-serif text-lg text-navy-900 font-bold">Election Manifest</span>
+          </div>
+          <span class="text-xs font-mono text-navy-500 uppercase tracking-widest">
+            Toggle Details
+          </span>
+        </summary>
+        <div class="mt-3">
+          <p class="text-navy-600 text-xs">
+            The election manifest defines contests, candidates, encryption keys, and rules &mdash;
+            locked down with a cryptographic signature. It is anchored on the federal ledger node
+            and cached locally.
+          </p>
+          <pre
+            class="mt-3 rounded-lg bg-navy-800 text-cream-100 p-3 overflow-x-auto text-xs leading-relaxed font-mono"><code id="manifest-json">Loading manifest...</code></pre>
+        </div>
+      </details>
+    </div>
+
+      <!-- In-iPad help drawer (slides in from right when "?" tapped) -->
+      <div id="poc-ipad-help" class="poc-ipad-help hidden">
+        <div class="poc-ipad-help-backdrop" id="poc-ipad-help-backdrop"></div>
+        <div class="poc-ipad-help-panel">
+          <div class="poc-ipad-help-header">
+            <h3 id="poc-ipad-help-title">How it works</h3>
+            <button id="poc-ipad-help-close" type="button" aria-label="Close help">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <div id="poc-ipad-help-body" class="poc-ipad-help-body"></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- POC tether: verification, copy, journey nav — outside iPad frame -->
+    <div id="poc-tether-actions" class="poc-tether-actions hidden mt-6 max-w-3xl mx-auto px-4 text-center">
+      <p class="text-[10px] font-mono uppercase tracking-widest text-navy-500">Harness Session Actions</p>
+      <div class="mt-3 flex flex-wrap justify-center gap-3">
+        <button
+          type="button"
+          data-open-client-modal
+          data-client-key="lookup"
+          data-client-title="Board Audit"
+          data-client-path="/votechain/poc/lookup"
+          class="inline-flex items-center gap-2 rounded-md bg-gold-500 px-4 py-2 text-navy-900 font-sans text-sm font-semibold hover:bg-gold-400 transition-colors shadow-sm"
+        >
+          <Icon name="search" class="text-navy-800" size={18} />
+          Open Board Audit
+        </button>
+        <button
+          id="copy-receipt-btn"
+          class="inline-flex items-center gap-2 rounded-md border border-navy-200 bg-white px-4 py-2 text-navy-800 font-sans text-sm font-semibold hover:border-gold-500 hover:shadow-sm transition-all"
+          type="button"
+        >
+          <Icon name="copy" class="text-navy-600" size={18} />
+          <span id="copy-receipt-label">Copy Receipt</span>
+        </button>
+      </div>
+
+      <!-- Journey continuation -->
+      <div class="mt-6 mx-auto max-w-md success-journey-card">
+        <div class="rounded-xl border border-gold-300 bg-gradient-to-r from-gold-50 to-cream-50 px-4 py-3 shadow-sm animate-fade-in-up">
+          <div class="flex items-center gap-3">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-green-600 flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="flex-1 min-w-0">
+              <p class="font-sans text-sm text-navy-900 font-semibold">Step 1 of 4 complete</p>
+            </div>
+            <button
+              type="button"
+              data-open-client-modal
+              data-client-key="verify"
+              data-client-title="Receipt Verification"
+              data-client-path="/votechain/poc/verify"
+              class="inline-flex items-center gap-1.5 rounded-md bg-navy-800 px-3 py-1.5 text-gold-300 font-sans text-xs font-bold hover:bg-navy-700 transition-all whitespace-nowrap group"
+            >
+              Open Receipt Verification
+              <Icon name="arrow-right" class="text-gold-400 transition-transform group-hover:translate-x-0.5" size={14} />
+            </button>
+          </div>
+          <div class="mt-2 h-1 rounded-full bg-navy-100 overflow-hidden">
+            <div class="h-full w-1/4 rounded-full bg-gold-500"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap justify-center gap-3 items-center">
+        <button
+          id="success-reset-btn"
+          class="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-800 font-sans font-semibold transition-colors"
+          type="button"
+        >
+          <Icon name="repeat" class="text-red-500" size={14} />
+          Reset &amp; Vote Again
+        </button>
+        <span class="text-navy-300">|</span>
+        <button
+          id="toggle-raw-json"
+          class="text-xs text-navy-500 underline hover:text-navy-700"
+          type="button"
+        >
+          Show raw receipt JSON
+        </button>
+      </div>
+      <pre
+        id="raw-receipt-json"
+        class="mt-2 rounded-lg bg-navy-800 text-cream-100 p-4 overflow-x-auto text-xs leading-relaxed font-mono hidden max-w-2xl mx-auto text-left"
+      ></pre>
+    </div>
+    </div>
+
+  <script>
+    import {
+      bytesToB64u,
+      buildCastRequest,
+      castBallot,
+      computeNullifier,
+      encryptBallotForReview,
+      ensureCredential,
+      getManifest,
+      getPocState,
+      hasAlreadyVoted,
+      invalidateCredential,
+      issueChallenge,
+      resetPocState,
+      spoilBallot,
+      verifySpoiledBallot,
+    } from '../../../votechain-poc';
+    import type { PocContest, PocEncryptedBallot, PocBallotPlaintext } from '../../../votechain-poc';
+
+    function formatJson(value: unknown) {
+      return JSON.stringify(value, null, 2);
+    }
+
+    function randomB64u(n: number) {
+      const b = new Uint8Array(n);
+      crypto.getRandomValues(b);
+      return bytesToB64u(b);
+    }
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    function createLucideSvg(params: {
+      size?: number;
+      className?: string;
+      nodes: Array<{ name: string; attrs: Record<string, string> }>;
+    }) {
+      const size = params.size ?? 24;
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('xmlns', SVG_NS);
+      svg.setAttribute('width', String(size));
+      svg.setAttribute('height', String(size));
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      if (params.className) svg.setAttribute('class', params.className);
+
+      for (const node of params.nodes) {
+        const el = document.createElementNS(SVG_NS, node.name);
+        for (const [k, v] of Object.entries(node.attrs)) el.setAttribute(k, v);
+        svg.appendChild(el);
+      }
+
+      return svg;
+    }
+
+    // DOM refs
+    const manifestEl = document.getElementById('manifest-json') as HTMLElement;
+    const credDidEl = document.getElementById('credential-did') as HTMLElement;
+    const credNullifierEl = document.getElementById('credential-nullifier') as HTMLElement;
+    const credBlindSigEl = document.getElementById('credential-blind-sig') as HTMLElement;
+    const credentialPrompt = document.getElementById('credential-prompt') as HTMLElement;
+    const credentialProgress = document.getElementById('credential-progress') as HTMLElement;
+    const credentialSuccess = document.getElementById('credential-success') as HTMLElement;
+    const credentialSuccessMethod = document.getElementById('credential-success-method') as HTMLElement;
+    const credentialSuccessMethodName = document.getElementById('credential-success-method-name') as HTMLElement;
+    const credentialSuccessLivenessName = document.getElementById('credential-success-liveness-name') as HTMLElement;
+    const credentialIssuerCount = document.getElementById('credential-issuer-count') as HTMLElement;
+    const challengeEl = document.getElementById('challenge-json') as HTMLElement;
+    const challengePrompt = document.getElementById('challenge-prompt') as HTMLElement;
+    const challengeProgressEl = document.getElementById('challenge-progress') as HTMLElement;
+    const challengeSuccessEl = document.getElementById('challenge-success') as HTMLElement;
+    const challengeIdVal = document.getElementById('challenge-id-val') as HTMLElement;
+    const challengeStatusVal = document.getElementById('challenge-status-val') as HTMLElement;
+    const challengeExpiresVal = document.getElementById('challenge-expires-val') as HTMLElement;
+    const challengeKidVal = document.getElementById('challenge-kid-val') as HTMLElement;
+    const challengeBadgeStatusText = document.getElementById('challenge-badge-status-text') as HTMLElement;
+    const challengeBadgeCountdown = document.getElementById('challenge-badge-countdown') as HTMLElement;
+    const ballotOptionsEl = document.getElementById('ballot-options') as HTMLElement;
+    const reviewPanel = document.getElementById('review-panel') as HTMLElement;
+    const reviewBallotHash = document.getElementById('review-ballot-hash') as HTMLElement;
+    const reviewBallotId = document.getElementById('review-ballot-id') as HTMLElement;
+    const reviewSelections = document.getElementById('review-selections') as HTMLElement;
+    const spoilCountEl = document.getElementById('spoil-count') as HTMLElement;
+    const spoilBtn = document.getElementById('spoil-btn') as HTMLButtonElement;
+    const spoilResult = document.getElementById('spoil-result') as HTMLElement;
+    const spoilResultBox = document.getElementById('spoil-result-box') as HTMLElement;
+    const spoilResultIcon = document.getElementById('spoil-result-icon') as HTMLElement;
+    const spoilResultTitle = document.getElementById('spoil-result-title') as HTMLElement;
+    const spoilResultDetail = document.getElementById('spoil-result-detail') as HTMLElement;
+    const spoilIvEl = document.getElementById('spoil-iv') as HTMLElement;
+    const spoilReceiptIdEl = document.getElementById('spoil-receipt-id') as HTMLElement;
+    const reEncryptBtn = document.getElementById('re-encrypt-btn') as HTMLButtonElement;
+    const castJsonPanel = document.getElementById('cast-json-panel') as HTMLElement;
+    const castReqEl = document.getElementById('cast-request-json') as HTMLElement;
+    const castResEl = document.getElementById('cast-response-json') as HTMLElement;
+    const castSuccess = document.getElementById('cast-success') as HTMLElement;
+    const castError = document.getElementById('cast-error') as HTMLElement;
+    const castErrorMessage = document.getElementById('cast-error-message') as HTMLElement;
+    const castErrorHint = document.getElementById('cast-error-hint') as HTMLElement;
+    const castErrorRaw = document.getElementById('cast-error-raw') as HTMLElement;
+    const castErrorRetry = document.getElementById('cast-error-retry') as HTMLButtonElement;
+    const castErrorRetryLabel = document.getElementById('cast-error-retry-label') as HTMLElement;
+    let castErrorMode: 'fatal' | 'session' = 'fatal';
+    setCastErrorMode('fatal');
+    const successDetails = document.getElementById('success-details') as HTMLElement;
+    const copyReceiptBtn = document.getElementById('copy-receipt-btn') as HTMLButtonElement;
+    const copyReceiptLabel = document.getElementById('copy-receipt-label') as HTMLElement;
+    const toggleRawJson = document.getElementById('toggle-raw-json') as HTMLButtonElement;
+    const rawReceiptJson = document.getElementById('raw-receipt-json') as HTMLElement;
+    const successResetBtn = document.getElementById('success-reset-btn') as HTMLButtonElement;
+    const successDoneBtn = document.getElementById('success-done-btn') as HTMLButtonElement;
+    const pocTetherActions = document.getElementById('poc-tether-actions') as HTMLElement;
+    const credentialSection = document.getElementById('credential') as HTMLElement;
+    const challengeSection = document.getElementById('challenge') as HTMLElement;
+    const encryptReviewSection = document.getElementById('encrypt-review') as HTMLElement;
+    const castStepSection = document.getElementById('cast-step') as HTMLElement;
+    const ballotSection = document.getElementById('ballot-section') as HTMLElement;
+    const ballotSummaryStrip = document.getElementById('ballot-summary-strip') as HTMLElement;
+    const ballotSummaryList = document.getElementById('ballot-summary-list') as HTMLElement;
+    const ballotSummaryCounter = document.getElementById('ballot-summary-counter') as HTMLElement;
+    const wizardControls = document.getElementById('wizard-controls') as HTMLElement;
+    const wizardBack = document.getElementById('wizard-back') as HTMLButtonElement;
+    const wizardNext = document.getElementById('wizard-next') as HTMLButtonElement;
+    const wizardNextLabel = document.getElementById('wizard-next-label') as HTMLElement;
+    const wizardRestart = document.getElementById('wizard-restart') as HTMLButtonElement;
+    const wizardStatus = document.getElementById('wizard-status') as HTMLElement;
+    let wizardStatusOverride: string | null = null;
+
+    const castSummaryBallotHash = document.getElementById(
+      'cast-summary-ballot-hash',
+    ) as HTMLElement;
+    const castSummaryBallotId = document.getElementById('cast-summary-ballot-id') as HTMLElement;
+    const castSummaryChallengeId = document.getElementById(
+      'cast-summary-challenge-id',
+    ) as HTMLElement;
+    const castSummaryChallengeExp = document.getElementById(
+      'cast-summary-challenge-exp',
+    ) as HTMLElement;
+    const castSummaryHint = document.getElementById('cast-summary-hint') as HTMLElement;
+
+    // State
+    let cachedState: any = null;
+    let cachedChallenge: any = null;
+    let selections: Record<string, string | null> = {};
+    let spoilCount = 0;
+    let castExpiryTimer: ReturnType<typeof setInterval> | null = null;
+    let currentEncryption: {
+      encrypted_ballot: PocEncryptedBallot;
+      iv: string;
+      ballot_key: string;
+      plaintext: PocBallotPlaintext;
+    } | null = null;
+    type WizardStep = 1 | 2 | 3 | 4;
+    type EncryptionState = 'none' | 'encrypted' | 'spoiled';
+    let wizardStep: WizardStep = 1;
+    let encryptionState: EncryptionState = 'none';
+    let currentContestIndex = 0;
+    let contestsCache: PocContest[] = [];
+
+    type VotingLifecycleDetail = {
+      event: string;
+      timestamp: number;
+      hasCredential: boolean;
+      hasChallenge: boolean;
+      hasEncryptedBallot: boolean;
+      hasReceipt: boolean;
+      hasVoted: boolean;
+      hasTally: boolean;
+      ballotCount: number;
+      eventCount: number;
+    };
+
+    function getLifecycleSnapshot(): Omit<VotingLifecycleDetail, 'event' | 'timestamp'> {
+      const receiptJson = localStorage.getItem('votechain_poc_last_receipt');
+      let hasReceipt = false;
+      if (receiptJson) {
+        try {
+          hasReceipt = !!JSON.parse(receiptJson);
+        } catch {
+          hasReceipt = false;
+        }
+      }
+      const ballotCount = cachedState?.bb?.leaves?.length ?? 0;
+      const eventCount = cachedState?.vcl?.events?.length ?? 0;
+      const hasCredential = !!cachedState?.credential?.pk;
+      const hasVoted = hasCredential && ballotCount > 0;
+      const hasTally = hasVoted && hasReceipt && !!cachedState?.tally;
+      return {
+        hasCredential,
+        hasChallenge: isChallengeUsable(cachedChallenge),
+        hasEncryptedBallot: encryptionState === 'encrypted',
+        hasReceipt,
+        hasVoted,
+        hasTally,
+        ballotCount,
+        eventCount,
+      };
+    }
+
+    function dispatchLifecycleEvent(event: string, extra: Record<string, unknown> = {}) {
+      if (typeof window === 'undefined') return;
+      const detail = {
+        event,
+        timestamp: Date.now(),
+        ...getLifecycleSnapshot(),
+        ...extra,
+      } satisfies VotingLifecycleDetail;
+      window.dispatchEvent(new CustomEvent('votechain:voting-client:lifecycle', { detail }));
+    }
+
+    // Step indicator
+    function updateStepIndicator(current: number) {
+      const steps = document.querySelectorAll('#step-indicator [data-step]');
+      const connectors = document.querySelectorAll('#step-indicator .step-connector');
+
+      steps.forEach((step) => {
+        const num = Number(step.getAttribute('data-step'));
+        const stepEl = step as HTMLElement;
+        const circle = step.querySelector('.step-circle') as HTMLElement;
+        if (num < current) {
+          circle.className =
+            'step-circle w-8 h-8 rounded-full flex items-center justify-center font-sans font-semibold text-sm bg-navy-800 text-gold-200 transition-all';
+        } else if (num === current) {
+          circle.className =
+            'step-circle w-8 h-8 rounded-full flex items-center justify-center font-sans font-semibold text-sm bg-gold-500 text-navy-900 transition-all';
+        } else {
+          circle.className =
+            'step-circle w-8 h-8 rounded-full flex items-center justify-center font-sans font-semibold text-sm bg-navy-200 text-navy-500 transition-all';
+        }
+        if (num === current) stepEl.setAttribute('aria-current', 'step');
+        else stepEl.removeAttribute('aria-current');
+      });
+
+      connectors.forEach((conn, i) => {
+        (conn as HTMLElement).className =
+          i < current - 1
+            ? 'step-connector flex-1 h-0.5 mx-2 bg-gold-500 transition-all'
+            : 'step-connector flex-1 h-0.5 mx-2 bg-navy-200 transition-all';
+      });
+    }
+
+    function computeWizardStatusMessage(): string {
+      const hasCredential = !!cachedState?.credential;
+      const challengeOk = isChallengeUsable(cachedChallenge);
+      switch (wizardStep) {
+        case 1:
+          return hasCredential
+            ? 'Credential issued. Continue to the challenge step when ready.'
+            : 'Verify your identity to mint a voting credential.';
+        case 2:
+          if (!hasCredential) {
+            return 'Complete identity verification before requesting a challenge.';
+          }
+          return challengeOk
+            ? 'Challenge is active for 10 minutes. Continue when you are ready.'
+            : 'Request a fresh anti-replay challenge to continue.';
+        case 3:
+          if (!challengeOk) {
+            return 'Request a valid challenge before encrypting.';
+          }
+          if (encryptionState === 'none') {
+            return 'Select one option per contest, then encrypt your ballot.';
+          }
+          if (encryptionState === 'spoiled') {
+            return 'Spoiled ballot discarded. Encrypt a fresh ballot to continue.';
+          }
+          return 'Encrypted ballot ready. Review it, then continue to cast.';
+        case 4:
+          if (!challengeOk) {
+            return 'Challenge expired or missing. Request a new one before casting.';
+          }
+          if (encryptionState !== 'encrypted' || !currentEncryption) {
+            return 'Encrypt your ballot first to enable casting.';
+          }
+          return 'Cast to publish the receipt to the ledger.';
+        default:
+          return '';
+      }
+    }
+
+    function renderWizardStatus() {
+      if (!wizardStatus) return;
+      if (wizardStatusOverride) {
+        wizardStatus.textContent = wizardStatusOverride;
+        return;
+      }
+      wizardStatus.textContent = computeWizardStatusMessage();
+    }
+
+    function setWizardStatus(message: string) {
+      const normalized = message?.trim() ?? '';
+      if (!wizardStatus) return;
+      if (normalized) {
+        wizardStatusOverride = normalized;
+        wizardStatus.textContent = normalized;
+      } else {
+        wizardStatusOverride = null;
+        renderWizardStatus();
+      }
+    }
+
+    function refreshWizardStatusIfIdle() {
+      if (!wizardStatusOverride) renderWizardStatus();
+    }
+
+
+    function challengeUsed(state: any, challenge_id: string | undefined): boolean {
+      if (!challenge_id) return false;
+      const rec = state?.challenges?.[challenge_id] ?? null;
+      return !!rec?.used;
+    }
+
+    function challengeExpired(expires_at: string | undefined): boolean {
+      if (!expires_at) return false;
+      const exp = Date.parse(expires_at);
+      if (!Number.isFinite(exp)) return false;
+      return Date.now() > exp;
+    }
+
+    function isChallengeUsable(challenge: any): boolean {
+      if (!challenge) return false;
+      if (challengeExpired(String(challenge.expires_at ?? ''))) return false;
+      if (challengeUsed(cachedState, String(challenge.challenge_id ?? ''))) return false;
+      return true;
+    }
+
+    function toChallengeResponse(record: any) {
+      if (!record) return null;
+      return {
+        challenge_id: String(record.challenge_id ?? ''),
+        challenge: String(record.challenge ?? ''),
+        expires_at: String(record.expires_at ?? ''),
+        kid: String(record.kid ?? ''),
+        server_sig: String(record.server_sig ?? ''),
+      };
+    }
+
+    function pickChallengeForResume(state: any) {
+      const records = Object.values(state?.challenges ?? {}) as any[];
+      if (!records.length) return null;
+
+      const usable = records.filter((r) => !r?.used && !challengeExpired(String(r?.expires_at ?? '')));
+      const pool = usable.length ? usable : records;
+
+      // Prefer the most recent expiry window.
+      pool.sort((a, b) => String(b?.expires_at ?? '').localeCompare(String(a?.expires_at ?? '')));
+      return toChallengeResponse(pool[0]);
+    }
+
+    function showChallengeSuccess() {
+      challengePrompt?.classList.add('hidden');
+      challengeProgressEl?.classList.add('hidden');
+      challengeSuccessEl?.classList.remove('hidden');
+    }
+
+    let challengeCountdownTimer: ReturnType<typeof setInterval> | null = null;
+
+    function renderChallengeDisplay(challenge: any) {
+      if (!challenge) {
+        challengePrompt?.classList.remove('hidden');
+        challengeSuccessEl?.classList.add('hidden');
+        challengeProgressEl?.classList.add('hidden');
+        challengeEl.textContent = 'No challenge yet.';
+        return;
+      }
+
+      showChallengeSuccess();
+
+      const id = String(challenge.challenge_id ?? '');
+      challengeIdVal.textContent = id.length > 28 ? id.slice(0, 12) + '\u2026' + id.slice(-10) : id;
+      challengeIdVal.title = id;
+
+      const kid = String(challenge.kid ?? '—');
+      challengeKidVal.textContent = kid.length > 28 ? kid.slice(0, 12) + '\u2026' + kid.slice(-10) : kid;
+      challengeKidVal.title = kid;
+
+      const expiresAt = String(challenge.expires_at ?? '');
+      const usable = isChallengeUsable(challenge);
+
+      // Status dot + label
+      const dot = challengeStatusVal.querySelector('.challenge-badge-status-dot') as HTMLElement;
+      const label = challengeStatusVal.querySelector('.challenge-badge-status-label') as HTMLElement;
+
+      function updateExpiry() {
+        if (!expiresAt) { challengeExpiresVal.textContent = '—'; return; }
+        const exp = Date.parse(expiresAt);
+        const remaining = exp - Date.now();
+        if (remaining > 0) {
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          challengeExpiresVal.textContent = `${mins}m ${secs}s remaining`;
+          challengeBadgeCountdown.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+        } else {
+          challengeExpiresVal.textContent = 'Expired';
+          challengeBadgeCountdown.textContent = 'Expired';
+          if (challengeCountdownTimer) { clearInterval(challengeCountdownTimer); challengeCountdownTimer = null; }
+        }
+      }
+      updateExpiry();
+
+      // Live countdown timer
+      if (challengeCountdownTimer) clearInterval(challengeCountdownTimer);
+      challengeCountdownTimer = setInterval(updateExpiry, 1000);
+
+      if (usable) {
+        dot.className = 'challenge-badge-status-dot active';
+        label.textContent = 'Active';
+        label.className = 'challenge-badge-status-label active';
+        challengeBadgeStatusText.textContent = 'Active';
+      } else if (challengeExpired(expiresAt)) {
+        dot.className = 'challenge-badge-status-dot expired';
+        label.textContent = 'Expired';
+        label.className = 'challenge-badge-status-label expired';
+        challengeBadgeStatusText.textContent = 'Expired';
+      } else {
+        dot.className = 'challenge-badge-status-dot used';
+        label.textContent = 'Used';
+        label.className = 'challenge-badge-status-label used';
+        challengeBadgeStatusText.textContent = 'Used';
+      }
+
+      challengeEl.textContent = formatJson(challenge);
+      refreshWizardStatusIfIdle();
+    }
+
+    function hideWizard() {
+      credentialSection.classList.add('hidden');
+      challengeSection.classList.add('hidden');
+      encryptReviewSection.classList.add('hidden');
+      castStepSection.classList.add('hidden');
+      wizardControls.classList.add('hidden');
+    }
+
+    function renderCastSummary() {
+      // Clear any existing cast-expiry timer
+      if (castExpiryTimer) { clearInterval(castExpiryTimer); castExpiryTimer = null; }
+
+      if (!currentEncryption) {
+        castSummaryBallotHash.textContent = '-';
+        castSummaryBallotId.textContent = '-';
+        castSummaryChallengeId.textContent = '-';
+        castSummaryChallengeExp.textContent = '-';
+        castSummaryHint.textContent = 'No encrypted ballot is currently in memory. Go back and encrypt.';
+        return;
+      }
+
+      const bHash = currentEncryption.encrypted_ballot.ballot_hash;
+      const bId = currentEncryption.encrypted_ballot.ballot_id;
+      const cId = cachedChallenge?.challenge_id ?? '-';
+      castSummaryBallotHash.textContent = bHash;
+      castSummaryBallotHash.title = bHash;
+      castSummaryBallotId.textContent = bId;
+      castSummaryBallotId.title = bId;
+      castSummaryChallengeId.textContent = cId;
+      castSummaryChallengeId.title = cId;
+
+      // Live countdown for challenge expiry (matches Step 2 pattern)
+      const expiresAt = cachedChallenge?.expires_at;
+      function updateCastExpiry() {
+        if (!expiresAt) { castSummaryChallengeExp.textContent = '-'; return; }
+        const exp = Date.parse(expiresAt);
+        const remaining = exp - Date.now();
+        if (remaining > 0) {
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          castSummaryChallengeExp.textContent = `${mins}m ${secs}s remaining`;
+        } else {
+          castSummaryChallengeExp.textContent = 'Expired';
+          if (castExpiryTimer) { clearInterval(castExpiryTimer); castExpiryTimer = null; }
+        }
+      }
+      updateCastExpiry();
+      castExpiryTimer = setInterval(updateCastExpiry, 1000);
+
+      if (encryptionState === 'spoiled') {
+        castSummaryHint.textContent = 'This ballot was spoiled. Re-encrypt before casting.';
+        return;
+      }
+
+      castSummaryHint.textContent = isChallengeUsable(cachedChallenge)
+        ? 'Ready to cast. Your vote will be recorded on the distributed ledger and a receipt saved locally.'
+        : 'Challenge missing/expired. Request a new challenge before casting.';
+
+      refreshWizardStatusIfIdle();
+    }
+
+    const wizardStepEls: Record<WizardStep, HTMLElement> = {
+      1: credentialSection,
+      2: challengeSection,
+      3: encryptReviewSection,
+      4: castStepSection,
+    };
+
+    function setWizardStep(step: WizardStep) {
+      wizardStep = step;
+      wizardStatusOverride = null;
+
+      for (const [k, el] of Object.entries(wizardStepEls)) {
+        const n = Number(k) as WizardStep;
+        if (n === step) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      }
+
+      // Wizard implies these are mutually exclusive views.
+      castError.classList.add('hidden');
+      castSuccess.classList.add('hidden');
+      wizardControls.classList.remove('hidden');
+
+      if (step === 4) renderCastSummary();
+
+      updateStepIndicator(step);
+      updateWizardControls();
+    }
+
+    function updateWizardControls() {
+      wizardBack.disabled = wizardStep === 1;
+
+      const hasCredential = !!cachedState?.credential;
+      const challengeOk = isChallengeUsable(cachedChallenge);
+
+      let nextLabel = 'Next';
+      let nextDisabled = false;
+
+      if (wizardStep === 1) {
+        nextLabel = hasCredential ? 'Continue' : 'Verify Identity';
+      } else if (wizardStep === 2) {
+        if (!hasCredential) {
+          nextLabel = 'Verify Identity';
+          nextDisabled = false;
+        } else {
+          nextLabel = challengeOk ? 'Continue' : 'Request Challenge';
+        }
+      } else if (wizardStep === 3) {
+        if (!challengeOk) {
+          nextLabel = 'Request New Challenge';
+          nextDisabled = false;
+        } else if (encryptionState === 'none') {
+          const focusPaginated = isFocusMode() && contestsCache.length > 1;
+          if (focusPaginated && currentContestIndex < contestsCache.length - 1) {
+            nextLabel = 'Next Contest';
+            nextDisabled = false;
+          } else {
+            nextLabel = 'Encrypt Ballot';
+            nextDisabled = !allContestsSelected();
+          }
+        } else if (encryptionState === 'spoiled') {
+          nextLabel = 'Re-Encrypt';
+          nextDisabled = false;
+        } else {
+          nextLabel = 'Continue to Cast';
+          nextDisabled = false;
+        }
+      } else if (wizardStep === 4) {
+        if (!challengeOk) {
+          nextLabel = 'Request New Challenge';
+          nextDisabled = false;
+        } else {
+          nextLabel = 'Cast Ballot';
+          nextDisabled = encryptionState !== 'encrypted' || !currentEncryption;
+        }
+      }
+
+      wizardNextLabel.textContent = nextLabel;
+      wizardNext.disabled = nextDisabled;
+
+      if (!wizardStatusOverride) renderWizardStatus();
+    }
+
+    // ── Multi-contest ballot rendering (paginated in focus mode) ──────
+
+    function isFocusMode(): boolean {
+      return document.documentElement.classList.contains('poc-focus');
+    }
+
+    /** Render a single contest's options into a container */
+    function renderContestBlock(contest: PocContest, container: HTMLElement) {
+      const title = document.createElement('p');
+      title.className = 'font-serif text-lg font-bold text-navy-900 mb-1';
+      title.textContent = contest.title;
+      container.appendChild(title);
+
+      const subtitle = document.createElement('p');
+      subtitle.className = 'text-xs text-navy-500 font-mono mb-2';
+      subtitle.textContent =
+        contest.type === 'candidate' ? 'Choose one candidate:' : 'Vote yes or no:';
+      container.appendChild(subtitle);
+
+      const optionsWrap = document.createElement('div');
+      optionsWrap.className = 'space-y-2';
+
+      for (const opt of contest.options) {
+        const row = document.createElement('label');
+        row.className =
+          'flex items-center gap-3 rounded-md border border-navy-200 bg-white p-3 hover:border-gold-500 transition-colors cursor-pointer';
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = `poc-${contest.contest_id}`;
+        input.value = opt.id;
+        input.className = 'h-4 w-4';
+        // Restore previous selection
+        if (selections[contest.contest_id] === opt.id) input.checked = true;
+        input.addEventListener('change', () => {
+          selections[contest.contest_id] = opt.id;
+          setWizardStatus('');
+          updateWizardControls();
+          updateSummaryStrip();
+        });
+        const text = document.createElement('span');
+        text.className = 'font-sans text-sm text-navy-800';
+        text.textContent = opt.label;
+        row.appendChild(input);
+        row.appendChild(text);
+        optionsWrap.appendChild(row);
+      }
+
+      container.appendChild(optionsWrap);
+    }
+
+    /** Initialize ballot contests (called once when state loads) */
+    function initBallotContests(state: any) {
+      contestsCache = state.election.contests as PocContest[];
+      selections = {};
+      for (const contest of contestsCache) {
+        selections[contest.contest_id] = null;
+      }
+      currentContestIndex = 0;
+
+      if (isFocusMode() && contestsCache.length > 1) {
+        renderCurrentContest();
+      } else {
+        renderAllContests();
+      }
+    }
+
+    /** Non-focus mode: render all contests at once (original behavior) */
+    function renderAllContests() {
+      ballotOptionsEl.replaceChildren();
+      ballotSummaryStrip.classList.add('hidden');
+      for (const contest of contestsCache) {
+        const section = document.createElement('div');
+        renderContestBlock(contest, section);
+        ballotOptionsEl.appendChild(section);
+      }
+    }
+
+    /** Focus mode: render only the current contest with inline summary */
+    function renderCurrentContest() {
+      ballotOptionsEl.replaceChildren();
+      const contest = contestsCache[currentContestIndex];
+      if (!contest) return;
+
+      const section = document.createElement('div');
+      renderContestBlock(contest, section);
+      ballotOptionsEl.appendChild(section);
+
+      // Always-visible summary strip (navigation + running tally)
+      ballotSummaryStrip.classList.remove('hidden');
+      updateSummaryStrip();
+      updateWizardControls();
+    }
+
+    /** Rebuild the inline summary strip — rows + counter */
+    function updateSummaryStrip() {
+      if (!isFocusMode() || contestsCache.length <= 1) {
+        ballotSummaryStrip.classList.add('hidden');
+        return;
+      }
+
+      ballotSummaryCounter.textContent = `Contest ${currentContestIndex + 1} of ${contestsCache.length}`;
+
+      ballotSummaryList.replaceChildren();
+      for (let i = 0; i < contestsCache.length; i++) {
+        const contest = contestsCache[i];
+        const sel = selections[contest.contest_id];
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'ballot-summary-row';
+        if (i === currentContestIndex) row.classList.add('current');
+
+        // Indicator dot
+        const dot = document.createElement('span');
+        dot.className = 'ballot-summary-dot';
+        if (sel) dot.classList.add('filled');
+        row.appendChild(dot);
+
+        const name = document.createElement('span');
+        name.className = 'ballot-summary-name';
+        name.textContent = contest.title;
+        row.appendChild(name);
+
+        const arrow = document.createElement('span');
+        arrow.className = 'ballot-summary-arrow';
+        arrow.textContent = '\u2192';
+        row.appendChild(arrow);
+
+        const value = document.createElement('span');
+        value.className = 'ballot-summary-value';
+        if (sel) {
+          const opt = contest.options.find((o) => o.id === sel);
+          value.textContent = opt?.label ?? sel;
+          value.classList.add('selected');
+        } else {
+          value.textContent = '\u2014';
+        }
+        row.appendChild(value);
+
+        row.addEventListener('click', () => {
+          currentContestIndex = i;
+          renderCurrentContest();
+          updateWizardControls();
+        });
+        ballotSummaryList.appendChild(row);
+      }
+    }
+
+    // Legacy alias used by ensureReady
+    function renderBallotOptions(state: any) {
+      initBallotContests(state);
+    }
+
+    function allContestsSelected(): boolean {
+      return Object.values(selections).every((v) => v !== null);
+    }
+
+    function getContestSelections(): Array<{ contest_id: string; selection: string }> {
+      return Object.entries(selections)
+        .filter(([, v]) => v !== null)
+        .map(([k, v]) => ({ contest_id: k, selection: v! }));
+    }
+
+    // Show review panel with encrypted ballot details
+    function showReviewPanel(
+      encrypted: PocEncryptedBallot,
+      plaintext: PocBallotPlaintext,
+      contests: PocContest[],
+    ) {
+      reviewPanel.classList.remove('hidden');
+      spoilResult.classList.add('hidden');
+      ballotSection.classList.add('hidden');
+
+      reviewBallotHash.textContent = encrypted.ballot_hash;
+      reviewBallotHash.title = encrypted.ballot_hash;
+      reviewBallotId.textContent = encrypted.ballot_id;
+      reviewBallotId.title = encrypted.ballot_id;
+
+      reviewSelections.replaceChildren();
+      for (const entry of plaintext.contests) {
+        const config = contests.find((c) => c.contest_id === entry.contest_id);
+        const label = config?.options.find((o) => o.id === entry.selection)?.label ?? entry.selection;
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        const contestName = document.createElement('span');
+        contestName.className = 'text-xs font-mono text-navy-500';
+        contestName.textContent = config?.title ?? entry.contest_id;
+        const arrow = document.createElement('span');
+        arrow.className = 'text-navy-400';
+        arrow.textContent = '\u2192';
+        const selName = document.createElement('span');
+        selName.className = 'text-xs font-semibold text-navy-800';
+        selName.textContent = label;
+        row.appendChild(contestName);
+        row.appendChild(arrow);
+        row.appendChild(selName);
+        reviewSelections.appendChild(row);
+      }
+
+      encryptionState = 'encrypted';
+      setWizardStatus('Ballot encrypted. Review it, optionally challenge (spoil), then continue to cast.');
+      updateWizardControls();
+    }
+
+    // Reset to ballot selection (after spoil, for re-encryption)
+    function resetToSelection() {
+      reviewPanel.classList.add('hidden');
+      spoilResult.classList.add('hidden');
+      ballotSection.classList.remove('hidden');
+      currentEncryption = null;
+      encryptionState = 'none';
+      spoilBtn.disabled = false;
+      // Re-enter paginated view if applicable
+      if (isFocusMode() && contestsCache.length > 1) {
+        currentContestIndex = 0;
+        renderCurrentContest();
+      }
+      setWizardStatus('');
+      updateWizardControls();
+    }
+
+    async function refreshManifest() {
+      const manifest = await getManifest();
+      manifestEl.textContent = formatJson(manifest);
+    }
+
+    async function refreshCredential() {
+      const state = await getPocState();
+      cachedState = state;
+      const cred = state.credential ?? null;
+      if (!cred || !cred.pk) {
+        credDidEl.textContent = 'Not generated';
+        credNullifierEl.textContent = 'Not generated';
+        credBlindSigEl.textContent = 'Not generated';
+        return;
+      }
+      // Truncate DID for badge display
+      const did = cred.did;
+      credDidEl.textContent = did.length > 36
+        ? did.slice(0, 22) + '\u2026' + did.slice(-10)
+        : did;
+      credDidEl.title = did;
+
+      const nullifier = await computeNullifier(cred.pk, state.election.election_id);
+      const nul = nullifier;
+      credNullifierEl.textContent = nul.length > 36
+        ? nul.slice(0, 14) + '\u2026' + nul.slice(-10)
+        : nul;
+      credNullifierEl.title = nul;
+
+      if (cred.blind_sigs?.length > 0) {
+        const parts = cred.blind_sigs.map((sig) =>
+          `#${sig.issuer_index + 1}: R:${sig.R.slice(0, 8)}.. s:${sig.s.slice(0, 8)}..`
+        );
+        credBlindSigEl.textContent = parts.join('\n');
+        credentialIssuerCount.textContent = `${cred.blind_sigs.length} issuer${cred.blind_sigs.length !== 1 ? 's' : ''}`;
+      } else {
+        credBlindSigEl.textContent = 'Not generated';
+      }
+    }
+
+    async function ensureReady() {
+      const state = await getPocState();
+      cachedState = state;
+      renderBallotOptions(state);
+      await refreshManifest();
+      await refreshCredential();
+
+      // If credential already exists on load, show success state
+      if (state.credential?.pk) {
+        showCredentialSuccess();
+      }
+
+      // If a ballot was already cast with this credential, show the receipt
+      const alreadyVoted = await hasAlreadyVoted();
+      if (alreadyVoted) {
+        showDuplicateSessionLock();
+        return;
+      }
+
+      cachedChallenge = pickChallengeForResume(state);
+      renderChallengeDisplay(cachedChallenge);
+
+      const start: WizardStep = !cachedState?.credential
+        ? 1
+        : isChallengeUsable(cachedChallenge)
+          ? 3
+          : 2;
+
+      setWizardStep(start);
+      setWizardStatus('');
+    }
+
+    function getSelectedVerifyMethod(): string {
+      const radio = document.querySelector<HTMLInputElement>('input[name="verify-method"]:checked');
+      return radio?.value ?? 'nfc';
+    }
+
+    function getSelectedLivenessMethod(): string {
+      const radio = document.querySelector<HTMLInputElement>('input[name="liveness-method"]:checked');
+      return radio?.value ?? 'biometric';
+    }
+
+    const methodLabels: Record<string, string> = {
+      nfc: 'NFC Tap',
+      qr: 'QR Code',
+      pin: 'DID + PIN',
+    };
+
+    const livenessLabels: Record<string, string> = {
+      biometric: 'Biometric',
+      'non-biometric': 'PIN + Attestation',
+    };
+
+    function setProgressStep(stepName: string, state: 'active' | 'done') {
+      const stepEl = credentialProgress?.querySelector<HTMLElement>(`[data-progress-step="${stepName}"]`);
+      if (!stepEl) return;
+      if (state === 'active') {
+        stepEl.classList.add('active');
+        stepEl.classList.remove('done');
+      } else {
+        stepEl.classList.remove('active');
+        stepEl.classList.add('done');
+      }
+    }
+
+    function delay(ms: number) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function wizardEnsureCredential() {
+      const verifyMethod = getSelectedVerifyMethod();
+      const livenessMethod = getSelectedLivenessMethod();
+
+      // Hide prompt, show progress
+      credentialPrompt?.classList.add('hidden');
+      credentialProgress?.classList.remove('hidden');
+      setWizardStatus('');
+
+      // Step 1: Present credential
+      setProgressStep('present', 'active');
+      await delay(600);
+      setProgressStep('present', 'done');
+
+      // Step 2: Liveness check
+      setProgressStep('liveness', 'active');
+      await delay(800);
+      setProgressStep('liveness', 'done');
+
+      // Step 3: Five-pillar ZK proof (actual credential generation happens here)
+      setProgressStep('zk', 'active');
+      await ensureCredential();
+      await refreshCredential();
+      dispatchLifecycleEvent('credential:issued', {
+        verifyMethod,
+        livenessMethod,
+      });
+      setProgressStep('zk', 'done');
+
+      // Step 4: Issue credential
+      setProgressStep('issue', 'active');
+      await delay(400);
+      setProgressStep('issue', 'done');
+
+      await delay(300);
+
+      // Store selected methods for success display
+      credentialSuccessMethodName.textContent = methodLabels[verifyMethod] ?? verifyMethod;
+      credentialSuccessLivenessName.textContent = livenessLabels[livenessMethod] ?? livenessMethod;
+      credentialSuccessMethod?.classList.remove('hidden');
+
+      setWizardStatus('');
+    }
+
+    function showCredentialSuccess() {
+      // Swap from prompt/progress state to success state
+      credentialPrompt?.classList.add('hidden');
+      credentialProgress?.classList.add('hidden');
+      credentialSuccess?.classList.remove('hidden');
+
+      // Hide the verification methods picker (it's inside the prompt, but also hide independently)
+      const verifyMethods = document.getElementById('verification-methods');
+      verifyMethods?.classList.add('hidden');
+      refreshWizardStatusIfIdle();
+    }
+
+    function setChallengeProgressStep(stepName: string, state: 'active' | 'done') {
+      const stepEl = challengeProgressEl?.querySelector<HTMLElement>(`[data-challenge-step="${stepName}"]`);
+      if (!stepEl) return;
+      if (state === 'active') {
+        stepEl.classList.add('active');
+        stepEl.classList.remove('done');
+      } else {
+        stepEl.classList.remove('active');
+        stepEl.classList.add('done');
+      }
+    }
+
+    async function wizardEnsureChallenge() {
+      // Show progress animation
+      challengePrompt?.classList.add('hidden');
+      challengeSuccessEl?.classList.add('hidden');
+      challengeProgressEl?.classList.remove('hidden');
+      setWizardStatus('');
+
+      setChallengeProgressStep('connect', 'active');
+      await delay(400);
+      setChallengeProgressStep('connect', 'done');
+
+      setChallengeProgressStep('nonce', 'active');
+      await delay(300);
+
+      cachedChallenge = await issueChallenge(randomB64u(32));
+      cachedState = await getPocState();
+
+      setChallengeProgressStep('nonce', 'done');
+
+      setChallengeProgressStep('sign', 'active');
+      await delay(400);
+      setChallengeProgressStep('sign', 'done');
+
+      await delay(200);
+      renderChallengeDisplay(cachedChallenge);
+      setWizardStatus('');
+      dispatchLifecycleEvent('challenge:issued', {
+        challengeId: cachedChallenge?.challenge_id ?? null,
+      });
+    }
+
+    async function wizardEncryptBallot() {
+      if (!allContestsSelected()) {
+        setWizardStatus('Select an option for every contest before encrypting.');
+        return;
+      }
+
+      // Challenge isn't strictly required for encryption, but the wizard enforces the EWP flow.
+      if (!isChallengeUsable(cachedChallenge)) {
+        await wizardEnsureChallenge();
+      }
+
+      setWizardStatus('Encrypting ballot locally (WebCrypto)...');
+      const result = await encryptBallotForReview({ contests: getContestSelections() });
+      if ('error' in result) {
+        setWizardStatus(result.error);
+        return;
+      }
+
+      currentEncryption = result;
+      const state = cachedState ?? (await getPocState());
+      showReviewPanel(result.encrypted_ballot, result.plaintext, state.election.contests);
+    }
+
+    wizardBack?.addEventListener('click', () => {
+      setWizardStatus('');
+      if (wizardStep === 2) setWizardStep(1);
+      else if (wizardStep === 3) {
+        const focusPaginated = isFocusMode() && contestsCache.length > 1;
+        if (focusPaginated && currentContestIndex > 0 && encryptionState === 'none') {
+          currentContestIndex--;
+          renderCurrentContest();
+        } else {
+          setWizardStep(2);
+        }
+      }
+      else if (wizardStep === 4) setWizardStep(3);
+    });
+
+    wizardRestart?.addEventListener('click', () => {
+      resetPocState();
+      localStorage.removeItem('votechain_poc_last_receipt');
+      window.location.reload();
+    });
+
+    wizardNext?.addEventListener('click', async () => {
+      wizardRestart.disabled = true;
+      wizardNext.disabled = true;
+      wizardBack.disabled = true;
+
+      try {
+        if (wizardStep === 1) {
+          if (!cachedState?.credential) {
+            wizardNextLabel.textContent = 'Verifying\u2026';
+            await wizardEnsureCredential();
+            showCredentialSuccess();
+            // Don't auto-advance — let the user see what was generated
+            return;
+          }
+          setWizardStep(2);
+          return;
+        }
+
+        if (wizardStep === 2) {
+          if (!cachedState?.credential) {
+            wizardNextLabel.textContent = 'Verifying\u2026';
+            await wizardEnsureCredential();
+          }
+          if (!isChallengeUsable(cachedChallenge)) {
+            wizardNextLabel.textContent = 'Requesting\u2026';
+            await wizardEnsureChallenge();
+            // Don't auto-advance — let the user see the challenge result
+            return;
+          }
+          setWizardStep(3);
+          return;
+        }
+
+        if (wizardStep === 3) {
+          if (!isChallengeUsable(cachedChallenge)) {
+            wizardNextLabel.textContent = 'Requesting\u2026';
+            await wizardEnsureChallenge();
+            updateWizardControls();
+            return;
+          }
+
+          if (encryptionState === 'none') {
+            const focusPaginated = isFocusMode() && contestsCache.length > 1;
+            if (focusPaginated && currentContestIndex < contestsCache.length - 1) {
+              currentContestIndex++;
+              renderCurrentContest();
+              return;
+            }
+            if (!allContestsSelected()) {
+              setWizardStatus('Select an option for every contest before encrypting.');
+              return;
+            }
+            wizardNextLabel.textContent = 'Encrypting\u2026';
+            await wizardEncryptBallot();
+            return;
+          }
+
+          if (encryptionState === 'spoiled') {
+            resetToSelection();
+            setWizardStatus('Spoiled ballot discarded. Encrypt a fresh ballot before casting.');
+            return;
+          }
+
+          setWizardStep(4);
+          return;
+        }
+
+        if (wizardStep === 4) {
+          if (!isChallengeUsable(cachedChallenge)) {
+            wizardNextLabel.textContent = 'Requesting\u2026';
+            await wizardEnsureChallenge();
+            renderCastSummary();
+          }
+          wizardNextLabel.textContent = 'Casting\u2026';
+          await performCast();
+          return;
+        }
+      } finally {
+        wizardRestart.disabled = false;
+        updateWizardControls();
+      }
+    });
+
+    // Benaloh challenge (spoil)
+    spoilBtn?.addEventListener('click', async () => {
+      if (!currentEncryption || encryptionState === 'spoiled') return;
+      spoilBtn.disabled = true;
+
+      try {
+        const result = await spoilBallot({
+          encrypted_ballot: currentEncryption.encrypted_ballot,
+          iv: currentEncryption.iv,
+          ballot_key: currentEncryption.ballot_key,
+          plaintext: currentEncryption.plaintext,
+        });
+
+        const verification = await verifySpoiledBallot({
+          encrypted_ballot: currentEncryption.encrypted_ballot,
+          iv: result.randomness_reveal.iv,
+          ballot_key: result.randomness_reveal.ballot_key,
+          plaintext: result.randomness_reveal.plaintext,
+        });
+
+        spoilCount++;
+        spoilCountEl.textContent = `Spoil checks: ${spoilCount}`;
+
+        // Show result
+        spoilResult.classList.remove('hidden');
+        spoilIvEl.textContent = result.randomness_reveal.iv;
+        spoilReceiptIdEl.textContent = result.spoil_receipt.receipt_id;
+
+        if (verification.match) {
+          spoilResultBox.className =
+            'rounded-lg border-2 border-green-300 bg-green-50 p-4';
+          spoilResultIcon.replaceChildren(
+            createLucideSvg({
+              size: 20,
+              className: 'text-green-600',
+              nodes: [
+                { name: 'path', attrs: { d: 'M22 11.08V12a10 10 0 1 1-5.93-9.14' } },
+                { name: 'polyline', attrs: { points: '22 4 12 14.01 9 11.01' } },
+              ],
+            }),
+          );
+          spoilResultTitle.textContent = 'MATCH \u2014 Device Verified Honest';
+          spoilResultTitle.className = 'font-sans font-semibold text-sm text-green-700';
+          spoilResultDetail.textContent = verification.details;
+          spoilResultDetail.className = 'text-xs mt-1 text-green-600';
+        } else {
+          spoilResultBox.className =
+            'rounded-lg border-2 border-red-300 bg-red-50 p-4';
+          spoilResultIcon.replaceChildren(
+            createLucideSvg({
+              size: 20,
+              className: 'text-red-600',
+              nodes: [
+                { name: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+                { name: 'line', attrs: { x1: '15', y1: '9', x2: '9', y2: '15' } },
+                { name: 'line', attrs: { x1: '9', y1: '9', x2: '15', y2: '15' } },
+              ],
+            }),
+          );
+          spoilResultTitle.textContent = 'MISMATCH \u2014 Potential Tampering';
+          spoilResultTitle.className = 'font-sans font-semibold text-sm text-red-700';
+          spoilResultDetail.textContent = verification.details;
+          spoilResultDetail.className = 'text-xs mt-1 text-red-600';
+        }
+
+        encryptionState = 'spoiled';
+        // Keep button disabled — this ballot is already spoiled
+        setWizardStatus('Ballot spoiled. Review the verification result, then re-encrypt a fresh ballot.');
+        updateWizardControls();
+      } catch {
+        // Re-enable only on failure so the user can retry
+        spoilBtn.disabled = false;
+      }
+    });
+
+    // Re-encrypt after spoil
+    reEncryptBtn?.addEventListener('click', () => {
+      resetToSelection();
+      spoilCountEl.textContent = `Spoil checks: ${spoilCount}`;
+    });
+
+    // EWP error code → user-friendly message + hint
+    const ewpErrorMessages: Record<string, { message: string; hint: string }> = {
+      EWP_CHALLENGE_EXPIRED: {
+        message: 'Your challenge has expired (they last 10 minutes).',
+        hint: 'Click "Start Over" below, then request a new challenge and re-encrypt your ballot.',
+      },
+      EWP_NULLIFIER_USED: {
+        message: 'You have already cast a ballot in this election.',
+        hint: 'Each voter can only cast once. If you believe this is an error, check the Dashboard for fraud flags. To vote again as a new voter, reset the POC state from the POC Home page.',
+      },
+      EWP_PROOF_INVALID: {
+        message: 'Your eligibility proof failed verification.',
+        hint: 'This can happen if your challenge was already used or your credential doesn\'t match. Click "Start Over" and go through the full flow again.',
+      },
+      EWP_BALLOT_INVALID: {
+        message: 'Your ballot failed validity checks.',
+        hint: 'The encrypted ballot structure doesn\'t match what the election expects. Try encrypting again.',
+      },
+      EWP_BAD_MANIFEST: {
+        message: 'The election manifest is invalid or has been tampered with.',
+        hint: 'Reset the POC state from the POC Home page and try again.',
+      },
+      EWP_IDEMPOTENCY_MISMATCH: {
+        message: 'This request conflicts with a previous submission.',
+        hint: 'Click "Start Over" and go through the full flow again.',
+      },
+    };
+
+    function setCastErrorMode(mode: 'fatal' | 'session') {
+      castErrorMode = mode;
+      if (!castErrorRetry || !castErrorRetryLabel) return;
+      if (mode === 'session') {
+        castErrorRetryLabel.textContent = 'Start Fresh Session';
+        castErrorRetry.setAttribute('data-reset-mode', 'session');
+      } else {
+        castErrorRetryLabel.textContent = 'Start Over';
+        castErrorRetry.removeAttribute('data-reset-mode');
+      }
+    }
+
+    function showCastError(errorCode: string, rawError: unknown) {
+      const info = ewpErrorMessages[errorCode] ?? {
+        message: `Cast failed with error: ${errorCode}`,
+        hint: 'Click "Start Over" and try the full flow again.',
+      };
+
+      hideWizard();
+      castError.classList.remove('hidden');
+      castErrorMessage.textContent = info.message;
+      castErrorHint.textContent = info.hint;
+      castErrorRaw.textContent = JSON.stringify(rawError, null, 2);
+      setCastErrorMode(errorCode === 'EWP_NULLIFIER_USED' ? 'session' : 'fatal');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showDuplicateSessionLock() {
+      castSuccess.classList.add('hidden');
+      pocTetherActions?.classList.add('hidden');
+      showCastError('EWP_NULLIFIER_USED', { reason: 'session_reuse' });
+    }
+
+    async function performCast() {
+      if (!currentEncryption) {
+        showCastError('MISSING_BALLOT', { currentEncryption: !!currentEncryption });
+        return;
+      }
+
+      if (!cachedChallenge) {
+        showCastError('MISSING_CHALLENGE', { cachedChallenge: !!cachedChallenge });
+        return;
+      }
+
+      if (!isChallengeUsable(cachedChallenge)) {
+        showCastError('EWP_CHALLENGE_EXPIRED', { cachedChallenge });
+        return;
+      }
+
+      renderCastSummary();
+
+      setWizardStatus('Casting ballot...');
+      castJsonPanel.classList.remove('hidden');
+      (castJsonPanel as HTMLDetailsElement).open = true;
+      castReqEl.textContent = 'Building request...';
+      castResEl.textContent = 'Casting...';
+
+      try {
+        const built = await buildCastRequest({
+          encrypted_ballot: currentEncryption.encrypted_ballot,
+          challenge: cachedChallenge,
+        });
+
+        if ('error' in built) {
+          showCastError('BUILD_ERROR', { error: built.error });
+          return;
+        }
+
+        castReqEl.textContent = JSON.stringify(built.request, null, 2);
+
+        const res = await castBallot({
+          request: built.request,
+          idempotencyKey: built.idempotencyKey,
+        });
+
+        castResEl.textContent = JSON.stringify(res, null, 2);
+
+        if ('error' in res) {
+          showCastError(res.error.code, res);
+          return;
+        }
+
+        if ('status' in res && res.status === 'cast_recorded') {
+          localStorage.setItem('votechain_poc_last_receipt', JSON.stringify(res.cast_receipt));
+          updateStepIndicator(5); // all complete
+
+          hideWizard();
+          castSuccess.classList.remove('hidden');
+          pocTetherActions?.classList.remove('hidden');
+
+          const receipt = res.cast_receipt;
+          successDetails.replaceChildren();
+          const items = [
+            { label: 'Ballot ID', value: receipt.receipt_id },
+            { label: 'Ballot Hash', value: receipt.ballot_hash },
+            { label: 'Board Position', value: receipt.bb_leaf_hash },
+            { label: 'Ledger Anchor', value: receipt.votechain_anchor.tx_id },
+          ];
+
+          for (const item of items) {
+            const row = document.createElement('div');
+            row.className = 'receipt-row';
+            const label = document.createElement('span');
+            label.className = 'receipt-label';
+            const val = document.createElement('span');
+            val.className = 'receipt-value';
+            val.textContent =
+              item.value.length > 24
+                ? item.value.slice(0, 12) + '...' + item.value.slice(-8)
+                : item.value;
+            val.title = item.value;
+            label.textContent = item.label;
+            row.appendChild(label);
+            row.appendChild(val);
+            successDetails.appendChild(row);
+          }
+
+          rawReceiptJson.textContent = JSON.stringify(receipt, null, 2);
+          cachedState = await getPocState();
+          dispatchLifecycleEvent('cast:success', { receiptId: receipt.receipt_id });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (err) {
+        castResEl.textContent = `Error: ${String(err)}`;
+        showCastError('EXCEPTION', { message: String(err) });
+      }
+    }
+
+    // Cast error "Start Over" fully resets POC state
+    castErrorRetry?.addEventListener('click', async () => {
+      if (castErrorMode === 'session') {
+        castErrorRetry.disabled = true;
+        if (castErrorRetryLabel) castErrorRetryLabel.textContent = 'Resetting…';
+        await resetForNextAttempt();
+        castErrorRetry.disabled = false;
+        setCastErrorMode('fatal');
+        return;
+      }
+      resetPocState();
+      localStorage.removeItem('votechain_poc_last_receipt');
+      window.location.reload();
+    });
+
+    // Copy receipt to clipboard
+    copyReceiptBtn?.addEventListener('click', async () => {
+      const receiptStr = localStorage.getItem('votechain_poc_last_receipt');
+      if (!receiptStr) return;
+      try {
+        await navigator.clipboard.writeText(receiptStr);
+        copyReceiptLabel.textContent = 'Copied!';
+        copyReceiptBtn.disabled = true;
+        setTimeout(() => {
+          copyReceiptLabel.textContent = 'Copy Receipt';
+          copyReceiptBtn.disabled = false;
+        }, 2000);
+      } catch {
+        // Clipboard access isn't available. Reveal the raw receipt JSON and select a hidden textarea
+        // so the user can press Ctrl/Cmd+C manually.
+        rawReceiptJson.classList.remove('hidden');
+        toggleRawJson.textContent = 'Hide raw receipt JSON';
+
+        const ta = document.createElement('textarea');
+        ta.value = receiptStr;
+        ta.style.position = 'fixed';
+        ta.style.left = '0';
+        ta.style.top = '0';
+        ta.style.width = '1px';
+        ta.style.height = '1px';
+        ta.style.opacity = '0';
+        ta.setAttribute('readonly', 'true');
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+
+        copyReceiptLabel.textContent = 'Press Ctrl/Cmd+C';
+        copyReceiptBtn.disabled = true;
+        setTimeout(() => {
+          document.body.removeChild(ta);
+          copyReceiptLabel.textContent = 'Copy Receipt';
+          copyReceiptBtn.disabled = false;
+        }, 2500);
+      }
+    });
+
+    // Toggle raw JSON in success view
+    toggleRawJson?.addEventListener('click', () => {
+      rawReceiptJson.classList.toggle('hidden');
+      toggleRawJson.textContent = rawReceiptJson.classList.contains('hidden')
+        ? 'Show raw receipt JSON'
+        : 'Hide raw receipt JSON';
+    });
+
+    // Reset from success screen
+    successResetBtn?.addEventListener('click', () => {
+      resetPocState();
+      localStorage.removeItem('votechain_poc_last_receipt');
+      window.location.reload();
+    });
+
+    async function resetForNextAttempt() {
+      if (sessionResetPromise) return sessionResetPromise;
+      sessionResetPromise = (async () => {
+        // Start a fresh voter session while preserving election history and duplicate-vote protections.
+        invalidateCredential();
+        localStorage.removeItem('votechain_poc_last_receipt');
+        pocTetherActions?.classList.add('hidden');
+        castSuccess.classList.add('hidden');
+        castError.classList.add('hidden');
+        rawReceiptJson.classList.add('hidden');
+        toggleRawJson.textContent = 'Show raw receipt JSON';
+        setCastErrorMode('fatal');
+
+        if (castExpiryTimer) {
+          clearInterval(castExpiryTimer);
+          castExpiryTimer = null;
+        }
+        if (challengeCountdownTimer) {
+          clearInterval(challengeCountdownTimer);
+          challengeCountdownTimer = null;
+        }
+
+        cachedState = await getPocState();
+        await refreshCredential();
+        cachedChallenge = null;
+        renderChallengeDisplay(null);
+        resetToSelection();
+        setWizardStep(1);
+        setWizardStatus('');
+        dispatchLifecycleEvent('session:reset');
+      })();
+      try {
+        await sessionResetPromise;
+      } finally {
+        sessionResetPromise = null;
+      }
+    }
+
+    // "Done" returns to a fresh voting session UI while preserving duplicate-vote protection.
+    successDoneBtn?.addEventListener('click', async () => {
+      if (!successDoneBtn) return;
+      const original = successDoneBtn.textContent ?? 'Done';
+      successDoneBtn.disabled = true;
+      successDoneBtn.textContent = 'Resetting…';
+      await resetForNextAttempt();
+      successDoneBtn.disabled = false;
+      successDoneBtn.textContent = original;
+    });
+
+
+    // ── In-iPad help drawer ──────────────────────────────────────────────
+    const ipadHelp = document.getElementById('poc-ipad-help');
+    const ipadHelpTitle = document.getElementById('poc-ipad-help-title');
+    const ipadHelpBody = document.getElementById('poc-ipad-help-body');
+    const ipadHelpClose = document.getElementById('poc-ipad-help-close');
+    const ipadHelpBackdrop = document.getElementById('poc-ipad-help-backdrop');
+
+    // Clean, non-POC help content for the in-app drawer
+    const helpContent: Record<string, { title: string; html: string }> = {
+      '1': {
+        title: 'Voter Credential',
+        html: '<p><strong>What happens:</strong> Your identity is verified and you receive a unique, anonymous voting credential. Your private signing key never leaves your device.</p>'
+            + '<p><strong>Why it matters:</strong> The credential proves you\'re eligible to vote without revealing who you are. A one-time <em>nullifier</em> prevents double-voting while keeping your identity private.</p>'
+            + '<p><strong>Privacy guarantee:</strong> The registration authority signs your key using a blind signature \u2014 they certify it without ever seeing it. This breaks the link between your identity and your vote.</p>',
+      },
+      '2': {
+        title: 'Anti-Replay Challenge',
+        html: '<p><strong>What happens:</strong> The election server issues a one-time challenge token tied to your session. This token expires after 10 minutes.</p>'
+            + '<p><strong>Why it matters:</strong> The challenge prevents replay attacks \u2014 no one can resubmit your ballot or cast on your behalf. Each challenge can only be used once.</p>'
+            + '<p><strong>How it works:</strong> The server signs the challenge with a key that\'s published in the election manifest. Your client verifies the signature before proceeding.</p>',
+      },
+      '3': {
+        title: 'Ballot Encryption',
+        html: '<p><strong>What happens:</strong> Your ballot selections are encrypted locally on your device using the election\'s public encryption key. Only the trustees can decrypt the final tally.</p>'
+            + '<p><strong>Why it matters:</strong> No one \u2014 not the server, not the election officials, not anyone intercepting network traffic \u2014 can see how you voted.</p>'
+            + '<p><strong>Spoil & verify:</strong> Before casting, you can "spoil" your ballot to prove the encryption is honest. This reveals the randomness used, letting you verify it matches your selections. Spoiled ballots are never counted.</p>',
+      },
+      '4': {
+        title: 'Casting Your Vote',
+        html: '<p><strong>What happens:</strong> Your encrypted ballot is submitted along with an eligibility proof and the anti-replay challenge. The gateway validates everything before accepting it.</p>'
+            + '<p><strong>What you receive:</strong> A signed receipt containing your ballot hash, a bulletin board inclusion proof, and a ledger anchor. This receipt lets you verify your vote was recorded.</p>'
+            + '<p><strong>Finality:</strong> Once cast, your ballot is written to the bulletin board, anchored on the distributed ledger, and cannot be altered or removed.</p>',
+      },
+    };
+
+    function openIpadHelp(step: string) {
+      if (!ipadHelp || !ipadHelpBody || !ipadHelpTitle) return;
+      const entry = helpContent[step];
+      if (!entry) return;
+
+      ipadHelpTitle.textContent = entry.title;
+      ipadHelpBody.innerHTML = entry.html;
+      ipadHelp.classList.remove('hidden');
+    }
+
+    function closeIpadHelp() {
+      ipadHelp?.classList.add('hidden');
+    }
+
+    // Wire all "?" buttons
+    document.querySelectorAll<HTMLButtonElement>('.poc-help-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const step = btn.getAttribute('data-help-step');
+        if (step) openIpadHelp(step);
+      });
+    });
+
+    ipadHelpClose?.addEventListener('click', closeIpadHelp);
+    ipadHelpBackdrop?.addEventListener('click', closeIpadHelp);
+
+    let votingClientBooted = false;
+    let sessionResetPromise: Promise<void> | null = null;
+    async function handleVotingClientOpen() {
+      if (!votingClientBooted) {
+        votingClientBooted = true;
+        await ensureReady();
+      }
+      await resetForNextAttempt();
+    }
+
+    window.addEventListener('votechain:voting-client-open', () => { void handleVotingClientOpen(); });
+    window.addEventListener('votechain:voting-client-close', () => { void resetForNextAttempt(); });
+  </script>

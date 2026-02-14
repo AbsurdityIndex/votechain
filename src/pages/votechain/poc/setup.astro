@@ -1,10 +1,12 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Icon from '../../../components/ui/Icon.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
-  title="VoteChain POC Election Setup"
+  title="VoteChain Admin Console"
   description="Configure a VoteChain POC election with arbitrary scopes and anchor the resulting manifest to the distributed ledger."
   ogType="article"
   article={{
@@ -14,16 +16,45 @@ import Icon from '../../../components/ui/Icon.astro';
     tags: ['votechain', 'poc', 'setup', 'ledger'],
   }}
 >
-  <main class="bg-parchment min-h-screen py-8">
-    <div class="max-w-4xl mx-auto px-4 space-y-6">
+  <main
+    id="poc-setup-main"
+    class="bg-parchment min-h-screen pb-8"
+    role="main"
+    aria-labelledby="poc-setup-title"
+  >
+    <PocHarnessShell
+      current="setup"
+      title="Admin Console"
+      subtitle="Configure the election setup and handle registration intake"
+    />
+    <div class="max-w-4xl mx-auto px-4 pt-6 space-y-6">
       <header class="text-center">
-        <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">POC Admin Tool</p>
-        <h1 class="font-serif text-3xl text-navy-900 font-bold">Election Setup</h1>
+        <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Admin Console</p>
+        <h1 id="poc-setup-title" class="font-serif text-3xl text-navy-900 font-bold">Election Setup & Registration Desk</h1>
         <p class="text-navy-600 mt-2 text-sm max-w-2xl mx-auto" data-poc-detail="setup-desc" data-poc-detail-title="About Election Setup">
-          Create a new election bundle in one pass. Scopes are free-form labels, so this works for
-          local/state/federal, college/apartment, mock elections, or any custom partition.
+          Configure the election manifest, handle same-day registration, and publish intake data from one surface.
+          Scopes are free-form so this pattern applies to anything from local pilots to national deployments.
         </p>
       </header>
+
+      <section
+        id="setup-activity"
+        class="rounded-xl border border-navy-200 bg-white/90 p-4 flex items-start gap-3 shadow-sm"
+        role="status"
+        aria-live="polite"
+      >
+        <div id="setup-activity-icon" class="rounded-full bg-navy-900/5 text-navy-900 p-2">
+          <Icon name="activity" size={16} />
+        </div>
+        <div class="text-left">
+          <p id="setup-activity-title" class="font-sans font-semibold text-sm text-navy-900">
+            Harness ready.
+          </p>
+          <p id="setup-activity-detail" class="text-xs text-navy-600 mt-0.5">
+            Configure election scopes or import a previous setup package to begin.
+          </p>
+        </div>
+      </section>
 
       <section class="rounded-xl border border-gold-300 bg-cream-50 p-4 text-sm text-navy-700" data-poc-detail="setup-warning" data-poc-detail-title="Setup Warning">
         <div class="flex items-start gap-2">
@@ -109,7 +140,7 @@ federal</textarea>
           </div><!-- /Step 1: Config -->
 
           <!-- Wizard Step 2: Pools -->
-          <div class="md:col-span-2" data-poc-step="2" data-poc-step-label="Pools" hidden>
+          <div class="md:col-span-2" data-poc-step="2" data-poc-step-label="Pools">
           <p class="text-navy-600 text-sm mb-2" data-poc-brief>
             Create reusable option pools (candidates or referendum choices) that questions bind to.
           </p>
@@ -175,7 +206,7 @@ federal</textarea>
           </div><!-- /Step 2: Pools -->
 
           <!-- Wizard Step 3: Questions -->
-          <div class="md:col-span-2" data-poc-step="3" data-poc-step-label="Questions" hidden>
+          <div class="md:col-span-2" data-poc-step="3" data-poc-step-label="Questions">
           <p class="text-navy-600 text-sm mb-2" data-poc-brief>
             Build questions and bind each to a compatible option pool.
           </p>
@@ -238,7 +269,7 @@ federal</textarea>
           </div><!-- /Step 3: Questions -->
 
           <!-- Wizard Step 4: Create -->
-          <div class="md:col-span-2" data-poc-step="4" data-poc-step-label="Create" hidden>
+          <div class="md:col-span-2" data-poc-step="4" data-poc-step-label="Create">
           <p class="text-navy-600 text-sm mb-2" data-poc-brief>
             Review your configuration and create the election bundle. This resets existing POC state.
           </p>
@@ -305,14 +336,32 @@ Read/verify from federal + state + oversight nodes
         <h3 class="font-serif text-lg text-green-900 font-bold">Setup Completed</h3>
         <p id="setup-summary" class="text-sm text-green-800 mt-1"></p>
         <div class="mt-3 flex flex-wrap gap-3">
-          <a href="/votechain/poc/vote" class="inline-flex items-center gap-2 rounded-md bg-green-700 px-3 py-1.5 text-white text-sm font-semibold hover:bg-green-800">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-md bg-green-700 px-3 py-1.5 text-white text-sm font-semibold hover:bg-green-800"
+            data-open-client-modal
+            data-client-key="vote"
+            data-client-title="Voting Kiosk"
+            data-client-path="/votechain/poc/vote"
+            aria-haspopup="dialog"
+            aria-controls="poc-voting-client-modal"
+          >
             <Icon name="vote" class="text-white" size={14} />
-            Open Voting Client
-          </a>
-          <a href="/votechain/poc/dashboard" class="inline-flex items-center gap-2 rounded-md border border-green-400 px-3 py-1.5 text-green-900 text-sm font-semibold hover:bg-green-100">
+            Open Voting Kiosk
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-md border border-green-400 px-3 py-1.5 text-green-900 text-sm font-semibold hover:bg-green-100"
+            data-open-client-modal
+            data-client-key="dashboard"
+            data-client-title="Reveal & Tally"
+            data-client-path="/votechain/poc/dashboard"
+            aria-haspopup="dialog"
+            aria-controls="poc-voting-client-modal"
+          >
             <Icon name="bar-chart" class="text-green-800" size={14} />
             Open Dashboard
-          </a>
+          </button>
           <button
             id="export-setup-package"
             type="button"
@@ -355,6 +404,7 @@ Read/verify from federal + state + oversight nodes
 
       <section id="setup-error" class="hidden rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800"></section>
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -528,6 +578,40 @@ Read/verify from federal + state + oversight nodes
     const publishPackageStatus = mustGetElement<HTMLParagraphElement>('publish-package-status');
     const setupError = mustGetElement<HTMLElement>('setup-error');
     const runSetupButton = mustGetElement<HTMLButtonElement>('run-setup');
+    const setupActivity = mustGetElement<HTMLElement>('setup-activity');
+    const setupActivityIcon = mustGetElement<HTMLElement>('setup-activity-icon');
+    const setupActivityTitle = mustGetElement<HTMLElement>('setup-activity-title');
+    const setupActivityDetail = mustGetElement<HTMLElement>('setup-activity-detail');
+
+    type SetupActivityState = 'ready' | 'working' | 'success' | 'error';
+    let setupBusy = false;
+
+    function setSetupActivity(state: SetupActivityState, title: string, detail: string): void {
+      const palette: Record<SetupActivityState, { wrapper: string; icon: string }> = {
+        ready: {
+          wrapper: 'border border-navy-200 bg-white/90 text-navy-700',
+          icon: 'rounded-full bg-navy-900/5 text-navy-900',
+        },
+        working: {
+          wrapper: 'border border-gold-300 bg-gold-50 text-gold-900',
+          icon: 'rounded-full bg-gold-600/15 text-gold-700',
+        },
+        success: {
+          wrapper: 'border border-green-300 bg-green-50 text-green-900',
+          icon: 'rounded-full bg-green-600/15 text-green-700',
+        },
+        error: {
+          wrapper: 'border border-red-300 bg-red-50 text-red-900',
+          icon: 'rounded-full bg-red-600/15 text-red-700',
+        },
+      };
+
+      const baseClass = 'rounded-xl p-4 flex items-start gap-3 shadow-sm';
+      setupActivity.className = `${baseClass} ${palette[state].wrapper}`;
+      setupActivityIcon.className = `${palette[state].icon} p-2`;
+      setupActivityTitle.textContent = title;
+      setupActivityDetail.textContent = detail;
+    }
 
     const optionPools: OptionPool[] = [];
     const contestDrafts: ContestDraft[] = [];
@@ -1152,22 +1236,53 @@ Read/verify from federal + state + oversight nodes
       const previousButtonMarkup = runSetupButton.innerHTML;
       runSetupButton.setAttribute('disabled', 'true');
       runSetupButton.textContent = 'Creating...';
+      setupBusy = true;
+      setSetupActivity(
+        'working',
+        'Creating election bundle...',
+        'Hold tight while cryptographic material and manifests are generated.',
+      );
 
       try {
         const config = currentConfig();
         const state = await setupPocElection(config);
         setupSummary.textContent = `Election ${state.election.election_id} created with ${state.election.contests.length} contests across ${state.setup?.scopes.length ?? config.scopes.length} scopes. Manifest: ${state.manifest.manifest_id}`;
         setupResult.classList.remove('hidden');
+        setSetupActivity(
+          'success',
+          'Election created.',
+          'Review the generated bundle below or open the voting client to continue the demo.',
+        );
       } catch (error) {
         setupError.textContent = `Setup failed: ${error instanceof Error ? error.message : String(error)}`;
         setupError.classList.remove('hidden');
+        setSetupActivity(
+          'error',
+          'Setup failed.',
+          'Review the error message below, adjust the configuration, and try again.',
+        );
       } finally {
         runSetupButton.removeAttribute('disabled');
         runSetupButton.innerHTML = previousButtonMarkup;
         renderBuilderState();
+        setupBusy = false;
       }
     });
 
+    setupForm.addEventListener('input', () => {
+      if (setupBusy) return;
+      setSetupActivity(
+        'ready',
+        'Configuration updated.',
+        'Changes will take effect once you create a new election bundle.',
+      );
+    });
+
+    setSetupActivity(
+      'ready',
+      'Harness ready.',
+      'Configure election scopes or import a previous setup package to begin.',
+    );
     renderBuilderState();
   </script>
 </BaseLayout>

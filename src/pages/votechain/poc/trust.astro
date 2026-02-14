@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import OfficialSeal from '../../../components/ui/OfficialSeal.astro';
 import Divider from '../../../components/ui/Divider.astro';
 import Icon from '../../../components/ui/Icon.astro';
-import PocToolNav from '../../../components/votechain/PocToolNav.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
@@ -17,26 +17,46 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     tags: ['votechain', 'ewp', 'poc', 'trust', 'verification', 'cryptography'],
   }}
 >
-  <main class="bg-parchment min-h-screen">
-    <section class="relative bg-navy-900 py-10 sm:py-14">
-      <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
-        <div class="flex justify-center">
-          <OfficialSeal size="90" />
-        </div>
-        <p class="text-sm text-gold-500 font-mono uppercase tracking-widest mt-5 mb-2">EWP POC</p>
-        <h1 class="font-serif text-3xl sm:text-4xl text-gold-400 font-bold">
-          Public Trust Portal
-        </h1>
-        <p class="mt-3 text-gold-300/80 font-sans text-base max-w-3xl mx-auto">
-          Independently verify every cryptographic signature, Merkle root, and ledger event.
-          This page runs all verification checks that an observer, journalist, or voter could
-          run against the election data &mdash; proving the system is operating correctly.
+  <main
+    id="poc-trust-main"
+    class="bg-parchment min-h-screen"
+    role="main"
+    aria-labelledby="poc-trust-title"
+  >
+    <PocHarnessShell
+      current="trust"
+      title="Trust Portal"
+      subtitle="Independent manifest, STH, and ledger validation"
+    />
+
+    <header class="max-w-5xl mx-auto px-4 pt-6">
+      <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1">Trust Portal</p>
+      <h1 id="poc-trust-title" class="font-serif text-3xl text-navy-900 font-bold">
+        Verify manifests, STHs, and ledger proofs independently
+      </h1>
+      <p class="text-navy-600 text-sm mt-2 max-w-3xl">
+        Every integrity check below has a descriptive label, visible focus indicator, and live status messaging.
+        Re-run verifications, export audit bundles, or drill into Merkle math without leaving the harness shell.
+      </p>
+    </header>
+
+    <div class="max-w-5xl mx-auto px-4 pt-4">
+      <div
+        id="trust-status"
+        class="rounded-lg border border-navy-200 bg-white/90 p-4 shadow-sm"
+        role="status"
+        aria-live="polite"
+      >
+        <p id="trust-status-title" class="font-sans text-sm font-semibold text-navy-900">
+          Ready to verify.
+        </p>
+        <p id="trust-status-desc" class="text-xs text-navy-600 mt-0.5">
+          Run the cryptographic checklist below to confirm manifest, STH, ledger, and issuance integrity.
         </p>
       </div>
-    </section>
-    <PocToolNav current="trust" />
+    </div>
 
-    <div class="max-w-5xl mx-auto px-4 py-10 sm:py-12 space-y-8">
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8">
       <!-- Section 1: System Integrity Status -->
       <section class="bg-white rounded-xl border border-navy-200 p-6 sm:p-8 shadow-md">
         <div class="flex items-center justify-between flex-wrap gap-3">
@@ -115,7 +135,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
           </span>
         </div>
         <pre
-          class="mt-3 rounded-lg bg-navy-800 text-cream-100 p-4 overflow-x-auto text-xs leading-relaxed font-mono max-h-80"><code id="manifest-json">Loading...</code></pre>
+          class="mt-3 rounded-lg bg-navy-800 text-cream-100 p-4 overflow-x-auto text-xs leading-relaxed font-mono max-h-80"><code id="trust-manifest-json">Loading...</code></pre>
       </section>
 
       <!-- Section 3: Bulletin Board Integrity -->
@@ -322,6 +342,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         </div>
       </section>
     </div>
+    <PocVotingClientModal />
   </main>
 
   <script>
@@ -343,7 +364,7 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     const overallTitle = document.getElementById('overall-title') as HTMLElement;
     const overallSubtitle = document.getElementById('overall-subtitle') as HTMLElement;
     const manifestBadge = document.getElementById('manifest-badge') as HTMLElement;
-    const manifestJson = document.getElementById('manifest-json') as HTMLElement;
+    const manifestJson = document.getElementById('trust-manifest-json') as HTMLElement;
     const bbTotalLeaves = document.getElementById('bb-total-leaves') as HTMLElement;
     const bbSthCount = document.getElementById('bb-sth-count') as HTMLElement;
     const bbRootBadge = document.getElementById('bb-root-badge') as HTMLElement;
@@ -360,6 +381,9 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     const reverifyBtn = document.getElementById('reverify-btn') as HTMLButtonElement;
     const exportBtn = document.getElementById('export-btn') as HTMLButtonElement;
     const verifyStatusEl = document.getElementById('verify-status') as HTMLElement;
+    const trustStatus = document.getElementById('trust-status') as HTMLElement;
+    const trustStatusTitle = document.getElementById('trust-status-title') as HTMLElement;
+    const trustStatusDesc = document.getElementById('trust-status-desc') as HTMLElement;
 
     interface CheckResult {
       id: string;
@@ -633,9 +657,73 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
       }
     }
 
+    type TrustStatusState = 'idle' | 'loading' | 'success' | 'warning' | 'error';
+
+    function setTrustStatus(state: TrustStatusState, title: string, detail: string) {
+      const palette: Record<TrustStatusState, { wrapper: string; title: string; desc: string }> = {
+        idle: {
+          wrapper: 'rounded-lg border border-navy-200 bg-white/90 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-navy-900',
+          desc: 'text-xs text-navy-600 mt-0.5',
+        },
+        loading: {
+          wrapper: 'rounded-lg border border-gold-300 bg-gold-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-gold-900',
+          desc: 'text-xs text-gold-700 mt-0.5',
+        },
+        success: {
+          wrapper: 'rounded-lg border border-green-300 bg-green-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-green-900',
+          desc: 'text-xs text-green-700 mt-0.5',
+        },
+        warning: {
+          wrapper: 'rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-amber-900',
+          desc: 'text-xs text-amber-700 mt-0.5',
+        },
+        error: {
+          wrapper: 'rounded-lg border border-red-300 bg-red-50 p-4 shadow-sm',
+          title: 'font-sans text-sm font-semibold text-red-900',
+          desc: 'text-xs text-red-700 mt-0.5',
+        },
+      };
+      const entry = palette[state];
+      trustStatus.className = entry.wrapper;
+      trustStatusTitle.className = entry.title;
+      trustStatusDesc.className = entry.desc;
+      trustStatusTitle.textContent = title;
+      trustStatusDesc.textContent = detail;
+    }
+
+    function resetVerificationPlaceholders() {
+      checksList.replaceChildren(
+        (() => {
+          const p = document.createElement('p');
+          p.className = 'text-sm text-navy-600';
+          p.textContent = 'Running verification checks...';
+          return p;
+        })(),
+      );
+      manifestBadge.textContent = 'Checking...';
+      manifestBadge.className = 'inline-flex items-center rounded-full bg-navy-100 px-2.5 py-1 text-xs font-semibold text-navy-600';
+      bbRootBadge.textContent = 'Checking...';
+      bbRootBadge.className = manifestBadge.className;
+      vclBadge.textContent = 'Checking...';
+      vclBadge.className = manifestBadge.className;
+      ciBadge.textContent = 'Checking...';
+      ciBadge.className = manifestBadge.className;
+      overallBanner.classList.add('hidden');
+    }
+
     async function runAllChecks() {
       verifyStatusEl.textContent = 'Running all verification checks...';
       reverifyBtn.disabled = true;
+      resetVerificationPlaceholders();
+      setTrustStatus(
+        'loading',
+        'Running verification checks...',
+        'Validating manifest signatures, tree heads, ledger events, and credential issuance limits.',
+      );
 
       try {
         const [
@@ -758,8 +846,27 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
         renderKeys(keys);
 
         verifyStatusEl.textContent = `Verified: ${new Date().toLocaleString()}`;
+        if (allOk) {
+          setTrustStatus(
+            'success',
+            'All integrity checks passed.',
+            'Manifest, bulletin board, ledger, and issuance checks are clean.',
+          );
+        } else {
+          setTrustStatus(
+            'warning',
+            'Issues detected in verification.',
+            'Review the failing checks below to understand where the inconsistency lives.',
+          );
+        }
       } catch (err) {
         verifyStatusEl.textContent = `Error: ${String(err)}`;
+        setTrustStatus(
+          'error',
+          'Verification run failed.',
+          err instanceof Error ? err.message : String(err),
+        );
+        overallBanner.classList.add('hidden');
       } finally {
         reverifyBtn.disabled = false;
       }
@@ -779,6 +886,11 @@ import PocToolNav from '../../../components/votechain/PocToolNav.astro';
     });
 
     // Run all checks on page load
+    setTrustStatus(
+      'idle',
+      'Ready to verify.',
+      'Run the checklist to confirm manifest, ledger, and credential integrity.',
+    );
     runAllChecks();
   </script>
 </BaseLayout>

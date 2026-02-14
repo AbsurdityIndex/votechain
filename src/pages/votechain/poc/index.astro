@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Icon from '../../../components/ui/Icon.astro';
+import PocHarnessShell from '../../../components/votechain/poc/PocHarnessShell.astro';
+import PocVotingClientModal from '../../../components/votechain/poc/PocVotingClientModal.astro';
 ---
 
 <BaseLayout
@@ -14,35 +16,83 @@ import Icon from '../../../components/ui/Icon.astro';
     tags: ['votechain', 'ewp', 'election security', 'verification'],
   }}
 >
+  <main
+    id="poc-overview-main"
+    class="bg-parchment min-h-screen pb-10"
+    role="main"
+    aria-labelledby="poc-overview-title"
+  >
+    <PocHarnessShell
+      current="vote"
+      title="POC Journey"
+      subtitle="Launch the voting client once, then drive every other role from the same harness"
+    />
 
-  <!-- ===== COMPLETION BANNER (hidden, revealed by JS) ===== -->
-  <div id="poc-complete-banner" class="poc-banner hidden">
-    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
-      <div class="poc-banner-icon">
-        <Icon name="check-circle" class="text-white" size={24} />
+    <!-- ===== COMPLETION BANNER (hidden, revealed by JS) ===== -->
+    <div id="poc-complete-banner" class="poc-banner hidden">
+      <div class="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div class="poc-banner-icon">
+          <Icon name="check-circle" class="text-white" size={24} />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-serif font-bold text-white text-base">Full cycle complete.</p>
+          <p class="text-green-100 text-sm">You cast a ballot, verified your receipt, and watched the tally. You've seen the entire VoteChain flow.</p>
+        </div>
+        <a href="/votechain/faq" class="poc-banner-cta">Read the FAQ</a>
       </div>
-      <div class="flex-1 min-w-0">
-        <p class="font-serif font-bold text-white text-base">Full cycle complete.</p>
-        <p class="text-green-100 text-sm">You cast a ballot, verified your receipt, and watched the tally. You've seen the entire VoteChain flow.</p>
-      </div>
-      <a href="/votechain/faq" class="poc-banner-cta">Read the FAQ</a>
     </div>
-  </div>
 
-  <!-- ===== HERO ===== -->
-  <div class="max-w-4xl mx-auto px-4 py-8 text-center">
-    <p class="text-xs text-gold-600 font-mono uppercase tracking-widest mb-1 hero-fade" style="--delay: 0">
-      Interactive Proof-of-Concept
-    </p>
-    <h1 class="font-serif text-2xl md:text-3xl text-navy-900 font-bold hero-fade" style="--delay: 1">
-      Experience VoteChain
-    </h1>
-    <p class="text-navy-600 mt-3 text-base max-w-xl mx-auto leading-relaxed hero-fade" style="--delay: 2">
-      Walk through an election from start to finish. Cast a ballot, verify your receipt,
-      and watch the count &mdash; all with real cryptography running in your browser.
-    </p>
-    <p class="text-navy-400 text-sm mt-2 italic hero-fade" style="--delay: 3">Takes about 60 seconds. No sign-up required.</p>
-  </div>
+    <!-- ===== HERO ===== -->
+    <section class="max-w-5xl mx-auto px-4 py-8">
+      <div class="poc-hero-grid">
+        <div class="poc-hero-copy hero-fade" style="--delay: 0">
+          <p class="poc-hero-eyebrow">Interactive Proof-of-Concept</p>
+          <h1 id="poc-overview-title">Experience VoteChain</h1>
+          <p>
+            Walk through an election from start to finish. Cast a ballot, verify your receipt, and watch the count &mdash;
+            all with real cryptography running in your browser.
+          </p>
+          <div class="poc-hero-actions">
+            <button
+              type="button"
+              id="poc-launch-modal"
+              data-open-voting-modal
+              class="poc-hero-primary"
+              aria-haspopup="dialog"
+              aria-controls="poc-voting-client-modal"
+            >
+              <span data-hero-label>Launch Voting Kiosk</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <a href="#journey-timeline" class="poc-hero-secondary">
+              Preview the flow
+            </a>
+          </div>
+          <p class="poc-hero-footnote">
+            This is the only place you launch the experience &mdash; it opens in a modal so the harness
+            and every other operator surface stay visible without duplicate controls.
+          </p>
+        </div>
+        <div class="poc-hero-panel hero-fade" style="--delay: 1">
+          <p class="poc-hero-panel-eyebrow">What the tour covers</p>
+          <ul class="poc-hero-panel-list">
+            <li>
+              <Icon name="user" size={16} class="text-gold-600" />
+              Blind credential issuance + liveness checks
+            </li>
+            <li>
+              <Icon name="shield" size={16} class="text-gold-600" />
+              Challenge, encrypt, and cast with deterministic proofs
+            </li>
+            <li>
+              <Icon name="git-merge" size={16} class="text-gold-600" />
+              Independent receipt verification and tally publication
+            </li>
+          </ul>
+          <p class="poc-hero-panel-note">All mocked clients stay available in the harness once you start.</p>
+        </div>
+      </div>
+    </section>
 
   <!-- ===== PROGRESS BAR ===== -->
   <div class="max-w-3xl mx-auto px-4 pt-4 pb-2 hero-fade" style="--delay: 4">
@@ -51,15 +101,36 @@ import Icon from '../../../components/ui/Icon.astro';
         <div id="poc-progress-fill" class="poc-progress-fill" style="width: 0%"></div>
       </div>
       <div class="poc-progress-steps">
-        <button class="poc-progress-dot" data-progress-step="1" title="Cast Your Vote">
+        <button
+          type="button"
+          class="poc-progress-dot"
+          data-progress-step="1"
+          title="Cast Your Vote"
+          aria-controls="step-1"
+          aria-label="Go to step 1: Cast Your Vote"
+        >
           <span class="poc-dot-inner" id="dot-1">1</span>
           <span class="poc-dot-label">Vote</span>
         </button>
-        <button class="poc-progress-dot" data-progress-step="2" title="Verify Your Receipt">
+        <button
+          type="button"
+          class="poc-progress-dot"
+          data-progress-step="2"
+          title="Verify Your Receipt"
+          aria-controls="step-2"
+          aria-label="Go to step 2: Verify Your Receipt"
+        >
           <span class="poc-dot-inner" id="dot-2">2</span>
           <span class="poc-dot-label">Verify</span>
         </button>
-        <button class="poc-progress-dot" data-progress-step="3" title="Watch the Count">
+        <button
+          type="button"
+          class="poc-progress-dot"
+          data-progress-step="3"
+          title="Watch the Count"
+          aria-controls="step-3"
+          aria-label="Go to step 3: Watch the Count"
+        >
           <span class="poc-dot-inner" id="dot-3">3</span>
           <span class="poc-dot-label">Tally</span>
         </button>
@@ -135,15 +206,8 @@ import Icon from '../../../components/ui/Icon.astro';
                 <p><strong>5. Optional challenge</strong> &mdash; Before committing, you can "challenge" the machine (Benaloh-style) &mdash; it must prove it sealed your real choice. This is auditable without breaking vote secrecy.</p>
               </div>
             </details>
-            <div id="cta-1">
-              <a
-                href="/votechain/poc/vote"
-                data-poc-module
-                class="journey-cta-primary"
-              >
-                Begin Voting
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </a>
+            <div id="cta-1" class="journey-cta-hint">
+              <p>Launch the voting client from the primary button above &mdash; it opens in a modal, so this walkthrough never disappears.</p>
             </div>
           </div>
         </div>
@@ -189,12 +253,18 @@ import Icon from '../../../components/ui/Icon.astro';
               </div>
             </details>
             <div id="cta-2">
-              <a
-                href="/votechain/poc/verify"
-                data-poc-module
-                class="journey-cta-secondary"
-              >
-                Verify Receipt
+            <a
+              href="/votechain/poc/verify"
+              data-poc-module
+              data-open-client-modal
+              data-client-key="verify"
+              data-client-title="Receipt Verification"
+              data-client-path="/votechain/poc/verify"
+              class="journey-cta-secondary"
+              aria-haspopup="dialog"
+              aria-controls="poc-voting-client-modal"
+            >
+                Open Receipt Verification
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </a>
             </div>
@@ -250,12 +320,18 @@ import Icon from '../../../components/ui/Icon.astro';
               </div>
             </details>
             <div id="cta-3">
-              <a
-                href="/votechain/poc/dashboard"
-                data-poc-module
-                class="journey-cta-secondary"
-              >
-                Open Dashboard
+            <a
+              href="/votechain/poc/dashboard"
+              data-poc-module
+              data-open-client-modal
+              data-client-key="dashboard"
+              data-client-title="Reveal & Tally"
+              data-client-path="/votechain/poc/dashboard"
+              class="journey-cta-secondary"
+              aria-haspopup="dialog"
+              aria-controls="poc-voting-client-modal"
+            >
+                Open Reveal + Tally
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </a>
             </div>
@@ -266,59 +342,50 @@ import Icon from '../../../components/ui/Icon.astro';
     </div><!-- /timeline -->
   </div>
 
-  <!-- ===== GO DEEPER ===== -->
+  <!-- ===== HARNESS SNAPSHOT ===== -->
   <div class="max-w-3xl mx-auto px-4 pb-8">
-    <div class="flex items-center gap-2 mb-5 mt-2">
-      <div class="h-px flex-1 bg-navy-200"></div>
-      <span class="text-xs font-mono uppercase tracking-widest text-navy-400 whitespace-nowrap">Go Deeper</span>
-      <div class="h-px flex-1 bg-navy-200"></div>
-    </div>
-
-    <p class="text-navy-500 text-sm text-center mb-5 max-w-lg mx-auto">
-      Inspect the infrastructure from every angle.
-    </p>
-
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-      <a
-        href="/votechain/poc/trust"
-        data-poc-module
-        class="deeper-card group"
-      >
-        <div class="deeper-card-icon group-hover:bg-gold-100">
-          <Icon name="key" class="text-gold-600" size={18} />
-        </div>
-        <h4 class="font-serif text-sm font-bold text-navy-900 mb-1">Trust Portal</h4>
-        <p class="text-navy-500 text-xs leading-relaxed">
-          Inspect every public key. Verify signatures independently.
-        </p>
-      </a>
-      <a
-        href="/votechain/poc/monitor"
-        data-poc-module
-        class="deeper-card group"
-      >
-        <div class="deeper-card-icon group-hover:bg-gold-100">
-          <Icon name="activity" class="text-gold-600" size={18} />
-        </div>
-        <h4 class="font-serif text-sm font-bold text-navy-900 mb-1">Node Monitor</h4>
-        <p class="text-navy-500 text-xs leading-relaxed">
-          3 distributed ledger nodes. Real-time health &amp; consistency.
-        </p>
-      </a>
-      <a
-        href="/votechain/poc/lookup"
-        data-poc-module
-        class="deeper-card group"
-      >
-        <div class="deeper-card-icon group-hover:bg-gold-100">
-          <Icon name="search" class="text-gold-600" size={18} />
-        </div>
-        <h4 class="font-serif text-sm font-bold text-navy-900 mb-1">Ballot Lookup</h4>
-        <p class="text-navy-500 text-xs leading-relaxed">
-          Search the bulletin board by nullifier or leaf hash.
-        </p>
-      </a>
-    </div>
+    <section class="harness-summary-card">
+      <p class="harness-summary-eyebrow">One harness, zero context switching</p>
+      <h3 class="harness-summary-title">Cast, verify, monitor, and tally without leaving the modal shell.</h3>
+      <p class="harness-summary-lede">
+        The client pills in the harness bar above launch every role in-place. Use the guided journey to
+        tell the story, then pivot to the operator you need without duplicating launchers or navigating away.
+      </p>
+      <div class="harness-summary-grid">
+        <article class="harness-summary-item">
+          <p class="harness-summary-tag">Before Voting</p>
+          <h4>Admin + Same-Day Registration</h4>
+          <p>
+            Configure the mock election, manage scopes, and issue credentials. Demo intake by opening the Admin or
+            Same-Day Reg clients from the harness pills.
+          </p>
+        </article>
+        <article class="harness-summary-item">
+          <p class="harness-summary-tag">During Voting</p>
+          <h4>Board Audit + Lookup</h4>
+          <p>
+            Surface the inclusion proofs and public bulletin board without resetting the walkthrough.
+            The Lookup client stays one click away.
+          </p>
+        </article>
+        <article class="harness-summary-item">
+          <p class="harness-summary-tag">Post-Close</p>
+          <h4>Reveal + Tally</h4>
+          <p>
+            Jump straight into the tally dashboard once Step 3 is unlocked. The same modal frame renders the results
+            so your audience never sees a jarring navigation.
+          </p>
+        </article>
+        <article class="harness-summary-item">
+          <p class="harness-summary-tag">Oversight</p>
+          <h4>Monitor + Trust Portal</h4>
+          <p>
+            Show ledgers, fraud alerts, and cryptographic attestations from the monitor and trust clients while the main
+            journey remains visible underneath.
+          </p>
+        </article>
+      </div>
+    </section>
 
     <!-- How it works -->
     <details class="rounded-lg border border-gold-200 bg-cream-50 mb-6 group">
@@ -343,34 +410,35 @@ import Icon from '../../../components/ui/Icon.astro';
     </details>
 
     <!-- Session controls -->
-    <div class="flex flex-wrap justify-center gap-3">
-      <a
-        href="/votechain/poc/setup"
-        class="inline-flex items-center gap-2 rounded-md bg-gold-500 px-4 py-2 text-navy-900 font-sans text-sm font-semibold hover:bg-gold-400 transition-colors"
-        title="Configure a new election bundle with arbitrary scopes"
-      >
-        <Icon name="file-plus" class="text-navy-900" size={18} />
-        Election Setup
-      </a>
-      <button
-        id="poc-new-voter"
-        class="inline-flex items-center gap-2 rounded-md bg-navy-700 px-4 py-2 text-white font-sans text-sm font-semibold hover:bg-navy-800 transition-colors"
-        type="button"
-        title="Clear your credential and vote again — the election stays intact"
-      >
-        <Icon name="user-plus" class="text-white" size={18} />
-        New Voter Session
-      </button>
-      <button
-        id="poc-reset"
-        class="inline-flex items-center gap-2 rounded-md border border-red-300 px-4 py-2 text-red-600 font-sans text-sm font-semibold hover:bg-red-50 transition-colors"
-        type="button"
-        title="Destroy the entire election and regenerate all keys"
-      >
-        <Icon name="x" class="text-red-500" size={18} />
-        Reset Election
-      </button>
-    </div>
+    <section class="session-controls-panel" aria-labelledby="session-controls-title">
+      <div>
+        <p class="session-controls-eyebrow" id="session-controls-title">Session Controls</p>
+        <p class="session-controls-copy">
+          Reset just your kiosk voter or obliterate the entire election state. These are intentionally isolated
+          so the primary CTA remains focused on casting.
+        </p>
+      </div>
+      <div class="session-controls-actions">
+        <button
+          id="poc-new-voter"
+          class="inline-flex items-center gap-2 rounded-md bg-navy-700 px-4 py-2 text-white font-sans text-sm font-semibold hover:bg-navy-800 transition-colors"
+          type="button"
+          title="Clear your credential and vote again — the election stays intact"
+        >
+          <Icon name="user-plus" class="text-white" size={18} />
+          New Voter Session
+        </button>
+        <button
+          id="poc-reset"
+          class="inline-flex items-center gap-2 rounded-md border border-red-300 px-4 py-2 text-red-600 font-sans text-sm font-semibold hover:bg-red-50 transition-colors"
+          type="button"
+          title="Destroy the entire election and regenerate all keys"
+        >
+          <Icon name="x" class="text-red-500" size={18} />
+          Reset Election State
+        </button>
+      </div>
+    </section>
 
     <!-- Mini stats footer -->
     <div id="poc-stats" class="hidden mt-6 flex justify-center gap-6 text-xs text-navy-400 font-mono">
@@ -381,6 +449,156 @@ import Icon from '../../../components/ui/Icon.astro';
   </div>
 
   <style>
+    /* ===== Hero ===== */
+    .poc-hero-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 768px) {
+      .poc-hero-grid {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        align-items: stretch;
+      }
+    }
+
+    .poc-hero-copy {
+      background: white;
+      border: 1px solid var(--color-navy-100, #dfe9f4);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      box-shadow: 0 25px 65px rgba(15, 36, 57, 0.08);
+    }
+    .poc-hero-eyebrow {
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      font-family: var(--font-mono, monospace);
+      color: var(--color-gold-600, #b8860b);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .poc-hero-copy h1 {
+      font-family: var(--font-serif, 'Fraunces', serif);
+      font-size: clamp(2rem, 3vw, 2.75rem);
+      line-height: 1.1;
+      color: var(--color-navy-900, #0a1b2e);
+      margin-bottom: 0.75rem;
+    }
+    .poc-hero-copy p {
+      color: var(--color-navy-600, #4a6077);
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 42ch;
+    }
+    .poc-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.5rem 0 0.75rem;
+    }
+    .poc-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      border-radius: 999px;
+      padding: 0.85rem 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: var(--font-sans, 'Inter', sans-serif);
+      background: linear-gradient(135deg, #ffdd80, #f4c14b);
+      color: var(--color-navy-900, #0a1b2e);
+      box-shadow: 0 15px 35px rgba(175, 111, 0, 0.25);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .poc-hero-primary svg {
+      transition: transform 0.2s ease;
+    }
+    .poc-hero-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 40px rgba(175, 111, 0, 0.35);
+    }
+    .poc-hero-primary:hover svg {
+      transform: translateX(2px);
+    }
+    .poc-hero-primary[data-state="resume"],
+    .poc-hero-primary[data-state="reopen"] {
+      background: linear-gradient(135deg, #fde68a, #fbbf24);
+    }
+    .poc-hero-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(10, 27, 46, 0.15);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-navy-800, #102b46);
+      background: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .poc-hero-secondary:hover {
+      border-color: var(--color-gold-500, #c9a030);
+      color: var(--color-gold-700, #92400e);
+    }
+    .poc-hero-footnote {
+      font-size: 0.85rem;
+      color: var(--color-navy-400, #587695);
+    }
+
+    .poc-hero-panel {
+      border-radius: 1.25rem;
+      border: 1px solid rgba(10, 27, 46, 0.12);
+      background: linear-gradient(135deg, #101f33, #0d1523);
+      padding: 1.5rem;
+      color: #edf2ff;
+      box-shadow: 0 20px 60px rgba(8, 12, 20, 0.6);
+    }
+    .poc-hero-panel-eyebrow {
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .poc-hero-panel-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .poc-hero-panel-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .poc-hero-panel-list svg {
+      flex-shrink: 0;
+    }
+    .poc-hero-panel-note {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .journey-cta-hint {
+      font-size: 0.85rem;
+      color: var(--color-navy-600, #4a6077);
+      background: var(--color-cream-100, #fcf5e6);
+      border: 1px dashed var(--color-gold-200, #f6d894);
+      padding: 0.85rem 1rem;
+      border-radius: 0.75rem;
+      line-height: 1.5;
+    }
+
     /* ===== Turnstile Gate ===== */
     .poc-gate {
       border-radius: 0.75rem;
@@ -528,7 +746,7 @@ import Icon from '../../../components/ui/Icon.astro';
       font-size: 0.65rem;
       font-weight: 700;
       font-family: var(--font-mono, monospace);
-      color: var(--color-navy-400, #7b9ec2);
+      color: var(--color-navy-700, #1e3a5f);
       background: white;
       border: 2px solid var(--color-navy-200, #c5d5e5);
       transition: all 0.3s ease;
@@ -555,7 +773,7 @@ import Icon from '../../../components/ui/Icon.astro';
       font-family: var(--font-mono, monospace);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--color-navy-400, #7b9ec2);
+      color: var(--color-navy-700, #1e3a5f);
       transition: color 0.3s ease;
     }
 
@@ -672,7 +890,7 @@ import Icon from '../../../components/ui/Icon.astro';
       font-size: 0.75rem;
       font-weight: 700;
       font-family: var(--font-mono, monospace);
-      color: var(--color-navy-400, #7b9ec2);
+      color: var(--color-navy-700, #1e3a5f);
       background: white;
       border: 2px solid var(--color-navy-200, #c5d5e5);
       transition: all 0.4s ease;
@@ -764,13 +982,13 @@ import Icon from '../../../components/ui/Icon.astro';
     }
 
     .journey-badge--muted {
-      background: var(--color-navy-100, #e8eef5);
-      color: var(--color-navy-400, #7b9ec2);
+      background: var(--color-navy-50, #eef3fa);
+      color: var(--color-navy-800, #121f36);
     }
 
     .journey-badge--complete {
       background: #dcfce7;
-      color: #166534;
+      color: var(--color-green-700, #1a6b3a);
     }
 
     .journey-badge--active {
@@ -780,7 +998,7 @@ import Icon from '../../../components/ui/Icon.astro';
 
     .journey-time {
       font-size: 0.625rem;
-      color: var(--color-navy-400, #7b9ec2);
+      color: var(--color-navy-700, #1e3a5f);
       font-family: var(--font-mono, monospace);
     }
 
@@ -791,7 +1009,7 @@ import Icon from '../../../components/ui/Icon.astro';
       gap: 0.375rem;
       font-size: 0.75rem;
       font-weight: 600;
-      color: #16a34a;
+      color: var(--color-green-700, #1a6b3a);
       margin-bottom: 0.75rem;
       padding: 0.375rem 0.625rem;
       background: #f0fdf4;
@@ -891,33 +1109,101 @@ import Icon from '../../../components/ui/Icon.astro';
       content: '- ';
     }
 
-    /* ===== Go Deeper Cards ===== */
-    .deeper-card {
+    /* ===== Harness Snapshot ===== */
+    .harness-summary-card {
+      border: 1px solid var(--color-navy-200, #c5d5e5);
+      border-radius: 1.25rem;
+      background: white;
+      padding: 1.75rem;
+      box-shadow: 0 20px 60px rgba(10, 27, 46, 0.08);
+      margin-bottom: 2rem;
+    }
+    .harness-summary-eyebrow {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-family: var(--font-mono, monospace);
+      color: var(--color-gold-600, #b8860b);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .harness-summary-title {
+      font-family: var(--font-serif, 'Fraunces', serif);
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      color: var(--color-navy-900, #0a1b2e);
+      margin-bottom: 0.75rem;
+    }
+    .harness-summary-lede {
+      color: var(--color-navy-600, #4a6077);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 48ch;
+    }
+    .harness-summary-grid {
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.85rem;
+    }
+    .harness-summary-item {
+      border: 1px solid var(--color-navy-100, #dfe9f4);
+      border-radius: 0.85rem;
+      padding: 1rem;
+      background: var(--color-cream-50, #fdf8f0);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 1rem;
-      border-radius: 0.75rem;
+      gap: 0.35rem;
+      min-height: 100%;
+    }
+    .harness-summary-tag {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-family: var(--font-mono, monospace);
+      color: var(--color-navy-500, #4a6f8f);
+      letter-spacing: 0.15em;
+    }
+    .harness-summary-item h4 {
+      font-family: var(--font-serif, 'Fraunces', serif);
+      font-size: 1rem;
+      color: var(--color-navy-900, #0a1b2e);
+      margin: 0;
+    }
+    .harness-summary-item p {
+      margin: 0;
+      color: var(--color-navy-700, #1e3a5f);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* ===== Session Controls ===== */
+    .session-controls-panel {
       border: 1px solid var(--color-navy-200, #c5d5e5);
+      border-radius: 1rem;
       background: white;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-    .deeper-card:hover {
-      border-color: var(--color-gold-400, #c9a030);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-      transform: translateY(-2px);
-    }
-    .deeper-card-icon {
-      width: 2.5rem;
-      height: 2.5rem;
-      border-radius: 50%;
+      padding: 1.5rem;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--color-cream-100, #fdf5e6);
-      margin-bottom: 0.5rem;
-      transition: background 0.2s;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .session-controls-eyebrow {
+      font-size: 0.7rem;
+      font-family: var(--font-mono, monospace);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--color-navy-500, #4a6f8f);
+      margin-bottom: 0.35rem;
+    }
+    .session-controls-copy {
+      color: var(--color-navy-700, #1e3a5f);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 48ch;
+      margin: 0;
+    }
+    .session-controls-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
 
     /* ===== Dark mode ===== */
@@ -962,9 +1248,18 @@ import Icon from '../../../components/ui/Icon.astro';
     :global(html.dark) .journey-timeline::before {
       background: #3a5a7c;
     }
-    :global(html.dark) .deeper-card {
+    :global(html.dark) .harness-summary-card {
       background: #1a2f4a;
       border-color: #3a5a7c;
+      box-shadow: 0 20px 60px rgba(5, 12, 22, 0.65);
+    }
+    :global(html.dark) .harness-summary-item {
+      background: #152544;
+      border-color: #2a3f5d;
+    }
+    :global(html.dark) .session-controls-panel {
+      background: #152544;
+      border-color: #2a3f5d;
     }
     :global(html.dark) .poc-progress-track {
       background: #3a5a7c;
@@ -1009,6 +1304,9 @@ import Icon from '../../../components/ui/Icon.astro';
       .poc-banner-cta { align-self: center; }
     }
   </style>
+
+  <PocVotingClientModal />
+  </main>
 
   <script>
     import { resetPocState, invalidateCredential } from '../../../votechain-poc';
@@ -1073,6 +1371,8 @@ import Icon from '../../../components/ui/Icon.astro';
     // ===== State Detection =====
     const STORAGE_KEY = 'votechain_poc_state_v2';
     const RECEIPT_KEY = 'votechain_poc_last_receipt';
+    const heroLaunchBtn = document.getElementById('poc-launch-modal') as HTMLButtonElement | null;
+    const heroLaunchLabel = heroLaunchBtn?.querySelector('[data-hero-label]') as HTMLElement | null;
 
     function readPocState() {
       try {
@@ -1102,6 +1402,21 @@ import Icon from '../../../components/ui/Icon.astro';
       const timeline = document.getElementById('journey-timeline');
       const progressFill = document.getElementById('poc-progress-fill');
       const banner = document.getElementById('poc-complete-banner');
+      const badgeCompleteLabels: Record<number, string> = {
+        1: 'Ballot Cast',
+        2: 'Receipt Verified',
+        3: 'Results Published',
+      };
+      const badgeActiveLabels: Record<number, string> = {
+        1: 'Start Here',
+        2: 'Verify Your Receipt',
+        3: 'Watch the Count',
+      };
+      const badgeFutureLabels: Record<number, string> = {
+        1: 'Cast Your Vote',
+        2: 'Verify Receipt',
+        3: 'Publish Results',
+      };
 
       // Determine current step (0-indexed: 0 = haven't started, 1 = voted, 2 = verified, 3 = tallied)
       let completedSteps = 0;
@@ -1112,6 +1427,19 @@ import Icon from '../../../components/ui/Icon.astro';
       // Active step is the next uncompleted one
       const activeStep = Math.min(completedSteps + 1, 3);
       const allDone = completedSteps >= 3;
+
+      if (heroLaunchBtn && heroLaunchLabel) {
+        const heroState = allDone ? 'reopen'
+          : completedSteps >= 1 ? 'resume'
+          : 'start';
+        heroLaunchBtn.dataset.state = heroState;
+        const labelMap: Record<string, string> = {
+          start: 'Launch Voting Kiosk',
+          resume: 'Resume Voting Kiosk',
+          reopen: 'Reopen Voting Kiosk',
+        };
+        heroLaunchLabel.textContent = labelMap[heroState] ?? labelMap.start;
+      }
 
       // Timeline vertical progress
       if (timeline) {
@@ -1130,10 +1458,16 @@ import Icon from '../../../components/ui/Icon.astro';
       // Progress dots
       for (let i = 1; i <= 3; i++) {
         const dot = document.getElementById(`dot-${i}`);
+        const dotButton = document.querySelector<HTMLElement>(`.poc-progress-dot[data-progress-step="${i}"]`);
         if (!dot) continue;
         dot.classList.remove('active', 'complete');
+        dotButton?.removeAttribute('aria-current');
+
         if (i <= completedSteps) dot.classList.add('complete');
-        else if (i === activeStep) dot.classList.add('active');
+        else if (i === activeStep) {
+          dot.classList.add('active');
+          dotButton?.setAttribute('aria-current', 'step');
+        }
       }
 
       // Scroll to active step on click
@@ -1169,7 +1503,7 @@ import Icon from '../../../components/ui/Icon.astro';
           const svg = icon?.querySelector('svg');
           if (svg) { svg.classList.remove('text-gold-700'); svg.classList.add('text-white'); }
           if (badge) {
-            badge.textContent = i === 1 ? 'Done' : i === 2 ? 'Done' : 'Done';
+            badge.textContent = badgeCompleteLabels[i] ?? 'Done';
             badge.className = 'journey-badge journey-badge--complete';
           }
           if (status) status.classList.remove('hidden');
@@ -1187,11 +1521,10 @@ import Icon from '../../../components/ui/Icon.astro';
           // Current active step
           card.classList.add('active-card');
 	          marker?.classList.add('active');
-	          if (badge) {
-	            const labels: Record<number, string> = { 1: 'Start Here', 2: 'You\'re Here', 3: 'You\'re Here' };
-	            badge.textContent = labels[i];
-	            badge.className = 'journey-badge journey-badge--active';
-	          }
+          if (badge) {
+            badge.textContent = badgeActiveLabels[i] ?? 'In Progress';
+            badge.className = 'journey-badge journey-badge--active';
+          }
           icon?.classList.remove('journey-step-icon--muted');
           // Make icon SVG white on navy bg (matching step 1's default style)
           const svg = icon?.querySelector('svg');
@@ -1205,6 +1538,7 @@ import Icon from '../../../components/ui/Icon.astro';
           // Future locked step
           card.classList.add('locked-card');
           if (badge) {
+            badge.textContent = badgeFutureLabels[i] ?? badge.textContent;
             badge.className = 'journey-badge journey-badge--muted';
           }
         }
@@ -1440,6 +1774,17 @@ import Icon from '../../../components/ui/Icon.astro';
 	        if (window.turnstile && turnstileWidgetId !== null) window.turnstile.reset(turnstileWidgetId);
 	      }
 	    };
+
+    window.addEventListener('votechain:voting-client:lifecycle', () => {
+      updateJourneyUI();
+    });
+
+    window.addEventListener('storage', (event) => {
+      if (!event.key) return;
+      if (event.key === STORAGE_KEY || event.key === RECEIPT_KEY) {
+        updateJourneyUI();
+      }
+    });
 
     // ===== Init =====
     updateJourneyUI();

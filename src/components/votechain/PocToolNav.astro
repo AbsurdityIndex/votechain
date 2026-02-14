@@ -1,7 +1,7 @@
 ---
 /**
  * PocToolNav — compact sibling nav for the 3 "Go Deeper" POC tool pages.
- * Shows a back link to the POC hub + pills for Trust Portal, Node Monitor, Ballot Lookup.
+ * Shows a back link to the POC hub + pills for Trust Portal, Operations Monitor, Board Audit.
  *
  * Props:
  *   current: 'trust' | 'monitor' | 'lookup'
@@ -16,8 +16,8 @@ const { current } = Astro.props;
 
 const tools = [
   { id: 'trust', href: '/votechain/poc/trust', label: 'Trust Portal', icon: 'key' },
-  { id: 'monitor', href: '/votechain/poc/monitor', label: 'Node Monitor', icon: 'activity' },
-  { id: 'lookup', href: '/votechain/poc/lookup', label: 'Ballot Lookup', icon: 'search' },
+  { id: 'monitor', href: '/votechain/poc/monitor', label: 'Operations Monitor', icon: 'activity' },
+  { id: 'lookup', href: '/votechain/poc/lookup', label: 'Board Audit', icon: 'search' },
 ] as const;
 ---
 
